@@ -248,7 +248,7 @@ class _MobileRouteInfoState extends State<MobileRouteInfo> {
                                                         text: '$operating',
                                                         style: Theme.of(context)
                                                             .textTheme
-                                                            .headline4
+                                                            .displaySmall
                                                             ?.copyWith(
                                                               color:
                                                                   Colors.white,
@@ -263,7 +263,7 @@ class _MobileRouteInfoState extends State<MobileRouteInfo> {
                                                             "/${operating + not_operating}",
                                                         style: Theme.of(context)
                                                             .textTheme
-                                                            .headline4
+                                                            .displaySmall
                                                             ?.copyWith(
                                                               color:
                                                                   Colors.white,
@@ -277,7 +277,7 @@ class _MobileRouteInfoState extends State<MobileRouteInfo> {
                                                         text: '\noperating',
                                                         style: Theme.of(context)
                                                             .textTheme
-                                                            .headline4
+                                                            .displaySmall
                                                             ?.copyWith(
                                                               color:
                                                                   Colors.white,

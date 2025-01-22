@@ -279,7 +279,7 @@ class _DesktopRouteInfoState extends State<DesktopRouteInfo> {
                                   text: '$operating',
                                   style: Theme.of(context)
                                       .textTheme
-                                      .headline4
+                                      .displaySmall
                                       ?.copyWith(
                                         color: Colors.white,
                                         fontWeight: FontWeight.w600,
@@ -290,7 +290,7 @@ class _DesktopRouteInfoState extends State<DesktopRouteInfo> {
                                   text: "/${operating + not_operating}",
                                   style: Theme.of(context)
                                       .textTheme
-                                      .headline4
+                                      .displaySmall
                                       ?.copyWith(
                                         color: Colors.white,
                                         fontWeight: FontWeight.w800,
@@ -301,7 +301,7 @@ class _DesktopRouteInfoState extends State<DesktopRouteInfo> {
                                   text: '\noperating',
                                   style: Theme.of(context)
                                       .textTheme
-                                      .headline4
+                                      .displaySmall
                                       ?.copyWith(
                                         color: Colors.white,
                                         fontWeight: FontWeight.w600,

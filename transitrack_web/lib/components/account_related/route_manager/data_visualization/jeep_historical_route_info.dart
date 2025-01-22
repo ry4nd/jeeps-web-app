@@ -119,7 +119,7 @@ class _JeepHistoricalRouteInfoState extends State<JeepHistoricalRouteInfo> {
                                   text: widget.operatingJeeps.toString(),
                                   style: Theme.of(context)
                                       .textTheme
-                                      .headline4
+                                      .displaySmall
                                       ?.copyWith(
                                         color: Colors.white,
                                         fontWeight: FontWeight.w600,
@@ -130,7 +130,7 @@ class _JeepHistoricalRouteInfoState extends State<JeepHistoricalRouteInfo> {
                                   text: "/${widget.totalJeeps}",
                                   style: Theme.of(context)
                                       .textTheme
-                                      .headline4
+                                      .displaySmall
                                       ?.copyWith(
                                         color: Colors.white,
                                         fontWeight: FontWeight.w800,
@@ -141,7 +141,7 @@ class _JeepHistoricalRouteInfoState extends State<JeepHistoricalRouteInfo> {
                                   text: '\noperating',
                                   style: Theme.of(context)
                                       .textTheme
-                                      .headline4
+                                      .displaySmall
                                       ?.copyWith(
                                         color: Colors.white,
                                         fontWeight: FontWeight.w600,

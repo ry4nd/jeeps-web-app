@@ -85,7 +85,7 @@ class _FeedBackViewerState extends State<FeedBackViewer> {
                   children: [
                     TextSpan(
                       text: '${index + 1}',
-                      style: Theme.of(context).textTheme.headline4?.copyWith(
+                      style: Theme.of(context).textTheme.displaySmall?.copyWith(
                             color: Colors.white,
                             fontWeight: FontWeight.w600,
                             fontSize: 25,
@@ -93,7 +93,7 @@ class _FeedBackViewerState extends State<FeedBackViewer> {
                     ),
                     TextSpan(
                       text: "/${widget.feedbacks.length}",
-                      style: Theme.of(context).textTheme.headline4?.copyWith(
+                      style: Theme.of(context).textTheme.displaySmall?.copyWith(
                             color: Colors.white.withOpacity(0.75),
                             fontWeight: FontWeight.w800,
                             fontSize: 16,
