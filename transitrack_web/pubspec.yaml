@@ -38,7 +38,9 @@ dependencies:
   firebase_core: ^3.10.1
   flutter_svg: ^2.0.5
   cloud_firestore: ^5.6.2
-  mapbox_gl: ^0.16.0
+  mapbox_gl:
+    git:
+      url: https://github.com/flutter-mapbox-gl/maps
   google_fonts: ^6.2.1
   fl_chart: ^0.70.2
   flutter_switch: ^0.3.2
