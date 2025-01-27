@@ -36,13 +36,12 @@ class MapWidget extends StatefulWidget {
   final ValueChanged<LatLng> foundDeviceLocation;
   final ValueChanged<bool> mapLoaded;
   const MapWidget(
-      {Key? key,
+      {super.key,
       required this.route,
       required this.jeeps,
       required this.currentUserFirestore,
       required this.foundDeviceLocation,
-      required this.mapLoaded})
-      : super(key: key);
+      required this.mapLoaded});
 
   @override
   State<MapWidget> createState() => _MapWidgetState();

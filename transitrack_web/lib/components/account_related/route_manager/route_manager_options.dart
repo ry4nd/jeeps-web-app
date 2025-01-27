@@ -16,7 +16,7 @@ class RouteManagerOptions extends StatefulWidget {
   final List<JeepsAndDrivers> jeeps;
   final ValueChanged<int> coordConfig;
   final ValueChanged<JeepsAndDrivers> pressedJeep;
-  RouteManagerOptions(
+  const RouteManagerOptions(
       {super.key,
       required this.route,
       required this.jeeps,

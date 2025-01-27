@@ -10,12 +10,11 @@ class CooldownButton extends StatefulWidget {
   final String alert;
 
   const CooldownButton(
-      {Key? key,
+      {super.key,
       required this.child,
       required this.onPressed,
       required this.verified,
-      required this.alert})
-      : super(key: key);
+      required this.alert});
 
   @override
   _CooldownButtonState createState() => _CooldownButtonState();

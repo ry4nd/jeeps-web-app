@@ -53,12 +53,12 @@ class RouteData {
   }
 
   static Future<void> updateRouteFirestore(
-      int route_id, Map<String, dynamic> dataToUpdate) async {
+      int routeId, Map<String, dynamic> dataToUpdate) async {
     try {
       CollectionReference accountsCollection =
           FirebaseFirestore.instance.collection('routes');
       QuerySnapshot querySnapshot =
-          await accountsCollection.where('route_id', isEqualTo: route_id).get();
+          await accountsCollection.where('route_id', isEqualTo: routeId).get();
 
       if (querySnapshot.docs.isNotEmpty) {
         String docId = querySnapshot.docs.first.id;

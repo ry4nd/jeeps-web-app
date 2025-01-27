@@ -13,7 +13,7 @@ class RouteList extends StatefulWidget {
   final AccountData? user;
   final ValueChanged<int> newRouteChoice;
   final Function() hoverToggle;
-  RouteList(
+  const RouteList(
       {super.key,
       required this.routeChoice,
       required this.routes,

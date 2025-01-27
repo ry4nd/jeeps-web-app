@@ -3,11 +3,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'package:transitrack_web/components/icon_button_big.dart';
-import 'package:transitrack_web/components/right_panel/feedback_tab.dart';
 import 'package:transitrack_web/components/right_panel/feedback_viewer.dart';
 import 'package:transitrack_web/components/right_panel/report_form.dart';
 import 'package:transitrack_web/models/feedback_model.dart';
-import 'package:transitrack_web/style/style.dart';
 
 import '../../models/account_model.dart';
 import '../../models/jeep_model.dart';

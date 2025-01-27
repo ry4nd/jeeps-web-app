@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
 
-import 'package:mapbox_gl/mapbox_gl.dart';
 
 import '../../../models/route_model.dart';
 import '../../../style/constants.dart';
-import '../../button.dart';
 
 // This widget allows the route manager to edit the route coordinates
 
 class CoordinatesSettings extends StatefulWidget {
   final RouteData route;
   final ValueChanged<int> coordConfig;
-  CoordinatesSettings(
+  const CoordinatesSettings(
       {super.key, required this.route, required this.coordConfig});
 
   @override

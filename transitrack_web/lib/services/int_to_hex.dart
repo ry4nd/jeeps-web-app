@@ -6,7 +6,7 @@ String intToHexColor(int colorValue) {
   hexColor = hexColor.substring(2, 8);
   // Pad the hex color value with zeros if necessary
   while (hexColor.length < 6) {
-    hexColor = '0' + hexColor;
+    hexColor = '0$hexColor';
   }
-  return '#' + hexColor;
+  return '#$hexColor';
 }

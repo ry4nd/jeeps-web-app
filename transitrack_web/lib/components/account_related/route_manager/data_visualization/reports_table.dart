@@ -102,9 +102,9 @@ class _ReportsTableState extends State<ReportsTable> {
                 children: [
                   SearchBar(
                     controller: searchController,
-                    overlayColor: MaterialStateProperty.all(
+                    overlayColor: WidgetStateProperty.all(
                         Colors.white.withOpacity(0.2)),
-                    elevation: MaterialStateProperty.all(0.0),
+                    elevation: WidgetStateProperty.all(0.0),
                     onChanged: (String value) {
                       setState(() {
                         searchString = value;
@@ -112,10 +112,10 @@ class _ReportsTableState extends State<ReportsTable> {
                       select(-1, null);
                     },
                     hintText: 'Search report message',
-                    hintStyle: MaterialStateProperty.all(
+                    hintStyle: WidgetStateProperty.all(
                         TextStyle(color: Color(widget.route.routeColor))),
                     leading: const Icon(Icons.search),
-                    shape: MaterialStateProperty.all(
+                    shape: WidgetStateProperty.all(
                         const ContinuousRectangleBorder(
                       borderRadius: BorderRadius.zero,
                     )),

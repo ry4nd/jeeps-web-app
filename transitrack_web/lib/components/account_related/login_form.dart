@@ -1,7 +1,6 @@
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:transitrack_web/components/account_related/forgot_password.dart';
 import 'package:transitrack_web/style/style.dart';
 

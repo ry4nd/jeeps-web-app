@@ -1,9 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:transitrack_web/components/account_related/route_manager/data_visualization/selected_jeep_info_historical.dart';
-import 'package:transitrack_web/components/right_panel/selected_jeep_info.dart';
 import 'package:transitrack_web/components/select_jeep_prompt.dart';
-import 'package:transitrack_web/models/account_model.dart';
 import 'package:transitrack_web/models/jeep_model.dart';
 import 'package:transitrack_web/models/route_model.dart';
 import 'package:transitrack_web/style/constants.dart';

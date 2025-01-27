@@ -11,7 +11,7 @@ class RouteListTile extends StatefulWidget {
   final Function() hoverToggle;
   final bool show_discounted;
 
-  RouteListTile(
+  const RouteListTile(
       {super.key,
       required this.route,
       required this.isSelected,
