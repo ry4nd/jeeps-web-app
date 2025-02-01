@@ -118,7 +118,7 @@ class _RouteListState extends State<RouteList> {
               Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
             const Row(
               children: [
-                Text("Show discounted fare"),
+                Text("Discounted fare"),
                 IconButton(
                     visualDensity: VisualDensity.compact,
                     onPressed: null,
