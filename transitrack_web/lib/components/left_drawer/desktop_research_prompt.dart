@@ -20,7 +20,7 @@ class _DesktopResearchPromptState extends State<DesktopResearchPrompt> {
         if (!openPrompt)
           Shimmer.fromColors(
             baseColor: Colors.transparent,
-            highlightColor: Colors.white.withOpacity(0.5),
+            highlightColor: Colors.white.withValues(alpha: 0.5),
             period: const Duration(seconds: 5),
             child: Container(
               width: double.maxFinite,

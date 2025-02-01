@@ -94,7 +94,7 @@ class _FeedBackViewerState extends State<FeedBackViewer> {
                     TextSpan(
                       text: "/${widget.feedbacks.length}",
                       style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                            color: Colors.white.withOpacity(0.75),
+                            color: Colors.white.withValues(alpha: 0.75),
                             fontWeight: FontWeight.w800,
                             fontSize: 16,
                           ),

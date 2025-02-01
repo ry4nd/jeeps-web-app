@@ -112,7 +112,7 @@ class _ManageDriversTableState extends State<ManageDriversTable> {
                   SearchBar(
                     controller: searchController,
                     overlayColor: WidgetStateProperty.all(
-                        Colors.white.withOpacity(0.2)),
+                        Colors.white.withValues(alpha: 0.2)),
                     elevation: WidgetStateProperty.all(0.0),
                     onChanged: (String value) {
                       setState(() {
@@ -124,8 +124,8 @@ class _ManageDriversTableState extends State<ManageDriversTable> {
                     hintStyle: WidgetStateProperty.all(
                         TextStyle(color: Color(widget.route.routeColor))),
                     leading: const Icon(Icons.search),
-                    shape: WidgetStateProperty.all(
-                        const ContinuousRectangleBorder(
+                    shape:
+                        WidgetStateProperty.all(const ContinuousRectangleBorder(
                       borderRadius: BorderRadius.zero,
                     )),
                     trailing: <Widget>[
@@ -217,10 +217,10 @@ class _ManageDriversTableState extends State<ManageDriversTable> {
                                 selectedColor: Colors.white,
                                 selectedTileColor:
                                     Color(widget.route.routeColor)
-                                        .withOpacity(0.1),
-                                hoverColor: Colors.white.withOpacity(0.2),
+                                        .withValues(alpha: 0.1),
+                                hoverColor: Colors.white.withValues(alpha: 0.2),
                                 subtitleTextStyle: TextStyle(
-                                    color: Colors.grey.withOpacity(0.75),
+                                    color: Colors.grey.withValues(alpha: 0.75),
                                     fontStyle: FontStyle.italic,
                                     fontSize: 12),
                                 leading: Padding(

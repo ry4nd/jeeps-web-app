@@ -26,8 +26,8 @@ class IconButtonBig extends StatelessWidget {
                 width: inverted ? 2.0 : 0.0,
                 style: BorderStyle.solid)),
             overlayColor: WidgetStateProperty.all<Color>(!inverted
-                ? Constants.bgColor.withOpacity(0.3)
-                : Colors.white.withOpacity(0.3)),
+                ? Constants.bgColor.withValues(alpha: 0.3)
+                : Colors.white.withValues(alpha: 0.3)),
             backgroundColor: WidgetStateProperty.all<Color>(
                 inverted ? Colors.transparent : color),
             shape: WidgetStateProperty.all<RoundedRectangleBorder>(

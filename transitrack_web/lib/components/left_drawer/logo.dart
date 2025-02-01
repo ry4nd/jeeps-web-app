@@ -13,7 +13,7 @@ class Logo extends StatelessWidget {
         Image.asset('assets/logo.png', scale: 1),
         Shimmer.fromColors(
           baseColor: Colors.transparent,
-          highlightColor: Colors.white.withOpacity(0.5),
+          highlightColor: Colors.white.withValues(alpha: 0.5),
           period: const Duration(seconds: 5),
           child: Image.asset('assets/logo.png', scale: 1),
         ),

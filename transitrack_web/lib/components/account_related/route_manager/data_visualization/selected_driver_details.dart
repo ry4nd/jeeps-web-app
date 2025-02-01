@@ -58,7 +58,8 @@ class _SelectedDriverDetailsState extends State<SelectedDriverDetails> {
         width: 600,
         padding: const EdgeInsets.all(Constants.defaultPadding * 2),
         decoration: BoxDecoration(
-            border: Border.all(width: 2, color: Colors.white.withOpacity(0.5)),
+            border: Border.all(
+                width: 2, color: Colors.white.withValues(alpha: 0.5)),
             borderRadius: BorderRadius.circular(Constants.defaultPadding / 2)),
         child: FutureBuilder(
             future: getAddress(
@@ -155,15 +156,16 @@ class _SelectedDriverDetailsState extends State<SelectedDriverDetails> {
                                 Text('<${widget.driver.account_email}>',
                                     style: TextStyle(
                                         fontSize: 11,
-                                        color: Colors.white.withOpacity(0.5))),
+                                        color: Colors.white
+                                            .withValues(alpha: 0.5))),
                                 if (jeep.address != null)
                                   Text(jeep.address!,
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                       style: TextStyle(
                                           fontSize: 11,
-                                          color:
-                                              Colors.white.withOpacity(0.5))),
+                                          color: Colors.white
+                                              .withValues(alpha: 0.5))),
                               ],
                             ),
                           ],

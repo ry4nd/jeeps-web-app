@@ -254,7 +254,7 @@ class _DesktopRouteInfoState extends State<DesktopRouteInfo> {
                             ),
                             PieChartSectionData(
                               color: Color(widget.route.routeColor)
-                                  .withOpacity(0.1),
+                                  .withValues(alpha: 0.1),
                               value: not_operating.toDouble(),
                               showTitle: false,
                               radius: 20,

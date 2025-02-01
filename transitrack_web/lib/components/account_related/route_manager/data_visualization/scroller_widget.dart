@@ -58,7 +58,7 @@ class _ScrollerWidgetState extends State<ScrollerWidget> {
               Timestamp.fromMillisecondsSinceEpoch(widget.latest))
           : widget.divisions,
       activeColor: Color(widget.routeData.routeColor),
-      inactiveColor: Color(widget.routeData.routeColor).withOpacity(0.2),
+      inactiveColor: Color(widget.routeData.routeColor).withValues(alpha: 0.2),
       onChanged: (RangeValues values) {
         setState(() {
           if (values.start.toInt() < values.end.toInt()) {

@@ -89,7 +89,7 @@ class _JeepHistoricalRouteInfoState extends State<JeepHistoricalRouteInfo> {
                             ),
                             PieChartSectionData(
                               color: Color(widget.routeData.routeColor)
-                                  .withOpacity(0.1),
+                                  .withValues(alpha: 0.1),
                               value: widget.totalJeeps -
                                   widget.operatingJeeps.toDouble(),
                               showTitle: false,

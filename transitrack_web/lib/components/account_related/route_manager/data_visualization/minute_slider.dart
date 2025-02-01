@@ -37,9 +37,10 @@ class _SecondSliderState extends State<SecondSlider> {
         min: 0,
         max: 3599,
         divisions: 3599.toInt(),
-        activeColor: Color(widget.routeData.routeColor).withOpacity(0.25),
+        activeColor: Color(widget.routeData.routeColor).withValues(alpha: 0.25),
         thumbColor: Color(widget.routeData.routeColor),
-        inactiveColor: Color(widget.routeData.routeColor).withOpacity(0.25),
+        inactiveColor:
+            Color(widget.routeData.routeColor).withValues(alpha: 0.25),
         onChanged: (value) {
           setState(() {
             _second = value;

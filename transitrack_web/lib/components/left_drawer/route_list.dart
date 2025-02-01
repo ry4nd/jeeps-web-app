@@ -132,7 +132,7 @@ class _RouteListState extends State<RouteList> {
             ),
             Switch(
               activeColor: Colors.blue,
-              activeTrackColor: Colors.blue.withOpacity(0.5),
+              activeTrackColor: Colors.blue.withValues(alpha: 0.5),
               inactiveThumbColor: Colors.grey,
               value: show_discounted,
               onChanged: (value) {

@@ -84,7 +84,7 @@ class _FeedbacksTableState extends State<FeedbacksTable> {
                   SearchBar(
                     controller: searchController,
                     overlayColor: WidgetStateProperty.all(
-                        Colors.white.withOpacity(0.2)),
+                        Colors.white.withValues(alpha: 0.2)),
                     elevation: WidgetStateProperty.all(0.0),
                     onChanged: (String value) {
                       setState(() {
@@ -96,8 +96,8 @@ class _FeedbacksTableState extends State<FeedbacksTable> {
                     hintStyle: WidgetStateProperty.all(
                         TextStyle(color: Color(widget.route.routeColor))),
                     leading: const Icon(Icons.search),
-                    shape: WidgetStateProperty.all(
-                        const ContinuousRectangleBorder(
+                    shape:
+                        WidgetStateProperty.all(const ContinuousRectangleBorder(
                       borderRadius: BorderRadius.zero,
                     )),
                     trailing: <Widget>[
@@ -174,8 +174,8 @@ class _FeedbacksTableState extends State<FeedbacksTable> {
                               selected: index == selected,
                               selectedColor: Colors.white,
                               selectedTileColor: Color(widget.route.routeColor)
-                                  .withOpacity(0.1),
-                              hoverColor: Colors.white.withOpacity(0.2),
+                                  .withValues(alpha: 0.1),
+                              hoverColor: Colors.white.withValues(alpha: 0.2),
                               trailing: trailingWidget,
                               title: Text(
                                 '"${feedback.feedback_content}"',
@@ -268,7 +268,8 @@ class _FeedbacksTableState extends State<FeedbacksTable> {
                                                 style: TextStyle(
                                                     fontSize: 11,
                                                     color: Colors.white
-                                                        .withOpacity(0.5))),
+                                                        .withValues(
+                                                            alpha: 0.5))),
                                           ],
                                         ),
                                       ],
@@ -287,7 +288,7 @@ class _FeedbacksTableState extends State<FeedbacksTable> {
                                             style: TextStyle(
                                                 fontSize: 13,
                                                 color: Colors.white
-                                                    .withOpacity(0.5))),
+                                                    .withValues(alpha: 0.5))),
                                       ],
                                     )
                                   ],
@@ -301,8 +302,8 @@ class _FeedbacksTableState extends State<FeedbacksTable> {
                                     decoration: BoxDecoration(
                                         border: Border.all(
                                             width: 2,
-                                            color:
-                                                Colors.white.withOpacity(0.5)),
+                                            color: Colors.white
+                                                .withValues(alpha: 0.5)),
                                         borderRadius: BorderRadius.circular(
                                             Constants.defaultPadding / 2)),
                                     child: Column(

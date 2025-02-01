@@ -93,7 +93,8 @@ class _CalendarWidgetState extends State<CalendarWidget> {
             outsideBuilder: (context, day, focusedDay) => Center(
                   child: Text(
                     DateFormat('d').format(day),
-                    style: TextStyle(color: Colors.white.withOpacity(0.25)),
+                    style:
+                        TextStyle(color: Colors.white.withValues(alpha: 0.25)),
                   ),
                 ),
             disabledBuilder: (context, day, focusedDay) => Center(
@@ -108,7 +109,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
                     style: TextStyle(
                         color: day.weekday == DateTime.sunday ||
                                 day.weekday == DateTime.saturday
-                            ? Colors.white.withOpacity(0.5)
+                            ? Colors.white.withValues(alpha: 0.5)
                             : Colors.white),
                   ),
                 ),
@@ -118,7 +119,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
                     style: TextStyle(
                         color: day.weekday == DateTime.sunday ||
                                 day.weekday == DateTime.saturday
-                            ? Colors.white.withOpacity(0.5)
+                            ? Colors.white.withValues(alpha: 0.5)
                             : Colors.white),
                   ),
                 ))));

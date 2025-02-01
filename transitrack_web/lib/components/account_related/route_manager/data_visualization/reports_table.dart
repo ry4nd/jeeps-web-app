@@ -103,7 +103,7 @@ class _ReportsTableState extends State<ReportsTable> {
                   SearchBar(
                     controller: searchController,
                     overlayColor: WidgetStateProperty.all(
-                        Colors.white.withOpacity(0.2)),
+                        Colors.white.withValues(alpha: 0.2)),
                     elevation: WidgetStateProperty.all(0.0),
                     onChanged: (String value) {
                       setState(() {
@@ -115,8 +115,8 @@ class _ReportsTableState extends State<ReportsTable> {
                     hintStyle: WidgetStateProperty.all(
                         TextStyle(color: Color(widget.route.routeColor))),
                     leading: const Icon(Icons.search),
-                    shape: WidgetStateProperty.all(
-                        const ContinuousRectangleBorder(
+                    shape:
+                        WidgetStateProperty.all(const ContinuousRectangleBorder(
                       borderRadius: BorderRadius.zero,
                     )),
                     trailing: <Widget>[
@@ -189,8 +189,8 @@ class _ReportsTableState extends State<ReportsTable> {
                               selected: index == selected,
                               selectedColor: Colors.white,
                               selectedTileColor: Color(widget.route.routeColor)
-                                  .withOpacity(0.1),
-                              hoverColor: Colors.white.withOpacity(0.2),
+                                  .withValues(alpha: 0.1),
+                              hoverColor: Colors.white.withValues(alpha: 0.2),
                               trailing: Text(
                                 DateFormat('MMM d')
                                     .format(report.timestamp.toDate()),
@@ -289,7 +289,7 @@ class Legends extends StatelessWidget {
             (index) => legendWidget(
                 ReportData.reportDetails[index + 1].reportType,
                 ReportData.reportDetails[index + 1].reportColors
-                    .withOpacity(0.5))));
+                    .withValues(alpha: 0.5))));
   }
 }
 
@@ -344,13 +344,14 @@ class ReportContents extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                             fontSize: 13,
-                            color: Colors.white.withOpacity(0.5))),
+                            color: Colors.white.withValues(alpha: 0.5))),
                   const SizedBox(width: Constants.defaultPadding),
                   Text(
                       DateFormat('hh:mm a')
                           .format(reportData.timestamp.toDate()),
                       style: TextStyle(
-                          fontSize: 13, color: Colors.white.withOpacity(0.5))),
+                          fontSize: 13,
+                          color: Colors.white.withValues(alpha: 0.5))),
                 ],
               ),
               const SizedBox(height: Constants.defaultPadding / 2),
@@ -393,7 +394,7 @@ class ReportContents extends StatelessWidget {
                       Text("<${reportData.report_sender}>",
                           style: TextStyle(
                               fontSize: 13,
-                              color: Colors.white.withOpacity(0.5))),
+                              color: Colors.white.withValues(alpha: 0.5))),
                     ],
                   ),
                 ],
@@ -414,7 +415,7 @@ class ReportContents extends StatelessWidget {
                       Text("<${reportData.report_recepient}>",
                           style: TextStyle(
                               fontSize: 13,
-                              color: Colors.white.withOpacity(0.5))),
+                              color: Colors.white.withValues(alpha: 0.5))),
                     ],
                   ),
                 ],

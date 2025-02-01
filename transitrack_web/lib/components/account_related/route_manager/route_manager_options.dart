@@ -92,7 +92,8 @@ class _RouteManagerOptionsState extends State<RouteManagerOptions> {
                         decoration: BoxDecoration(
                           color: selected == 0
                               ? Color(widget.route.routeColor)
-                              : Color(widget.route.routeColor).withOpacity(0.6),
+                              : Color(widget.route.routeColor)
+                                  .withValues(alpha: 0.6),
                         ),
                         child: const Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -124,7 +125,8 @@ class _RouteManagerOptionsState extends State<RouteManagerOptions> {
                         decoration: BoxDecoration(
                           color: selected == 1
                               ? Color(widget.route.routeColor)
-                              : Color(widget.route.routeColor).withOpacity(0.5),
+                              : Color(widget.route.routeColor)
+                                  .withValues(alpha: 0.5),
                         ),
                         child: const Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -157,7 +159,8 @@ class _RouteManagerOptionsState extends State<RouteManagerOptions> {
                         decoration: BoxDecoration(
                           color: selected == 2
                               ? Color(widget.route.routeColor)
-                              : Color(widget.route.routeColor).withOpacity(0.4),
+                              : Color(widget.route.routeColor)
+                                  .withValues(alpha: 0.4),
                         ),
                         child: const Column(
                           mainAxisAlignment: MainAxisAlignment.center,
