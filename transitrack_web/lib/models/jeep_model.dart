@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import '../models/account_model.dart';
@@ -25,21 +27,21 @@ class JeepData {
   factory JeepData.fromSnapshot(QueryDocumentSnapshot<Object?> snapshot) {
     Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
 
-    String device_id = data['device_id'];
+    String deviceId = data['device_id'];
     Timestamp timestamp = data['timestamp'];
-    int passenger_count = data['passenger_count'];
-    int max_capacity = data['max_capacity'];
+    int passengerCount = data['passenger_count'];
+    int maxCapacity = data['max_capacity'];
     GeoPoint location = data['location'];
-    int route_id = data['route_id'];
+    int routeId = data['route_id'];
     double bearing = data['bearing'];
 
     return JeepData(
-        device_id: device_id,
+        device_id: deviceId,
         timestamp: timestamp,
-        passenger_count: passenger_count,
-        max_capacity: max_capacity,
+        passenger_count: passengerCount,
+        max_capacity: maxCapacity,
         location: location,
-        route_id: route_id,
+        route_id: routeId,
         bearing: bearing);
   }
 
@@ -141,7 +143,7 @@ Future<List<PerJeepHistoricalData>?> getJeepHistoricalData(
       .get();
 
   // Initialize a Set to store unique device IDs
-  Set<String> uniqueDeviceIds = Set();
+  Set<String> uniqueDeviceIds = {};
 
   List<JeepHistoricalData> entireJeepHistoricalData = querySnapshot.docs
       .map((e) => JeepHistoricalData.fromSnapshot(e))

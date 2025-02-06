@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names
+
 import 'package:flutter/material.dart';
 import '../../models/route_model.dart';
 import '../../services/format_time.dart';
@@ -11,7 +13,7 @@ class RouteListTile extends StatefulWidget {
   final Function() hoverToggle;
   final bool show_discounted;
 
-  RouteListTile(
+  const RouteListTile(
       {super.key,
       required this.route,
       required this.isSelected,

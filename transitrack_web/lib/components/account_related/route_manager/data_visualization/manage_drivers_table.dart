@@ -1,7 +1,6 @@
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'package:transitrack_web/components/account_related/route_manager/data_visualization/filters.dart';
 import 'package:transitrack_web/components/account_related/route_manager/data_visualization/selected_driver_details.dart';
@@ -11,7 +10,6 @@ import 'package:transitrack_web/models/feedback_model.dart';
 import 'package:transitrack_web/models/filter_model.dart';
 import 'package:transitrack_web/models/jeep_model.dart';
 import 'package:transitrack_web/models/route_model.dart';
-import 'package:transitrack_web/services/find_location.dart';
 import 'package:transitrack_web/style/constants.dart';
 
 // This is the Manage Driver tab of the data visualization panel of the route manager.
@@ -113,9 +111,9 @@ class _ManageDriversTableState extends State<ManageDriversTable> {
                 children: [
                   SearchBar(
                     controller: searchController,
-                    overlayColor: MaterialStateProperty.all(
-                        Colors.white.withOpacity(0.2)),
-                    elevation: MaterialStateProperty.all(0.0),
+                    overlayColor: WidgetStateProperty.all(
+                        Colors.white.withValues(alpha: 0.2)),
+                    elevation: WidgetStateProperty.all(0.0),
                     onChanged: (String value) {
                       setState(() {
                         searchString = value;
@@ -123,11 +121,11 @@ class _ManageDriversTableState extends State<ManageDriversTable> {
                       select(-1, null);
                     },
                     hintText: 'Search Account Name',
-                    hintStyle: MaterialStateProperty.all(
+                    hintStyle: WidgetStateProperty.all(
                         TextStyle(color: Color(widget.route.routeColor))),
                     leading: const Icon(Icons.search),
-                    shape: MaterialStateProperty.all(
-                        const ContinuousRectangleBorder(
+                    shape:
+                        WidgetStateProperty.all(const ContinuousRectangleBorder(
                       borderRadius: BorderRadius.zero,
                     )),
                     trailing: <Widget>[
@@ -219,10 +217,10 @@ class _ManageDriversTableState extends State<ManageDriversTable> {
                                 selectedColor: Colors.white,
                                 selectedTileColor:
                                     Color(widget.route.routeColor)
-                                        .withOpacity(0.1),
-                                hoverColor: Colors.white.withOpacity(0.2),
+                                        .withValues(alpha: 0.1),
+                                hoverColor: Colors.white.withValues(alpha: 0.2),
                                 subtitleTextStyle: TextStyle(
-                                    color: Colors.grey.withOpacity(0.75),
+                                    color: Colors.grey.withValues(alpha: 0.75),
                                     fontStyle: FontStyle.italic,
                                     fontSize: 12),
                                 leading: Padding(

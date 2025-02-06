@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:transitrack_web/components/left_drawer/route_list_tile.dart';
@@ -13,7 +15,7 @@ class RouteList extends StatefulWidget {
   final AccountData? user;
   final ValueChanged<int> newRouteChoice;
   final Function() hoverToggle;
-  RouteList(
+  const RouteList(
       {super.key,
       required this.routeChoice,
       required this.routes,
@@ -118,7 +120,7 @@ class _RouteListState extends State<RouteList> {
               Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
             const Row(
               children: [
-                Text("Show discounted fare"),
+                Text("Discounted fare"),
                 IconButton(
                     visualDensity: VisualDensity.compact,
                     onPressed: null,
@@ -130,7 +132,7 @@ class _RouteListState extends State<RouteList> {
             ),
             Switch(
               activeColor: Colors.blue,
-              activeTrackColor: Colors.blue.withOpacity(0.5),
+              activeTrackColor: Colors.blue.withValues(alpha: 0.5),
               inactiveThumbColor: Colors.grey,
               value: show_discounted,
               onChanged: (value) {

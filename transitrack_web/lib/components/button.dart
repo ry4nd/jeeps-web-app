@@ -14,10 +14,10 @@ class Button extends StatelessWidget {
   const Button(
       {super.key,
       required this.onTap,
-      this.text = null,
+      this.text,
       this.color = Colors.blue,
       this.isMobile = false,
-      this.widget = null});
+      this.widget});
 
   @override
   Widget build(BuildContext context) {

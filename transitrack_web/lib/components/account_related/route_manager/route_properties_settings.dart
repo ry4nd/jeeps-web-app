@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names
+
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
@@ -193,7 +195,7 @@ class _PropertiesSettingsState extends State<PropertiesSettings> {
                       const Text("Enable Route"),
                       Switch(
                         activeColor: selectedColor,
-                        activeTrackColor: selectedColor.withOpacity(0.5),
+                        activeTrackColor: selectedColor.withValues(alpha: 0.5),
                         inactiveThumbColor: selectedColor,
                         value: enabled,
                         onChanged: (value) {

@@ -81,7 +81,7 @@ class _VehiclesSettingsState extends State<VehiclesSettings> {
                       padding: const EdgeInsets.symmetric(
                           vertical: Constants.defaultPadding / 2),
                       color: hovered == index
-                          ? Colors.white.withOpacity(0.1)
+                          ? Colors.white.withValues(alpha: 0.1)
                           : Colors.transparent,
                       child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,

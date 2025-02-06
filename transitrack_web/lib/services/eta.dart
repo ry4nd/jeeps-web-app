@@ -9,38 +9,38 @@ import '../../services/format_seconds.dart';
 
 // This builds up the API call for Mapbox Directions API.
 
-Future<EtaData?> eta(List<LatLng> coords, bool is_clockwise, LatLng commuter,
+Future<EtaData?> eta(List<LatLng> coords, bool clockwise, LatLng commuter,
     LatLng jeep) async {
   List<LatLng> correctOrientation = coords;
   List<LatLng> reduced = [];
-  if (is_clockwise) {
+  if (clockwise) {
     if (!isClockwise(coords)) {
       correctOrientation = coords.reversed.toList();
     }
 
     // Find the nearest points in the route for the start and end
-    int index_commuter = findNearestLatLngIndex(commuter, correctOrientation);
-    int index_jeep = findNearestLatLngIndex(jeep, correctOrientation);
+    int indexCommuter = findNearestLatLngIndex(commuter, correctOrientation);
+    int indexJeep = findNearestLatLngIndex(jeep, correctOrientation);
 
-    if (index_commuter < index_jeep) {
-      reduced.addAll(correctOrientation.sublist(index_jeep));
-      reduced.addAll(correctOrientation.sublist(0, index_commuter + 1));
+    if (indexCommuter < indexJeep) {
+      reduced.addAll(correctOrientation.sublist(indexJeep));
+      reduced.addAll(correctOrientation.sublist(0, indexCommuter + 1));
     } else {
-      reduced = correctOrientation.sublist(index_jeep, index_commuter + 1);
+      reduced = correctOrientation.sublist(indexJeep, indexCommuter + 1);
     }
   } else {
     if (isClockwise(coords)) {
       correctOrientation = coords.reversed.toList();
     }
     // Find the nearest points in the route for the start and end
-    int index_commuter = findNearestLatLngIndex(commuter, correctOrientation);
-    int index_jeep = findNearestLatLngIndex(jeep, correctOrientation);
+    int indexCommuter = findNearestLatLngIndex(commuter, correctOrientation);
+    int indexJeep = findNearestLatLngIndex(jeep, correctOrientation);
 
-    if (index_commuter < index_jeep) {
-      reduced.addAll(correctOrientation.sublist(index_jeep));
-      reduced.addAll(correctOrientation.sublist(0, index_commuter + 1));
+    if (indexCommuter < indexJeep) {
+      reduced.addAll(correctOrientation.sublist(indexJeep));
+      reduced.addAll(correctOrientation.sublist(0, indexCommuter + 1));
     } else {
-      reduced = correctOrientation.sublist(index_jeep, index_commuter + 1);
+      reduced = correctOrientation.sublist(indexJeep, indexCommuter + 1);
     }
   }
 

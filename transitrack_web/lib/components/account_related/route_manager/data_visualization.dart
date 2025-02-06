@@ -102,7 +102,7 @@ class _DataVisualizationTabState extends State<DataVisualizationTab> {
                       selected: selected == index,
                       selectedColor: Constants.bgColor,
                       selectedTileColor: Color(widget.route.routeColor),
-                      hoverColor: Colors.white.withOpacity(0.2),
+                      hoverColor: Colors.white.withValues(alpha: 0.2),
                       subtitle: menuList[index].menuSubtitle != null
                           ? Text(menuList[index].menuSubtitle!)
                           : null,

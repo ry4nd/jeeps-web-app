@@ -44,13 +44,13 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyCTGZa2_9P7G2mq3EpUraE9WzUk1C-wcMg',
-    appId: '1:535222019003:web:1c2b2227cc2ff0d04b5a9e',
-    messagingSenderId: '535222019003',
-    projectId: 'transitrack-709f1',
-    authDomain: 'transitrack-709f1.firebaseapp.com',
-    storageBucket: 'transitrack-709f1.appspot.com',
-    measurementId: 'G-NVGW2FS7SS',
+    apiKey: "AIzaSyBxmFTSMvp6u23iSnRyT8djFzhTArt1tiI",
+    authDomain: "jeeps-bdf97.firebaseapp.com",
+    databaseURL: "https://jeeps-bdf97-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "jeeps-bdf97",
+    storageBucket: "jeeps-bdf97.firebasestorage.app",
+    messagingSenderId: "762363626819",
+    appId: "1:762363626819:web:d9fd7795007899528ddbf6",
   );
 
   static const FirebaseOptions android = FirebaseOptions(

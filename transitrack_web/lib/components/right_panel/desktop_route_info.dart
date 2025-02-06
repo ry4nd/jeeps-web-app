@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
@@ -252,7 +254,7 @@ class _DesktopRouteInfoState extends State<DesktopRouteInfo> {
                             ),
                             PieChartSectionData(
                               color: Color(widget.route.routeColor)
-                                  .withOpacity(0.1),
+                                  .withValues(alpha: 0.1),
                               value: not_operating.toDouble(),
                               showTitle: false,
                               radius: 20,
@@ -279,7 +281,7 @@ class _DesktopRouteInfoState extends State<DesktopRouteInfo> {
                                   text: '$operating',
                                   style: Theme.of(context)
                                       .textTheme
-                                      .headline4
+                                      .displaySmall
                                       ?.copyWith(
                                         color: Colors.white,
                                         fontWeight: FontWeight.w600,
@@ -290,7 +292,7 @@ class _DesktopRouteInfoState extends State<DesktopRouteInfo> {
                                   text: "/${operating + not_operating}",
                                   style: Theme.of(context)
                                       .textTheme
-                                      .headline4
+                                      .displaySmall
                                       ?.copyWith(
                                         color: Colors.white,
                                         fontWeight: FontWeight.w800,
@@ -301,7 +303,7 @@ class _DesktopRouteInfoState extends State<DesktopRouteInfo> {
                                   text: '\noperating',
                                   style: Theme.of(context)
                                       .textTheme
-                                      .headline4
+                                      .displaySmall
                                       ?.copyWith(
                                         color: Colors.white,
                                         fontWeight: FontWeight.w600,

@@ -21,16 +21,16 @@ class IconButtonBig extends StatelessWidget {
       child: SizedBox(
         child: IconButton(
           style: ButtonStyle(
-            side: MaterialStateProperty.all<BorderSide>(BorderSide(
+            side: WidgetStateProperty.all<BorderSide>(BorderSide(
                 color: color,
                 width: inverted ? 2.0 : 0.0,
                 style: BorderStyle.solid)),
-            overlayColor: MaterialStateProperty.all<Color>(!inverted
-                ? Constants.bgColor.withOpacity(0.3)
-                : Colors.white.withOpacity(0.3)),
-            backgroundColor: MaterialStateProperty.all<Color>(
+            overlayColor: WidgetStateProperty.all<Color>(!inverted
+                ? Constants.bgColor.withValues(alpha: 0.3)
+                : Colors.white.withValues(alpha: 0.3)),
+            backgroundColor: WidgetStateProperty.all<Color>(
                 inverted ? Colors.transparent : color),
-            shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+            shape: WidgetStateProperty.all<RoundedRectangleBorder>(
               RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10.0),
               ),

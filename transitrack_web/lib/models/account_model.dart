@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names, avoid_print
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
@@ -32,28 +34,28 @@ class AccountData {
       {bool isCommuterVerified = false}) {
     Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
 
-    String account_email = data['account_email'];
-    String account_name = data['account_name'];
-    int account_type = data['account_type'];
-    bool is_verified = data['is_verified'] as bool;
-    int route_id = data['route_id'];
-    String? jeep_driving = data['jeep_driving'] ?? null;
-    bool show_discounted = data['show_discounted'] ?? false;
-    String account_id = snapshot.id;
+    String accountEmail = data['account_email'];
+    String accountName = data['account_name'];
+    int accountType = data['account_type'];
+    bool isVerified = data['is_verified'] as bool;
+    int routeId = data['route_id'];
+    String? jeepDriving = data['jeep_driving'];
+    bool showDiscounted = data['show_discounted'] ?? false;
+    String accountId = snapshot.id;
 
-    if (account_type == 0) {
-      is_verified = isCommuterVerified;
+    if (accountType == 0) {
+      isVerified = isCommuterVerified;
     }
 
     return AccountData(
-        account_email: account_email,
-        account_name: account_name,
-        account_type: account_type,
-        is_verified: is_verified,
-        route_id: route_id,
-        jeep_driving: jeep_driving,
-        show_discounted: show_discounted,
-        account_id: account_id);
+        account_email: accountEmail,
+        account_name: accountName,
+        account_type: accountType,
+        is_verified: isVerified,
+        route_id: routeId,
+        jeep_driving: jeepDriving,
+        show_discounted: showDiscounted,
+        account_id: accountId);
   }
 
   static Future<AccountData?> getAccountByEmail(String email) async {
@@ -74,12 +76,12 @@ class AccountData {
     }
   }
 
-  static Future<AccountData?> getDriverAccountByJeep(String jeep_id) async {
+  static Future<AccountData?> getDriverAccountByJeep(String jeepId) async {
     try {
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
           .collection('accounts')
           .where('account_type', isEqualTo: 1)
-          .where('jeep_driving', isEqualTo: jeep_id)
+          .where('jeep_driving', isEqualTo: jeepId)
           .get();
 
       if (querySnapshot.docs.isNotEmpty) {

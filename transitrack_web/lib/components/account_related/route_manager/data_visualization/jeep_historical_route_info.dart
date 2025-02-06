@@ -1,9 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:transitrack_web/components/account_related/route_manager/data_visualization/selected_jeep_info_historical.dart';
-import 'package:transitrack_web/components/right_panel/selected_jeep_info.dart';
 import 'package:transitrack_web/components/select_jeep_prompt.dart';
-import 'package:transitrack_web/models/account_model.dart';
 import 'package:transitrack_web/models/jeep_model.dart';
 import 'package:transitrack_web/models/route_model.dart';
 import 'package:transitrack_web/style/constants.dart';
@@ -91,7 +89,7 @@ class _JeepHistoricalRouteInfoState extends State<JeepHistoricalRouteInfo> {
                             ),
                             PieChartSectionData(
                               color: Color(widget.routeData.routeColor)
-                                  .withOpacity(0.1),
+                                  .withValues(alpha: 0.1),
                               value: widget.totalJeeps -
                                   widget.operatingJeeps.toDouble(),
                               showTitle: false,
@@ -119,7 +117,7 @@ class _JeepHistoricalRouteInfoState extends State<JeepHistoricalRouteInfo> {
                                   text: widget.operatingJeeps.toString(),
                                   style: Theme.of(context)
                                       .textTheme
-                                      .headline4
+                                      .displaySmall
                                       ?.copyWith(
                                         color: Colors.white,
                                         fontWeight: FontWeight.w600,
@@ -130,7 +128,7 @@ class _JeepHistoricalRouteInfoState extends State<JeepHistoricalRouteInfo> {
                                   text: "/${widget.totalJeeps}",
                                   style: Theme.of(context)
                                       .textTheme
-                                      .headline4
+                                      .displaySmall
                                       ?.copyWith(
                                         color: Colors.white,
                                         fontWeight: FontWeight.w800,
@@ -141,7 +139,7 @@ class _JeepHistoricalRouteInfoState extends State<JeepHistoricalRouteInfo> {
                                   text: '\noperating',
                                   style: Theme.of(context)
                                       .textTheme
-                                      .headline4
+                                      .displaySmall
                                       ?.copyWith(
                                         color: Colors.white,
                                         fontWeight: FontWeight.w600,

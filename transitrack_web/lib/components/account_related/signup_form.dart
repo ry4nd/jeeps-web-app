@@ -6,7 +6,6 @@ import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'package:transitrack_web/models/route_model.dart';
 
 import '../../models/account_model.dart';
-import '../../services/auth_service.dart';
 import '../../style/constants.dart';
 import '../../style/style.dart';
 import '../button.dart';

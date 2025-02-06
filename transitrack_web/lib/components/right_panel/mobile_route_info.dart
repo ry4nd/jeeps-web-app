@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
@@ -215,7 +217,7 @@ class _MobileRouteInfoState extends State<MobileRouteInfo> {
                                                   PieChartSectionData(
                                                     color: Color(widget
                                                             .route.routeColor)
-                                                        .withOpacity(0.1),
+                                                        .withValues(alpha: 0.1),
                                                     value: not_operating
                                                         .toDouble(),
                                                     showTitle: false,
@@ -248,7 +250,7 @@ class _MobileRouteInfoState extends State<MobileRouteInfo> {
                                                         text: '$operating',
                                                         style: Theme.of(context)
                                                             .textTheme
-                                                            .headline4
+                                                            .displaySmall
                                                             ?.copyWith(
                                                               color:
                                                                   Colors.white,
@@ -263,7 +265,7 @@ class _MobileRouteInfoState extends State<MobileRouteInfo> {
                                                             "/${operating + not_operating}",
                                                         style: Theme.of(context)
                                                             .textTheme
-                                                            .headline4
+                                                            .displaySmall
                                                             ?.copyWith(
                                                               color:
                                                                   Colors.white,
@@ -277,7 +279,7 @@ class _MobileRouteInfoState extends State<MobileRouteInfo> {
                                                         text: '\noperating',
                                                         style: Theme.of(context)
                                                             .textTheme
-                                                            .headline4
+                                                            .displaySmall
                                                             ?.copyWith(
                                                               color:
                                                                   Colors.white,
