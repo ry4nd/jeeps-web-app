@@ -44,13 +44,13 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: "AIzaSyBxmFTSMvp6u23iSnRyT8djFzhTArt1tiI",
-    authDomain: "jeeps-bdf97.firebaseapp.com",
-    databaseURL: "https://jeeps-bdf97-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "jeeps-bdf97",
-    storageBucket: "jeeps-bdf97.firebasestorage.app",
-    messagingSenderId: "762363626819",
-    appId: "1:762363626819:web:d9fd7795007899528ddbf6",
+    apiKey: "AIzaSyASPs4AdslYcA87HLxbJKOr-E6rxnQdg9I",
+    authDomain: "jeeps-v2.firebaseapp.com",
+    databaseURL: "https://jeeps-v2-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "jeeps-v2",
+    storageBucket: "jeeps-v2.firebasestorage.app",
+    messagingSenderId: "1077171518191",
+    appId: "1:1077171518191:web:ab3c3380051c6718b7b91a",
   );
 
   static const FirebaseOptions android = FirebaseOptions(
