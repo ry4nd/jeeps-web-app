@@ -7,6 +7,7 @@ import '../../models/route_model.dart';
 import '../../style/constants.dart';
 import '../../style/style.dart';
 import '../button.dart';
+import '../attach_img_button.dart';
 import '../text_field.dart';
 
 // This widget is called when user selects the feedback button
@@ -211,11 +212,19 @@ class _FeedbackFormState extends State<FeedbackForm> {
           const Divider(color: Colors.white),
           const SizedBox(height: Constants.defaultPadding),
           InputTextField(
-              controller: feedBackController,
-              hintText: "Feedback",
-              obscureText: false,
-              lines: 4,
-              limit: 150),
+            controller: feedBackController,
+            hintText: "Feedback",
+            obscureText: false,
+            lines: 4,
+            limit: 150,
+            helperWidget: AttachmentButton(
+              onPressed: () {
+                // Add your image attachment logic here
+              },
+              label: "Attach Image",
+              icon: Icons.attach_file,
+            ),
+          ),
           const SizedBox(height: Constants.defaultPadding),
           Button(
             onTap: () => sendFeedback(),
