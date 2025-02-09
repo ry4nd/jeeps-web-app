@@ -1,5 +1,8 @@
+import 'dart:typed_data';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../models/account_model.dart';
 import '../../models/jeep_model.dart';
@@ -28,6 +31,7 @@ class _FeedbackFormState extends State<FeedbackForm> {
 
   int _drivingRating = 0;
   int _jeepRating = 0;
+  Uint8List? _image;
 
   void sendFeedback() async {
     // show loading circle
@@ -98,6 +102,13 @@ class _FeedbackFormState extends State<FeedbackForm> {
                 style: const TextStyle(color: Colors.white),
               )));
         });
+  }
+
+  void selectImage() async {
+    Uint8List img = await pickImage(ImageSource.gallery);
+    setState(() {
+      _image = img;
+    });
   }
 
   @override
@@ -218,14 +229,29 @@ class _FeedbackFormState extends State<FeedbackForm> {
             lines: 4,
             limit: 150,
             helperWidget: AttachmentButton(
-              onPressed: () {
-                // Add your image attachment logic here
-              },
+              onPressed: selectImage,
               label: "Attach Image",
-              icon: Icons.attach_file,
+              icon: Icons.add_a_photo,
             ),
           ),
           const SizedBox(height: Constants.defaultPadding),
+          if (_image != null)
+            Column(
+              children: [
+                const Text(
+                  "Selected Image:",
+                  style: TextStyle(color: Colors.white),
+                ),
+                const SizedBox(height: Constants.defaultPadding / 2),
+                IntrinsicHeight(
+                  child: Image.memory(
+                    _image!,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+                const SizedBox(height: Constants.defaultPadding),
+              ],
+            ),
           Button(
             onTap: () => sendFeedback(),
             text: _drivingRating + _jeepRating == 0

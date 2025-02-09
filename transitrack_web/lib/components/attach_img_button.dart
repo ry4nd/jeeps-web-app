@@ -1,4 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+
+pickImage(ImageSource source) async {
+  final ImagePicker _imagePicker = ImagePicker();
+  XFile? _file = await _imagePicker.pickImage(source: source);
+  if (_file != null) {
+    return await _file.readAsBytes();
+  }
+  print('No Image Selected');
+}
 
 class AttachmentButton extends StatelessWidget {
   final VoidCallback onPressed;
@@ -18,6 +28,7 @@ class AttachmentButton extends StatelessWidget {
     this.iconColor = Colors.white,
     this.textColor = Colors.white,
   });
+
   @override
   Widget build(BuildContext context) {
     return ElevatedButton.icon(
