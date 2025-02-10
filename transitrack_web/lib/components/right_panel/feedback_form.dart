@@ -46,6 +46,13 @@ class _FeedbackFormState extends State<FeedbackForm> {
       if (_drivingRating + _jeepRating > 0) {
         if (widget.user!.account_email != widget.jeep.driver!.account_email) {
           try {
+            String? imageUrl;
+            if (_image != null) {
+              imageUrl = await uploadImageToStorage(
+                  '${widget.user!.account_email}_${DateTime.now().millisecondsSinceEpoch}',
+                  _image!);
+            }
+
             // Add a new document with auto-generated ID
             await FirebaseFirestore.instance
                 .collection('feedbacks')
@@ -57,7 +64,8 @@ class _FeedbackFormState extends State<FeedbackForm> {
                   'feedback_content': feedBackController.text,
                   'feedback_driving_rating': _drivingRating,
                   'feedback_jeepney_rating': _jeepRating,
-                  'feedback_route': widget.route.routeId
+                  'feedback_route': widget.route.routeId,
+                  'feedback_img': imageUrl,
                 })
                 .then((value) => Navigator.pop(context))
                 .then((value) => Navigator.pop(context));

@@ -1,5 +1,7 @@
 // ignore_for_file: non_constant_identifier_names, avoid_print
 
+import 'dart:typed_data';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:transitrack_web/models/account_model.dart';
 
@@ -14,6 +16,7 @@ class FeedbackData {
   int feedback_jeepney_rating;
   int feedback_route;
   String feedback_content;
+  Uint8List? feedback_img;
 
   FeedbackData(
       {required this.feedback_sender,
@@ -23,7 +26,8 @@ class FeedbackData {
       required this.feedback_route,
       required this.feedback_driving_rating,
       required this.feedback_content,
-      required this.feedback_jeepney_rating});
+      required this.feedback_jeepney_rating,
+      this.feedback_img});
 
   factory FeedbackData.fromFirestore(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
@@ -37,6 +41,9 @@ class FeedbackData {
       feedback_jeepney_rating: data['feedback_jeepney_rating'] ?? 0,
       feedback_content: data['feedback_content'] ?? '',
       feedback_route: data['feedback_route'] ?? 0,
+      feedback_img: data['feedback_img'] != null
+          ? Uint8List.fromList(List<int>.from(data['feedback_img']))
+          : null,
     );
   }
 }

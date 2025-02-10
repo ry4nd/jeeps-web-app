@@ -1,3 +1,6 @@
+import 'dart:typed_data';
+
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -8,6 +11,20 @@ pickImage(ImageSource source) async {
     return await _file.readAsBytes();
   }
   print('No Image Selected');
+}
+
+final FirebaseStorage _storage = FirebaseStorage.instance;
+
+Future<String> uploadImageToStorage(String name, Uint8List file) async {
+  try {
+    Reference ref = _storage.ref().child('feedback_images').child(name);
+    UploadTask uploadTask = ref.putData(file);
+    TaskSnapshot snapshot = await uploadTask;
+    String downloadUrl = await snapshot.ref.getDownloadURL();
+    return downloadUrl;
+  } catch (e) {
+    throw Exception('Error uploading image: $e');
+  }
 }
 
 class AttachmentButton extends StatelessWidget {
