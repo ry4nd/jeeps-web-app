@@ -16,7 +16,7 @@ class FeedbackData {
   int feedback_jeepney_rating;
   int feedback_route;
   String feedback_content;
-  Uint8List? feedback_img;
+  String? feedback_img;
 
   FeedbackData(
       {required this.feedback_sender,
@@ -41,9 +41,7 @@ class FeedbackData {
       feedback_jeepney_rating: data['feedback_jeepney_rating'] ?? 0,
       feedback_content: data['feedback_content'] ?? '',
       feedback_route: data['feedback_route'] ?? 0,
-      feedback_img: data['feedback_img'] != null
-          ? Uint8List.fromList(List<int>.from(data['feedback_img']))
-          : null,
+      feedback_img: data['feedback_img'] ?? '',
     );
   }
 }
