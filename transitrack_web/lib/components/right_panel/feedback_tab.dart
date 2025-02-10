@@ -75,13 +75,27 @@ class FeedbackTab extends StatelessWidget {
             ],
           ),
           const Divider(color: Colors.white),
-          const SizedBox(height: Constants.defaultPadding),
           SizedBox(
-            height: Constants.defaultPadding * 1.5,
+            height: Constants.defaultPadding * 2.5,
             child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 child: Text(feedBack.feedback_content)),
-          )
+          ),
+          if (feedBack.feedback_img != null &&
+              feedBack.feedback_img!.isNotEmpty)
+            SizedBox(
+                height: 200,
+                child: Image.network(
+                  feedBack.feedback_img!,
+                  fit: BoxFit.contain,
+                  errorBuilder: (BuildContext context, Object error,
+                      StackTrace? stackTrace) {
+                    return const Text(
+                      'Failed to load image',
+                      style: TextStyle(color: Colors.red),
+                    );
+                  },
+                )),
         ],
       ),
     );
