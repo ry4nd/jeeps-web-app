@@ -50,7 +50,8 @@ class _FeedbackFormState extends State<FeedbackForm> {
             if (_image != null) {
               imageUrl = await uploadImageToStorage(
                   '${widget.user!.account_email}_${DateTime.now().millisecondsSinceEpoch}',
-                  _image!);
+                  _image!,
+                  'feedback_images');
             }
 
             // Add a new document with auto-generated ID

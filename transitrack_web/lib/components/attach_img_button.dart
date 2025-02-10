@@ -15,9 +15,10 @@ pickImage(ImageSource source) async {
 
 final FirebaseStorage _storage = FirebaseStorage.instance;
 
-Future<String> uploadImageToStorage(String name, Uint8List file) async {
+Future<String> uploadImageToStorage(
+    String name, Uint8List file, String directory) async {
   try {
-    Reference ref = _storage.ref().child('feedback_images').child(name);
+    Reference ref = _storage.ref().child(directory).child(name);
     UploadTask uploadTask = ref.putData(file);
     TaskSnapshot snapshot = await uploadTask;
     String downloadUrl = await snapshot.ref.getDownloadURL();
