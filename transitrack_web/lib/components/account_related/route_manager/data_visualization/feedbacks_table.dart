@@ -433,12 +433,9 @@ class _FeedbacksTableState extends State<FeedbacksTable> {
                                         const SizedBox(
                                             height: Constants.defaultPadding),
                                         RichText(
-                                            textAlign: TextAlign.justify,
+                                            textAlign: TextAlign.center,
                                             text: TextSpan(
                                               children: [
-                                                const WidgetSpan(
-                                                    child:
-                                                        SizedBox(width: 40.0)),
                                                 TextSpan(
                                                     text: selectedFeedback!
                                                         .feedback_content,
@@ -450,12 +447,40 @@ class _FeedbacksTableState extends State<FeedbacksTable> {
                                                             FontWeight.w200)),
                                               ],
                                             )),
+                                        if (selectedFeedback!.feedback_img !=
+                                                null &&
+                                            selectedFeedback!
+                                                .feedback_img!.isNotEmpty)
+                                          Column(
+                                            children: [
+                                              const SizedBox(
+                                                  height:
+                                                      Constants.defaultPadding),
+                                              SizedBox(
+                                                  height: 200,
+                                                  child: Image.network(
+                                                    selectedFeedback!
+                                                        .feedback_img!,
+                                                    fit: BoxFit.contain,
+                                                    errorBuilder:
+                                                        (BuildContext context,
+                                                            Object error,
+                                                            StackTrace?
+                                                                stackTrace) {
+                                                      return const Text(
+                                                        'Failed to load image',
+                                                        style: TextStyle(
+                                                            color: Colors.red),
+                                                      );
+                                                    },
+                                                  )),
+                                            ],
+                                          )
                                       ],
                                     ),
                                   ),
                                 ),
                                 const Spacer(),
-                                const Divider(color: Colors.white),
                               ],
                             ),
                           );

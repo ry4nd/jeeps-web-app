@@ -364,7 +364,6 @@ class ReportContents extends StatelessWidget {
                       textAlign: TextAlign.justify,
                       text: TextSpan(
                         children: [
-                          const WidgetSpan(child: SizedBox(width: 40.0)),
                           TextSpan(
                               text: reportData.report_content,
                               style: const TextStyle(
