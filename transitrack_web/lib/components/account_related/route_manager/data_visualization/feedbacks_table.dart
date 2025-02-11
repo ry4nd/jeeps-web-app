@@ -433,7 +433,7 @@ class _FeedbacksTableState extends State<FeedbacksTable> {
                                         const SizedBox(
                                             height: Constants.defaultPadding),
                                         RichText(
-                                            textAlign: TextAlign.center,
+                                            textAlign: TextAlign.justify,
                                             text: TextSpan(
                                               children: [
                                                 TextSpan(
