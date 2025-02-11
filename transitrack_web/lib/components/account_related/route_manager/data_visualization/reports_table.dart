@@ -407,13 +407,13 @@ class ReportContents extends StatelessWidget {
                                   fontWeight: FontWeight.w200)),
                         ],
                       )),
+                  const SizedBox(height: Constants.defaultPadding / 2),
                   if (reportData.report_img != null &&
                       reportData.report_img!.isNotEmpty)
-                    const SizedBox(height: Constants.defaultPadding / 2),
-                  AttachmentButton(
-                      onPressed: () => viewImg(reportData.report_img!),
-                      label: "View Image",
-                      icon: Icons.photo),
+                    AttachmentButton(
+                        onPressed: () => viewImg(reportData.report_img!),
+                        label: "View Image",
+                        icon: Icons.photo),
                 ],
               ),
               const SizedBox(height: Constants.defaultPadding / 2),
