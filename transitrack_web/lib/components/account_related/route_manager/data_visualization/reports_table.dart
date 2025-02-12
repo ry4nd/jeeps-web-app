@@ -90,6 +90,7 @@ class _ReportsTableState extends State<ReportsTable> {
     }
   }
 
+  // display image as a dialog for RM
   void viewImg(String imgUrl) {
     AwesomeDialog(
       context: context,

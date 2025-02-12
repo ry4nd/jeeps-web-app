@@ -458,6 +458,7 @@ class _FeedbacksTableState extends State<FeedbacksTable> {
                                                       Constants.defaultPadding),
                                               SizedBox(
                                                   height: 200,
+                                                  // Image.network displays img from URL
                                                   child: Image.network(
                                                     selectedFeedback!
                                                         .feedback_img!,

@@ -102,8 +102,12 @@ class _ReportFormState extends State<ReportForm> {
     // try sign up
   }
 
+  // sets the Uint8List variable to be the selected image file
+  // needs to be within the widget
   void selectImage() async {
     Uint8List img = await pickImage(ImageSource.gallery);
+    // setState is used to notify the framework that the internal state of the widget has changed
+    // signals that there is a need to rebuild
     setState(() {
       _image = img;
     });

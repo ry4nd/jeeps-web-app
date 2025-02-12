@@ -46,7 +46,7 @@ class _FeedbackFormState extends State<FeedbackForm> {
       if (_drivingRating + _jeepRating > 0) {
         if (widget.user!.account_email != widget.jeep.driver!.account_email) {
           try {
-            String? imageUrl;
+            String? imageUrl; // nullable string variable for url
             if (_image != null) {
               imageUrl = await uploadImageToStorage(
                   '${widget.user!.account_email}_${DateTime.now().millisecondsSinceEpoch}',
@@ -113,8 +113,12 @@ class _FeedbackFormState extends State<FeedbackForm> {
         });
   }
 
+  // sets the Uint8List variable to be the selected image file
+  // needs to be within the widget
   void selectImage() async {
     Uint8List img = await pickImage(ImageSource.gallery);
+    // setState is used to notify the framework that the internal state of the widget has changed
+    // signals that there is a need to rebuild
     setState(() {
       _image = img;
     });
@@ -253,6 +257,7 @@ class _FeedbackFormState extends State<FeedbackForm> {
                 ),
                 const SizedBox(height: Constants.defaultPadding / 2),
                 IntrinsicHeight(
+                  // Image.memory obtains image from Uint8List
                   child: Image.memory(
                     _image!,
                     fit: BoxFit.contain,
