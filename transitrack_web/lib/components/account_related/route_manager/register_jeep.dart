@@ -62,7 +62,6 @@ class _RegisterJeepState extends State<RegisterJeep> {
                 .add({
                   'device_id': jeepNameController.text.toUpperCase(),
                   'timestamp': FieldValue.serverTimestamp(),
-                  'passenger_count': 0,
                   'max_capacity': int.parse(jeepCapacityController.text),
                   'location': const GeoPoint(14.653836, 121.068427),
                   'route_id': widget.route.routeId,
