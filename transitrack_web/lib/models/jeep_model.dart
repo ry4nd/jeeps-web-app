@@ -1,6 +1,7 @@
 // ignore_for_file: non_constant_identifier_names
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import '../models/account_model.dart';
 
@@ -15,34 +16,49 @@ class JeepData {
   int route_id;
   double bearing; // rotation of PUV symbol (0-360)
 
-  JeepData(
-      {required this.device_id,
-      required this.timestamp,
-      required this.passenger_count,
-      required this.max_capacity,
-      required this.location,
-      required this.route_id,
-      required this.bearing});
+  late DatabaseReference _passengerCountRef;
+
+  JeepData({
+    required this.device_id,
+    required this.timestamp,
+    required this.passenger_count,
+    required this.max_capacity,
+    required this.location,
+    required this.route_id,
+    required this.bearing,
+  }) {
+    _passengerCountRef = FirebaseDatabase.instance.ref(device_id);
+    _listenToPassengerCountChanges();
+  }
 
   factory JeepData.fromSnapshot(QueryDocumentSnapshot<Object?> snapshot) {
     Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
 
     String deviceId = data['device_id'];
     Timestamp timestamp = data['timestamp'];
-    int passengerCount = data['passenger_count'];
     int maxCapacity = data['max_capacity'];
     GeoPoint location = data['location'];
     int routeId = data['route_id'];
     double bearing = data['bearing'];
 
     return JeepData(
-        device_id: deviceId,
-        timestamp: timestamp,
-        passenger_count: passengerCount,
-        max_capacity: maxCapacity,
-        location: location,
-        route_id: routeId,
-        bearing: bearing);
+      device_id: deviceId,
+      timestamp: timestamp,
+      passenger_count:
+          -1, // Placeholder, will be updated from Realtime Database
+      max_capacity: maxCapacity,
+      location: location,
+      route_id: routeId,
+      bearing: bearing,
+    );
+  }
+
+  void _listenToPassengerCountChanges() {
+    _passengerCountRef.onValue.listen((event) {
+      if (event.snapshot.value != null) {
+        passenger_count = event.snapshot.value as int;
+      }
+    });
   }
 
   Map<String, dynamic> toGeoJSONFeature() {
@@ -94,27 +110,30 @@ class JeepHistoricalData {
   String driverName;
   bool isOperating;
 
-  JeepHistoricalData(
-      {required this.jeepData,
-      required this.driverName,
-      required this.isOperating});
+  JeepHistoricalData({
+    required this.jeepData,
+    required this.driverName,
+    required this.isOperating,
+  });
 
   factory JeepHistoricalData.fromSnapshot(
       QueryDocumentSnapshot<Object?> snapshot) {
     Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
 
     return JeepHistoricalData(
-        jeepData: JeepData(
-          device_id: data['device_id'],
-          timestamp: data['timestamp'],
-          passenger_count: data['passenger_count'],
-          max_capacity: data['max_capacity'],
-          location: data['location'],
-          route_id: data['route_id'],
-          bearing: data['bearing'],
-        ),
-        driverName: data['driver'],
-        isOperating: data['is_operating']);
+      jeepData: JeepData(
+        device_id: data['device_id'],
+        timestamp: data['timestamp'],
+        passenger_count:
+            -1, // Placeholder, will be updated from Realtime Database
+        max_capacity: data['max_capacity'],
+        location: data['location'],
+        route_id: data['route_id'],
+        bearing: data['bearing'],
+      ),
+      driverName: data['driver'],
+      isOperating: data['is_operating'],
+    );
   }
 }
 
@@ -127,14 +146,12 @@ class PerJeepHistoricalData {
 
 Future<List<PerJeepHistoricalData>?> getJeepHistoricalData(
     int routeId, DateTime day) async {
-  // Reference to the Firestore collection
   CollectionReference collectionReference =
       FirebaseFirestore.instance.collection('jeeps_historical');
 
   DateTime start = day;
   DateTime end = day.add(const Duration(hours: 1));
 
-  // Query all documents in the collection
   QuerySnapshot querySnapshot = await collectionReference
       .where('route_id', isEqualTo: routeId)
       .where('timestamp', isGreaterThanOrEqualTo: start)
@@ -142,9 +159,7 @@ Future<List<PerJeepHistoricalData>?> getJeepHistoricalData(
       .orderBy('timestamp', descending: true)
       .get();
 
-  // Initialize a Set to store unique device IDs
   Set<String> uniqueDeviceIds = {};
-
   List<JeepHistoricalData> entireJeepHistoricalData = querySnapshot.docs
       .map((e) => JeepHistoricalData.fromSnapshot(e))
       .toList();
