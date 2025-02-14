@@ -109,8 +109,7 @@ class _FeedBackViewerState extends State<FeedBackViewer> {
         if (widget.feedbacks.isNotEmpty && routes.isNotEmpty)
           Column(
             children: [
-              SizedBox(
-                  height: 200,
+              IntrinsicHeight(
                   child: FeedbackTab(
                       route: routes[widget.feedbacks[index].feedback_route],
                       isDriver: widget.isDriver,

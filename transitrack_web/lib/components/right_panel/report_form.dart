@@ -1,5 +1,8 @@
+import 'dart:typed_data';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:transitrack_web/services/find_location.dart';
 
@@ -10,6 +13,7 @@ import '../../models/route_model.dart';
 import '../../style/constants.dart';
 import '../../style/style.dart';
 import '../button.dart';
+import '../attach_img_button.dart';
 import '../text_field.dart';
 
 // This widget is called when user selects the report button
@@ -30,6 +34,7 @@ class _ReportFormState extends State<ReportForm> {
 
   String reportType = "Lost Item";
   late String address;
+  Uint8List? _image;
 
   @override
   void initState() {
@@ -56,6 +61,13 @@ class _ReportFormState extends State<ReportForm> {
     // report field is not empty
     if (reportController.text.isNotEmpty) {
       try {
+        String? imageUrl;
+        if (_image != null) {
+          imageUrl = await uploadImageToStorage(
+              '${widget.user!.account_email}_${DateTime.now().millisecondsSinceEpoch}',
+              _image!,
+              'report_images');
+        }
         // Add a new document with auto-generated ID
         await FirebaseFirestore.instance
             .collection('reports')
@@ -68,7 +80,8 @@ class _ReportFormState extends State<ReportForm> {
               'report_type': ReportData.reportTypeMap[reportType],
               'report_location': GeoPoint(widget.jeep.jeep.location.latitude,
                   widget.jeep.jeep.location.longitude),
-              'report_route': widget.route.routeId
+              'report_route': widget.route.routeId,
+              'report_img': imageUrl,
             })
             .then((value) => Navigator.pop(context))
             .then((value) => Navigator.pop(context));
@@ -87,6 +100,17 @@ class _ReportFormState extends State<ReportForm> {
       errorMessage("Report field is empty!");
     }
     // try sign up
+  }
+
+  // sets the Uint8List variable to be the selected image file
+  // needs to be within the widget
+  void selectImage() async {
+    Uint8List img = await pickImage(ImageSource.gallery);
+    // setState is used to notify the framework that the internal state of the widget has changed
+    // signals that there is a need to rebuild
+    setState(() {
+      _image = img;
+    });
   }
 
   void errorMessage(String message) {
@@ -215,8 +239,30 @@ class _ReportFormState extends State<ReportForm> {
               hintText: "Report",
               obscureText: false,
               lines: 4,
-              limit: 150),
+              limit: 150,
+              helperWidget: AttachmentButton(
+                onPressed: selectImage,
+                label: "Attach Image",
+                icon: Icons.add_a_photo,
+              )),
           const SizedBox(height: Constants.defaultPadding),
+          if (_image != null)
+            Column(
+              children: [
+                const Text(
+                  "Selected Image:",
+                  style: TextStyle(color: Colors.white),
+                ),
+                const SizedBox(height: Constants.defaultPadding / 2),
+                IntrinsicHeight(
+                  child: Image.memory(
+                    _image!,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+                const SizedBox(height: Constants.defaultPadding),
+              ],
+            ),
           Button(
             onTap: () => sendReport(),
             text: "Send Report",

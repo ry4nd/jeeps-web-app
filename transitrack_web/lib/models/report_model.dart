@@ -16,6 +16,7 @@ class ReportData {
   int report_type; // 0 for lost items, 1 for crime incidents, 2 for mechanical failure, 3 for accidents, 4 for other concerns
   GeoPoint report_location;
   int report_route;
+  String? report_img;
 
   ReportData(
       {required this.report_id,
@@ -26,7 +27,8 @@ class ReportData {
       required this.report_content,
       required this.report_type,
       required this.report_route,
-      required this.report_location});
+      required this.report_location,
+      this.report_img});
 
   factory ReportData.fromFirestore(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
@@ -41,6 +43,7 @@ class ReportData {
       report_type: data['report_type'] ?? 0,
       report_route: data['report_route'],
       report_location: data['report_location'],
+      report_img: data['report_img'] ?? '',
     );
   }
 

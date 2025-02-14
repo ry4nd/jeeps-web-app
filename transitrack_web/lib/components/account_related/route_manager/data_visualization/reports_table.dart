@@ -6,6 +6,7 @@ import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'package:transitrack_web/components/account_related/route_manager/data_visualization/filters.dart';
 import 'package:transitrack_web/components/account_related/route_manager/data_visualization/reports_map.dart';
+import 'package:transitrack_web/components/attach_img_button.dart';
 import 'package:transitrack_web/models/account_model.dart';
 import 'package:transitrack_web/models/feedback_model.dart';
 import 'package:transitrack_web/models/filter_model.dart';
@@ -87,6 +88,38 @@ class _ReportsTableState extends State<ReportsTable> {
     } else {
       return null;
     }
+  }
+
+  // display image as a dialog for RM
+  void viewImg(String imgUrl) {
+    AwesomeDialog(
+      context: context,
+      dialogType: DialogType.noHeader,
+      width: 1000,
+      body: PointerInterceptor(
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(30.0),
+              child: Image.network(
+                imgUrl,
+                fit: BoxFit.contain,
+                errorBuilder: (BuildContext context, Object error,
+                    StackTrace? stackTrace) {
+                  return const Text(
+                    'Failed to load image',
+                    style: TextStyle(color: Colors.red),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+      showCloseIcon: true,
+      dismissOnBackKeyPress: true,
+      dismissOnTouchOutside: true,
+    ).show();
   }
 
   @override
@@ -253,7 +286,8 @@ class _ReportsTableState extends State<ReportsTable> {
                     Positioned(
                         right: Constants.defaultPadding,
                         top: Constants.defaultPadding,
-                        child: ReportContents(reportData: selectedReport!)),
+                        child: ReportContents(
+                            reportData: selectedReport!, viewImg: viewImg)),
                   const Positioned(
                       right: Constants.defaultPadding,
                       bottom: Constants.defaultPadding * 2,
@@ -295,7 +329,9 @@ class Legends extends StatelessWidget {
 
 class ReportContents extends StatelessWidget {
   final ReportData reportData;
-  const ReportContents({super.key, required this.reportData});
+  final Function(String) viewImg;
+  const ReportContents(
+      {super.key, required this.reportData, required this.viewImg});
 
   @override
   Widget build(BuildContext context) {
@@ -364,7 +400,6 @@ class ReportContents extends StatelessWidget {
                       textAlign: TextAlign.justify,
                       text: TextSpan(
                         children: [
-                          const WidgetSpan(child: SizedBox(width: 40.0)),
                           TextSpan(
                               text: reportData.report_content,
                               style: const TextStyle(
@@ -373,6 +408,13 @@ class ReportContents extends StatelessWidget {
                                   fontWeight: FontWeight.w200)),
                         ],
                       )),
+                  const SizedBox(height: Constants.defaultPadding / 2),
+                  if (reportData.report_img != null &&
+                      reportData.report_img!.isNotEmpty)
+                    AttachmentButton(
+                        onPressed: () => viewImg(reportData.report_img!),
+                        label: "View Image",
+                        icon: Icons.photo),
                 ],
               ),
               const SizedBox(height: Constants.defaultPadding / 2),

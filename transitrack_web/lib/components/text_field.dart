@@ -11,6 +11,7 @@ class InputTextField extends StatelessWidget {
   final int? lines;
   final int? limit;
   final bool? enabled;
+  final Widget? helperWidget;
 
   InputTextField(
       {super.key,
@@ -20,7 +21,8 @@ class InputTextField extends StatelessWidget {
       this.type,
       this.lines,
       this.enabled,
-      this.limit});
+      this.limit,
+      this.helperWidget});
 
   int textLength = 0;
 
@@ -44,6 +46,7 @@ class InputTextField extends StatelessWidget {
         filled: true,
         hintText: hintText,
         hintStyle: const TextStyle(color: Colors.white),
+        helper: helperWidget,
       ),
       style: const TextStyle(color: Colors.white),
       maxLines: obscureText ? 1 : lines,
