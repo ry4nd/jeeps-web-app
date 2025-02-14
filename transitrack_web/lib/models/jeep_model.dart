@@ -10,13 +10,14 @@ import '../models/account_model.dart';
 class JeepData {
   String device_id;
   Timestamp timestamp;
-  int passenger_count; // -1 for passive broadcasting mode
+  int passenger_count;
   int max_capacity;
   GeoPoint location;
   int route_id;
-  double bearing; // rotation of PUV symbol (0-360)
+  double bearing; // rotation of PUV icon (0-360)
 
-  late DatabaseReference _passengerCountRef;
+  late DatabaseReference
+      _passengerCountRef; // reference to listen for real-time updates from realtime database
 
   JeepData({
     required this.device_id,
@@ -28,7 +29,7 @@ class JeepData {
     required this.bearing,
   }) {
     _passengerCountRef = FirebaseDatabase.instance.ref(device_id);
-    _listenToPassengerCountChanges();
+    _listenToPassengerCountChanges(); // listener for passenger count changes in realtime database
   }
 
   factory JeepData.fromSnapshot(QueryDocumentSnapshot<Object?> snapshot) {
@@ -45,7 +46,7 @@ class JeepData {
       device_id: deviceId,
       timestamp: timestamp,
       passenger_count:
-          -1, // Placeholder, will be updated from Realtime Database
+          -1, // placeholder, will be updated from Realtime Database
       max_capacity: maxCapacity,
       location: location,
       route_id: routeId,
@@ -54,6 +55,7 @@ class JeepData {
   }
 
   void _listenToPassengerCountChanges() {
+    // listener for passenger count changes in realtime database
     _passengerCountRef.onValue.listen((event) {
       if (event.snapshot.value != null) {
         passenger_count = event.snapshot.value as int;
