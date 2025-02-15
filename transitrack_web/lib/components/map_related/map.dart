@@ -13,6 +13,7 @@ import 'package:transitrack_web/services/mapbox/add_eta_line.dart';
 import 'package:transitrack_web/services/mapbox/add_image_from_asset.dart';
 import 'package:transitrack_web/services/mapbox/animate_ripple.dart';
 import 'package:transitrack_web/services/mapbox/request_location.dart';
+import 'package:transitrack_web/services/mapbox/minute_old_checker.dart';
 
 import '../../config/keys.dart';
 import '../../config/map_settings.dart';
@@ -20,6 +21,8 @@ import '../../config/responsive.dart';
 import '../../models/account_model.dart';
 import '../../models/jeep_model.dart';
 import '../../models/route_model.dart';
+import '../../models/ping_model.dart';
+
 import '../../style/constants.dart';
 import '../account_related/route_manager/route_manager_options.dart';
 import '../right_panel/desktop_route_info.dart';
@@ -57,11 +60,17 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
   late StreamSubscription<Position> _positionStream;
 
   late Circle? deviceCircle;
+  bool mapLoaded = false;
 
   late List<LatLng> setRoute;
   List<Circle> circles = [];
   List<Line> lines = [];
   List<JeepEntity> jeepEntities = [];
+
+  // Ping Fetching
+  StreamSubscription? pingListener;
+  List<PingData> pings = [];
+  late Timer timer;
 
   bool gpsTracking = false;
 
@@ -78,8 +87,40 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
       myLocation = null;
       deviceCircle = null;
     });
+
+    if (mapLoaded) {
+      refreshLineAndPingLayer();
+    }
+
+    timer = Timer.periodic(const Duration(seconds: 1), (Timer timer) {
+      if (mapLoaded && _value != null) {
+        setState(() {
+          pings = pings
+              .where((element) =>
+                  minuteOldChecker(element.ping_timestamp.toDate()))
+              .toList();
+          // SOSList = SOSList.where(
+          //         (element) => minuteOldChecker(element.timestamp.toDate()))
+          //     .toList();
+        });
+        _mapController.setGeoJsonSource("pings", listToGeoJSON(pings));
+        // _mapController.setGeoJsonSource(
+        //     "accidents",
+        //     reportListToGeoJSON(
+        //         SOSList.where((element) => element.report_type == 3).toList()));
+        // _mapController.setGeoJsonSource(
+        //     "crime",
+        //     reportListToGeoJSON(
+        //         SOSList.where((element) => element.report_type == 1).toList()));
+        // _mapController.setGeoJsonSource(
+        //     "mechError",
+        //     reportListToGeoJSON(
+        //         SOSList.where((element) => element.report_type == 2).toList()));
+      }
+    });
   }
 
+  // triggers request loc permission and if allowed listen to location
   void startListening() async {
     var permission = await requestLocationPermission(context);
 
@@ -113,6 +154,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
       });
 
       addLine();
+      refreshLineAndPingLayer();
 
       _mapController.clearSymbols().then((value) => jeepEntities.clear());
     }
@@ -238,6 +280,47 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
     });
   }
 
+  void listenToPingsFirestore() {
+    pingListener = FirebaseFirestore.instance
+        .collection('pings')
+        .where('ping_route', isEqualTo: _value!.routeId)
+        .snapshots()
+        .listen((QuerySnapshot snapshot) {
+      if (snapshot.docs.isNotEmpty) {
+        setState(() {
+          pings = snapshot.docs
+              .map((doc) => PingData.fromFirestore(doc))
+              .where((element) =>
+                  minuteOldChecker(element.ping_timestamp.toDate()))
+              .toList();
+        });
+        _mapController.setGeoJsonSource("pings", listToGeoJSON(pings));
+      }
+    });
+  }
+
+  void refreshLineAndPingLayer() {
+    if (_value != null) {
+      // _mapController.clearLines();
+      // _mapController.addLines([
+      //   LineOptions(
+      //       lineWidth: 4.0,
+      //       lineColor: intToHexColor(_routeData!.routeColor),
+      //       lineOpacity: 0.5,
+      //       geometry: _routeData!.routeCoordinates)
+      // ]);
+      // addGeojsonCluster(_mapController, _routeData!);
+      // addGeojsonSOS(_mapController);
+      listenToPingsFirestore();
+      // listenToReportsFirestore();
+    } else {
+      // _mapController.clearLines();
+      pingListener?.cancel();
+      pings.clear();
+      _mapController.setGeoJsonSource("pings", listToGeoJSON(pings));
+    }
+  }
+
   void _updateDeviceCircle(LatLng latLng) {
     setState(() {
       myLocation = latLng;
@@ -303,6 +386,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
     }
   }
 
+  // initializes the lines of the map for the route
   void addLine() {
     _mapController.clearLines().then((value) => lines.clear());
     if (widget.route != null) {
@@ -340,6 +424,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
     }
   }
 
+  // initializes the points on the map
   void addPoints() {
     for (var circle in circles) {
       _mapController.removeCircle(circle);
@@ -360,6 +445,8 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
     }
   }
 
+  // when line on the map is tapped it adds another coordinate
+  // it clears the coordinates and reinitialize them again along with the lines
   void onLineTapped(Line pressedLine) {
     int index = lines.indexWhere((line) => pressedLine == line);
 
@@ -383,6 +470,9 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
         .then((value) => addLine());
   }
 
+  // if a coordinate is tapped it would be removed
+  // it will call add points to reinitialize all points again
+  // it will call add line to reinitilize all lines again
   void onCircleTapped(Circle pressedCircle) {
     int index = circles.indexWhere((circle) => pressedCircle == circle);
 
@@ -393,6 +483,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
     }
   }
 
+  // jeep selection on the map
   void onJeepTapped(Symbol pressedJeep) {
     if (selectedJeep != null) {
       if (pressedJeep != selectedJeep!.jeepSymbol) {
@@ -475,6 +566,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                   _mapController.setSymbolTextAllowOverlap(true);
                   _mapController.setSymbolIconIgnorePlacement(true);
                   _mapController.setSymbolTextIgnorePlacement(true);
+                  refreshLineAndPingLayer();
                   widget.mapLoaded(true);
                   startListening();
                 },
