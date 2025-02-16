@@ -36,6 +36,8 @@ class PingData {
     );
   }
 
+  // convert ping data to GeoJSON format
+  // a format for encoding a variety of geographic data structures
   Map<String, dynamic> toGeoJSONFeature() {
     return {
       'type': 'Feature',
@@ -60,6 +62,7 @@ class PingEntity {
   PingEntity({required this.pingData, required this.pingCircle});
 }
 
+// converts a list of Ping Data to GeoJSON format
 listToGeoJSON(List<PingData> pings) {
   List<Map<String, dynamic>> features =
       pings.map((ping) => ping.toGeoJSONFeature()).toList();
@@ -72,6 +75,8 @@ listToGeoJSON(List<PingData> pings) {
   return featureCollection;
 }
 
+// converts a list of CSV data to a CSV string
+// CSV - info separated by commas
 String convertToCsv(List<List<dynamic>> csvData) {
   final List<List<String>> csvRows = csvData.map((row) {
     return row.map((cell) => '"$cell"').toList();
@@ -79,15 +84,24 @@ String convertToCsv(List<List<dynamic>> csvData) {
   return csvRows.map((row) => row.join(',')).join('\n');
 }
 
+// adds a GeoJSON cluster to the Mapbox map
+// displays the pings
 Future<void> addGeojsonCluster(
     MapboxMapController mapController, RouteData routeData) async {
+  // remove the existing pings to update the map with new ones
+  // for refreshing the pings
   mapController.removeLayer("pings-circles");
   mapController.removeLayer("pings-count");
   mapController.removeSource("pings");
+
+  // add the new pings
+  // addSource provides the ping data
   mapController.addSource(
       "pings",
       GeojsonSourceProperties(
           data: listToGeoJSON([]), cluster: true, clusterRadius: 20));
+
+  // addLayer provides the appearance of the ping data within the map
   mapController.addLayer(
       "pings",
       "pings-circles",
@@ -97,12 +111,15 @@ Future<void> addGeojsonCluster(
           circleRadius: [
             Expressions.step,
             [Expressions.get, 'point_count'],
+            // example: circle radius is 20 if point count is less than 5
             20,
             5,
             30,
             10,
             40
           ]));
+
+  // includes the ping count for a cluster
   mapController.addLayer(
       "pings",
       "pings-count",
@@ -111,17 +128,9 @@ Future<void> addGeojsonCluster(
         textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
         textSize: 12,
       ));
-  for (int i = 0; i < routeData.routeCoordinates.length; i++) {
-    mapController.addLine(LineOptions(
-        lineWidth: 4.0,
-        lineColor: intToHexColor(routeData.routeColor),
-        lineOpacity: 0.5,
-        geometry: i != routeData.routeCoordinates.length - 1
-            ? [routeData.routeCoordinates[i], routeData.routeCoordinates[i + 1]]
-            : [routeData.routeCoordinates[i], routeData.routeCoordinates[0]]));
-  }
 }
 
+// just allows the ping data to be downloaded within the shared locations widget for RM
 void downloadPingDataAsCSV(List<PingData> pingDataList, RouteData routeData) {
   // Define CSV headers
   List<String> headers = [
