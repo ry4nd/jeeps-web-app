@@ -3,6 +3,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'dart:html' as html;
+import '../services/int_to_hex.dart';
 
 import 'package:transitrack_web/models/route_model.dart';
 
@@ -76,6 +77,49 @@ String convertToCsv(List<List<dynamic>> csvData) {
     return row.map((cell) => '"$cell"').toList();
   }).toList();
   return csvRows.map((row) => row.join(',')).join('\n');
+}
+
+Future<void> addGeojsonCluster(
+    MapboxMapController mapController, RouteData routeData) async {
+  mapController.removeLayer("pings-circles");
+  mapController.removeLayer("pings-count");
+  mapController.removeSource("pings");
+  mapController.addSource(
+      "pings",
+      GeojsonSourceProperties(
+          data: listToGeoJSON([]), cluster: true, clusterRadius: 20));
+  mapController.addLayer(
+      "pings",
+      "pings-circles",
+      CircleLayerProperties(
+          circleColor: intToHexColor(routeData.routeColor),
+          circleOpacity: 0.5,
+          circleRadius: [
+            Expressions.step,
+            [Expressions.get, 'point_count'],
+            20,
+            5,
+            30,
+            10,
+            40
+          ]));
+  mapController.addLayer(
+      "pings",
+      "pings-count",
+      const SymbolLayerProperties(
+        textField: [Expressions.get, 'point_count_abbreviated'],
+        textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+        textSize: 12,
+      ));
+  for (int i = 0; i < routeData.routeCoordinates.length; i++) {
+    mapController.addLine(LineOptions(
+        lineWidth: 4.0,
+        lineColor: intToHexColor(routeData.routeColor),
+        lineOpacity: 0.5,
+        geometry: i != routeData.routeCoordinates.length - 1
+            ? [routeData.routeCoordinates[i], routeData.routeCoordinates[i + 1]]
+            : [routeData.routeCoordinates[i], routeData.routeCoordinates[0]]));
+  }
 }
 
 void downloadPingDataAsCSV(List<PingData> pingDataList, RouteData routeData) {

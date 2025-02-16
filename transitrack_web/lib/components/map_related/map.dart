@@ -309,7 +309,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
       //       lineOpacity: 0.5,
       //       geometry: _routeData!.routeCoordinates)
       // ]);
-      // addGeojsonCluster(_mapController, _routeData!);
+      addGeojsonCluster(_mapController, _value!);
       // addGeojsonSOS(_mapController);
       listenToPingsFirestore();
       // listenToReportsFirestore();
