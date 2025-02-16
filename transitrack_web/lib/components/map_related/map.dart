@@ -89,7 +89,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
     });
 
     if (mapLoaded) {
-      refreshLineAndPingLayer();
+      refreshPingLayer();
     }
 
     timer = Timer.periodic(const Duration(seconds: 1), (Timer timer) {
@@ -99,23 +99,8 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
               .where((element) =>
                   minuteOldChecker(element.ping_timestamp.toDate()))
               .toList();
-          // SOSList = SOSList.where(
-          //         (element) => minuteOldChecker(element.timestamp.toDate()))
-          //     .toList();
         });
         _mapController.setGeoJsonSource("pings", listToGeoJSON(pings));
-        // _mapController.setGeoJsonSource(
-        //     "accidents",
-        //     reportListToGeoJSON(
-        //         SOSList.where((element) => element.report_type == 3).toList()));
-        // _mapController.setGeoJsonSource(
-        //     "crime",
-        //     reportListToGeoJSON(
-        //         SOSList.where((element) => element.report_type == 1).toList()));
-        // _mapController.setGeoJsonSource(
-        //     "mechError",
-        //     reportListToGeoJSON(
-        //         SOSList.where((element) => element.report_type == 2).toList()));
       }
     });
   }
@@ -154,7 +139,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
       });
 
       addLine();
-      refreshLineAndPingLayer();
+      refreshPingLayer();
 
       _mapController.clearSymbols().then((value) => jeepEntities.clear());
     }
@@ -299,22 +284,14 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
     });
   }
 
-  void refreshLineAndPingLayer() {
+  void refreshPingLayer() {
     if (_value != null) {
-      // _mapController.clearLines();
-      // _mapController.addLines([
-      //   LineOptions(
-      //       lineWidth: 4.0,
-      //       lineColor: intToHexColor(_routeData!.routeColor),
-      //       lineOpacity: 0.5,
-      //       geometry: _routeData!.routeCoordinates)
-      // ]);
+      _mapController.removeLayer("pings-circles");
+      _mapController.removeLayer("pings-count");
+      _mapController.removeSource("pings");
       addGeojsonCluster(_mapController, _value!);
-      // addGeojsonSOS(_mapController);
       listenToPingsFirestore();
-      // listenToReportsFirestore();
     } else {
-      // _mapController.clearLines();
       pingListener?.cancel();
       pings.clear();
       _mapController.setGeoJsonSource("pings", listToGeoJSON(pings));
@@ -566,8 +543,11 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                   _mapController.setSymbolTextAllowOverlap(true);
                   _mapController.setSymbolIconIgnorePlacement(true);
                   _mapController.setSymbolTextIgnorePlacement(true);
-                  refreshLineAndPingLayer();
+                  refreshPingLayer();
                   widget.mapLoaded(true);
+                  setState(() {
+                    mapLoaded = true;
+                  });
                   startListening();
                 },
                 initialCameraPosition: CameraPosition(
