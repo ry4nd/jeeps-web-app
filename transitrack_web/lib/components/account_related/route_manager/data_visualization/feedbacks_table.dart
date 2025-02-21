@@ -261,10 +261,15 @@ class _FeedbacksTableState extends State<FeedbacksTable> {
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
+                                            Text(feedbackAdditionalInfo
+                                                        .senderData !=
+                                                    null
+                                                ? feedbackAdditionalInfo
+                                                    .senderData!.account_name
+                                                : "No Data"),
                                             Text(
-                                                'Feedback by ${feedbackAdditionalInfo.senderData != null ? feedbackAdditionalInfo.senderData!.account_name : "No Data"}'),
-                                            Text(
-                                                '<${selectedFeedback!.feedback_sender}>',
+                                                selectedFeedback!
+                                                    .feedback_sender,
                                                 style: TextStyle(
                                                     fontSize: 11,
                                                     color: Colors.white
@@ -274,23 +279,13 @@ class _FeedbacksTableState extends State<FeedbacksTable> {
                                         ),
                                       ],
                                     ),
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.end,
-                                      children: [
-                                        Text(DateFormat('MMMM d, y').format(
-                                            selectedFeedback!.timestamp
-                                                .toDate())),
-                                        Text(
-                                            DateFormat('hh:mm a').format(
-                                                selectedFeedback!.timestamp
-                                                    .toDate()),
-                                            style: TextStyle(
-                                                fontSize: 13,
-                                                color: Colors.white
-                                                    .withValues(alpha: 0.5))),
-                                      ],
-                                    )
+                                    TextButton(
+                                      onPressed: () {},
+                                      child: Text('Ban Account',
+                                          style: TextStyle(
+                                            color: Colors.red,
+                                          )),
+                                    ),
                                   ],
                                 ),
                                 const Spacer(),
@@ -311,69 +306,53 @@ class _FeedbacksTableState extends State<FeedbacksTable> {
                                         Row(
                                           children: [
                                             Expanded(
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  const Text(
-                                                    "Driver",
-                                                    textAlign: TextAlign.right,
-                                                    maxLines: 1,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                  ),
-                                                  Text(
-                                                    feedbackAdditionalInfo
-                                                                .recepientData !=
-                                                            null
-                                                        ? feedbackAdditionalInfo
-                                                            .recepientData!
-                                                            .account_name
-                                                        : "No Data",
-                                                    textAlign: TextAlign.right,
-                                                    maxLines: 1,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            const SizedBox(
-                                                width:
-                                                    Constants.defaultPadding *
-                                                        2),
-                                            Expanded(
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  const Text(
-                                                    "Jeepney",
-                                                    textAlign: TextAlign.right,
-                                                    maxLines: 1,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                  ),
-                                                  Text(
-                                                    selectedFeedback!
-                                                        .feedback_jeepney,
-                                                    textAlign: TextAlign.right,
-                                                    maxLines: 1,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
+                                                child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Text(DateFormat('MMMM d, y')
+                                                    .format(selectedFeedback!
+                                                        .timestamp
+                                                        .toDate())),
+                                                Text(
+                                                    DateFormat('hh:mm a')
+                                                        .format(
+                                                            selectedFeedback!
+                                                                .timestamp
+                                                                .toDate()),
+                                                    style: TextStyle(
+                                                        fontSize: 13,
+                                                        color: Colors.white
+                                                            .withValues(
+                                                                alpha: 0.5))),
+                                              ],
+                                            )),
                                           ],
                                         ),
                                         const SizedBox(
                                             height:
                                                 Constants.defaultPadding / 2),
+                                        const Divider(color: Colors.white),
+                                        const SizedBox(
+                                            height:
+                                                Constants.defaultPadding / 2),
                                         Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
                                           children: [
+                                            Text(
+                                              feedbackAdditionalInfo
+                                                          .recepientData !=
+                                                      null
+                                                  ? feedbackAdditionalInfo
+                                                      .recepientData!
+                                                      .account_name
+                                                  : "No Data",
+                                              textAlign: TextAlign.right,
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
                                             Expanded(
                                               child: Row(
                                                 mainAxisAlignment:
@@ -392,15 +371,24 @@ class _FeedbacksTableState extends State<FeedbacksTable> {
                                                         ? Color(widget
                                                             .route.routeColor)
                                                         : Colors.grey,
-                                                    size: 20,
+                                                    size: 16,
                                                   );
                                                 }),
                                               ),
                                             ),
-                                            const SizedBox(
-                                                width:
-                                                    Constants.defaultPadding *
-                                                        2),
+                                          ],
+                                        ),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              selectedFeedback!
+                                                  .feedback_jeepney,
+                                              textAlign: TextAlign.right,
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
                                             Expanded(
                                               child: Row(
                                                 mainAxisAlignment:
@@ -419,7 +407,7 @@ class _FeedbacksTableState extends State<FeedbacksTable> {
                                                         ? Color(widget
                                                             .route.routeColor)
                                                         : Colors.grey,
-                                                    size: 20,
+                                                    size: 16,
                                                   );
                                                 }),
                                               ),
@@ -431,7 +419,8 @@ class _FeedbacksTableState extends State<FeedbacksTable> {
                                                 Constants.defaultPadding / 2),
                                         const Divider(color: Colors.white),
                                         const SizedBox(
-                                            height: Constants.defaultPadding),
+                                            height:
+                                                Constants.defaultPadding / 2),
                                         RichText(
                                             textAlign: TextAlign.justify,
                                             text: TextSpan(
