@@ -75,9 +75,12 @@ class _SignupFormState extends State<SignupForm> {
                     email: emailController.text,
                     password: passwordController.text)
                 .then((value) async {
+              String uid = value.user!.uid;
+
               await FirebaseFirestore.instance.collection('accounts').add({
                 'account_name': nameController.text,
                 'account_email': emailController.text,
+                'account_uid': uid,
                 'account_type': AccountData.accountTypeMap[accountType],
                 'jeep_driving': "",
                 'is_verified': false,

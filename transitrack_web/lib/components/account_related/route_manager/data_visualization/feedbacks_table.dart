@@ -10,6 +10,7 @@ import 'package:transitrack_web/models/feedback_model.dart';
 import 'package:transitrack_web/models/filter_model.dart';
 import 'package:transitrack_web/models/route_model.dart';
 import 'package:transitrack_web/style/constants.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 
 // This widget is called when route manager opens the feedback tab in the data visualization panel
 
@@ -68,6 +69,48 @@ class _FeedbacksTableState extends State<FeedbacksTable> {
         return FeedbackData.fromFirestore(document);
       }).toList();
     });
+  }
+
+  // Method to disable a user by calling the Firebase function
+  Future<void> disableUser(String email) async {
+    try {
+      QuerySnapshot snapshot = await FirebaseFirestore.instance
+          .collection('accounts')
+          .where('account_email', isEqualTo: email)
+          .limit(1)
+          .get();
+
+      if (snapshot.docs.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('No user found with this email')),
+        );
+        return;
+      }
+
+      // Get the UID from the 'account_id' field in the Firestore document
+      String uid = snapshot.docs.first.get('account_uid');
+
+      // Get the instance of the Firebase function
+      final HttpsCallable callable =
+          FirebaseFunctions.instance.httpsCallable('disableUser');
+
+      // Call the function with the user ID
+      final result = await callable.call(<String, dynamic>{
+        'uid': uid,
+      });
+
+      // Display the result (for example, show a success message)
+      print(result.data['message']);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('User disabled successfully!')),
+      );
+    } catch (e) {
+      // Handle errors
+      print('Error disabling user: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error disabling user')),
+      );
+    }
   }
 
   @override
@@ -280,7 +323,10 @@ class _FeedbacksTableState extends State<FeedbacksTable> {
                                       ],
                                     ),
                                     TextButton(
-                                      onPressed: () {},
+                                      onPressed: () {
+                                        disableUser(
+                                            selectedFeedback!.feedback_sender);
+                                      },
                                       child: Text('Ban Account',
                                           style: TextStyle(
                                             color: Colors.red,
