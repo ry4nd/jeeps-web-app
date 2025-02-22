@@ -95,22 +95,30 @@ class _FeedbacksTableState extends State<FeedbacksTable> {
           FirebaseFunctions.instance.httpsCallable('disableUser');
 
       // Call the function with the user ID
-      final result = await callable.call(<String, dynamic>{
+      await callable.call(<String, dynamic>{
         'uid': uid,
       });
 
       // Display the result (for example, show a success message)
-      print(result.data['message']);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('User disabled successfully!')),
-      );
+      errorMessage('User Banned Successfully');
     } catch (e) {
-      // Handle errors
-      print('Error disabling user: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error disabling user')),
-      );
+      // Display the error message
+      errorMessage('Error Banning User: $e');
     }
+  }
+
+  void errorMessage(String message) {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+              backgroundColor: Constants.bgColor,
+              title: Center(
+                  child: Text(
+                message,
+                style: const TextStyle(color: Colors.white),
+              )));
+        });
   }
 
   @override
