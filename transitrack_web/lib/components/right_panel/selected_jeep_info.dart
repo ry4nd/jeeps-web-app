@@ -191,26 +191,20 @@ class _SelectedJeepInfoBoxState extends State<SelectedJeepInfoBox> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        if (widget.jeep.passenger_count == -2)
-          const SelectedJeepInfoRow(
-              left: Text("Driver disabled passenger counting.",
-                  style: TextStyle(fontSize: 12)),
-              right: SizedBox()),
-        if (widget.jeep.passenger_count != -2)
-          SelectedJeepInfoRow(
-              left: Row(
-                children: [
-                  Icon(Icons.supervisor_account,
-                      color: Color(widget.route.routeColor), size: 15),
-                  const SizedBox(width: Constants.defaultPadding / 2),
-                  const Text("Occupancy"),
-                ],
-              ),
-              right: Text(widget.jeep.passenger_count == -1
-                  ? "Available"
-                  : widget.jeep.passenger_count == widget.jeep.max_capacity
-                      ? "Full"
-                      : "${widget.jeep.passenger_count}/${widget.jeep.max_capacity}")),
+        SelectedJeepInfoRow(
+            left: Row(
+              children: [
+                Icon(Icons.supervisor_account,
+                    color: Color(widget.route.routeColor), size: 15),
+                const SizedBox(width: Constants.defaultPadding / 2),
+                const Text("Occupancy"),
+              ],
+            ),
+            right: Text(widget.jeep.passenger_count < 0
+                ? "Available"
+                : widget.jeep.passenger_count >= widget.jeep.max_capacity
+                    ? "Full"
+                    : "${widget.jeep.passenger_count}/${widget.jeep.max_capacity}")),
         const Divider(color: Colors.white),
         SelectedJeepInfoRow(
             left: Row(children: [
