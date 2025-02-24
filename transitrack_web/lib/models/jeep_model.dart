@@ -28,7 +28,8 @@ class JeepData {
     required this.route_id,
     required this.bearing,
   }) {
-    _passengerCountRef = FirebaseDatabase.instance.ref(device_id);
+    _passengerCountRef = FirebaseDatabase.instance.ref(
+        device_id.replaceAll(" ", "_")); // realtime database does not allow " "
     _listenToPassengerCountChanges(); // listener for passenger count changes in realtime database
   }
 
