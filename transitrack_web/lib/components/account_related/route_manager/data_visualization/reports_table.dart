@@ -7,6 +7,7 @@ import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'package:transitrack_web/components/account_related/route_manager/data_visualization/filters.dart';
 import 'package:transitrack_web/components/account_related/route_manager/data_visualization/reports_map.dart';
 import 'package:transitrack_web/components/attach_img_button.dart';
+import 'package:transitrack_web/components/text_field.dart';
 import 'package:transitrack_web/models/account_model.dart';
 import 'package:transitrack_web/models/feedback_model.dart';
 import 'package:transitrack_web/models/filter_model.dart';
@@ -27,6 +28,10 @@ class ReportsTable extends StatefulWidget {
 
 class _ReportsTableState extends State<ReportsTable> {
   TextEditingController searchController = TextEditingController();
+
+  // For report acknowledgement
+  // TextEditingController recipientEmailController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
 
   bool mapLoaded = false;
   int selected = -1;
@@ -111,6 +116,70 @@ class _ReportsTableState extends State<ReportsTable> {
                     style: TextStyle(color: Colors.red),
                   );
                 },
+              ),
+            ),
+          ],
+        ),
+      ),
+      showCloseIcon: true,
+      dismissOnBackKeyPress: true,
+      dismissOnTouchOutside: true,
+    ).show();
+  }
+
+  // Send report acknowledgement
+  void acknowledgeReport(String reporterEmail) {
+    AwesomeDialog(
+      context: context,
+      dialogType: DialogType.noHeader,
+      width: 500,
+      body: PointerInterceptor(
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(30.0),
+              child: Column(
+                children: [
+                  TextField(
+                    controller: TextEditingController(text: reporterEmail),
+                    decoration: InputDecoration(
+                      labelText: 'Reporter Email',
+                      border: OutlineInputBorder(),
+                    ),
+                    enabled: false, // Makes the text field uneditable
+                  ),
+                  const SizedBox(height: Constants.defaultPadding / 2),
+                  InputTextField(
+                    controller: emailController,
+                    obscureText: false,
+                    hintText: 'Message',
+                    lines: 12,
+                  ),
+                  const SizedBox(height: Constants.defaultPadding / 2),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    spacing: 5.0,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          // Handle send action
+                          // String recipientEmail = recipientEmailController.text;
+                          String email = emailController.text;
+                          // Add your send email logic here
+                          Navigator.pop(context);
+                        },
+                        child: Text('Send'),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          // Handle cancel action
+                          Navigator.pop(context);
+                        },
+                        child: Text('Cancel'),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ],
@@ -287,7 +356,9 @@ class _ReportsTableState extends State<ReportsTable> {
                         right: Constants.defaultPadding,
                         top: Constants.defaultPadding,
                         child: ReportContents(
-                            reportData: selectedReport!, viewImg: viewImg)),
+                            reportData: selectedReport!,
+                            viewImg: viewImg,
+                            acknowledgeReport: acknowledgeReport)),
                   const Positioned(
                       right: Constants.defaultPadding,
                       bottom: Constants.defaultPadding * 2,
@@ -330,8 +401,12 @@ class Legends extends StatelessWidget {
 class ReportContents extends StatelessWidget {
   final ReportData reportData;
   final Function(String) viewImg;
+  final Function(String) acknowledgeReport;
   const ReportContents(
-      {super.key, required this.reportData, required this.viewImg});
+      {super.key,
+      required this.reportData,
+      required this.viewImg,
+      required this.acknowledgeReport});
 
   @override
   Widget build(BuildContext context) {
@@ -409,12 +484,22 @@ class ReportContents extends StatelessWidget {
                         ],
                       )),
                   const SizedBox(height: Constants.defaultPadding / 2),
-                  if (reportData.report_img != null &&
-                      reportData.report_img!.isNotEmpty)
-                    AttachmentButton(
-                        onPressed: () => viewImg(reportData.report_img!),
-                        label: "View Image",
-                        icon: Icons.photo),
+                  Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      spacing: 5.0,
+                      children: [
+                        AttachmentButton(
+                            onPressed: () => acknowledgeReport(
+                                usersAdditionalInfo.senderData!.account_email),
+                            label: "Acknowledge",
+                            icon: Icons.send),
+                        if (reportData.report_img != null &&
+                            reportData.report_img!.isNotEmpty)
+                          AttachmentButton(
+                              onPressed: () => viewImg(reportData.report_img!),
+                              label: "View Image",
+                              icon: Icons.photo),
+                      ]),
                 ],
               ),
               const SizedBox(height: Constants.defaultPadding / 2),
