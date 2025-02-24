@@ -13,6 +13,7 @@ import 'package:transitrack_web/services/mapbox/add_eta_line.dart';
 import 'package:transitrack_web/services/mapbox/add_image_from_asset.dart';
 import 'package:transitrack_web/services/mapbox/animate_ripple.dart';
 import 'package:transitrack_web/services/mapbox/request_location.dart';
+import 'package:transitrack_web/services/mapbox/minute_old_checker.dart';
 
 import '../../config/keys.dart';
 import '../../config/map_settings.dart';
@@ -20,6 +21,8 @@ import '../../config/responsive.dart';
 import '../../models/account_model.dart';
 import '../../models/jeep_model.dart';
 import '../../models/route_model.dart';
+import '../../models/ping_model.dart';
+
 import '../../style/constants.dart';
 import '../account_related/route_manager/route_manager_options.dart';
 import '../right_panel/desktop_route_info.dart';
@@ -56,13 +59,22 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
   late MapboxMapController _mapController;
   late StreamSubscription<Position> _positionStream;
 
-  late Circle? deviceCircle;
+  late Circle?
+      deviceCircle; // the white circle showing the passengers current location
+  bool mapLoaded = false; // used to trigger actions once map is fully loaded
 
+  // for route points, lines, and jeepneys
   late List<LatLng> setRoute;
   List<Circle> circles = [];
   List<Line> lines = [];
   List<JeepEntity> jeepEntities = [];
 
+  // Ping Fetching
+  StreamSubscription? pingListener;
+  List<PingData> pings = [];
+  late Timer timer;
+
+  // set to true once user allows location service
   bool gpsTracking = false;
 
   JeepEntity? selectedJeep;
@@ -78,8 +90,31 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
       myLocation = null;
       deviceCircle = null;
     });
+
+    // if the map is loaded refresh the available pings
+    if (mapLoaded) {
+      refreshPingLayer();
+    }
+
+    // runs every second to update the pings displayed on the map
+    timer = Timer.periodic(const Duration(seconds: 1), (Timer timer) {
+      // if map is fully loaded and routeData is not null
+      if (mapLoaded && _value != null) {
+        // we set pings to those ping's within the 1 minute duration
+        setState(() {
+          pings = pings
+              .where((element) =>
+                  minuteOldChecker(element.ping_timestamp.toDate()))
+              .toList();
+        });
+
+        // converts pings as a GeoJSON format to set as the source for the pings layer
+        _mapController.setGeoJsonSource("pings", listToGeoJSON(pings));
+      }
+    });
   }
 
+  // triggers request loc permission and if allowed listen to location
   void startListening() async {
     var permission = await requestLocationPermission(context);
 
@@ -93,6 +128,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
   }
 
   @override
+  // if the user selects a new route update the map information
   void didUpdateWidget(covariant MapWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
     // if route choice changed
@@ -112,8 +148,11 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
         _value = widget.route;
       });
 
+      // route lines and pings update
       addLine();
+      refreshPingLayer();
 
+      // clear jeepney entities in the map
       _mapController.clearSymbols().then((value) => jeepEntities.clear());
     }
 
@@ -127,6 +166,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
     }
   }
 
+  // update jeepney entities
   void updateJeeps() {
     List<JeepsAndDrivers>? toUpdate = jeeps;
     if (toUpdate != null && toUpdate.isNotEmpty) {
@@ -199,6 +239,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
     }
   }
 
+  // animate the users location indicator circle
   void animateCircleMovement(LatLng from, LatLng to, Circle circle,
       TickerProvider tick, MapboxMapController mapController) {
     final animationController = AnimationController(
@@ -224,10 +265,13 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
     animationController.forward();
   }
 
+  // sets the map controller when the Mapbox map is created
+  // controller - instance of a class that allows you to perform operations
   void _onMapCreated(MapboxMapController controller) {
     _mapController = controller;
   }
 
+  // check and update user location circle within the map
   void _listenToDeviceLocation() {
     _positionStream = Geolocator.getPositionStream(
       locationSettings: const LocationSettings(
@@ -238,6 +282,40 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
     });
   }
 
+  // checks if there are new pings available
+  void listenToPingsFirestore() {
+    pingListener = FirebaseFirestore.instance
+        .collection('pings')
+        .where('ping_route', isEqualTo: _value!.routeId)
+        .snapshots()
+        .listen((QuerySnapshot snapshot) {
+      if (snapshot.docs.isNotEmpty) {
+        setState(() {
+          pings = snapshot.docs
+              .map((doc) => PingData.fromFirestore(doc))
+              .where((element) =>
+                  minuteOldChecker(element.ping_timestamp.toDate()))
+              .toList();
+        });
+        _mapController.setGeoJsonSource("pings", listToGeoJSON(pings));
+      }
+    });
+  }
+
+  // update pings within the map
+  void refreshPingLayer() {
+    if (_value != null) {
+      addGeojsonCluster(_mapController, _value!);
+      listenToPingsFirestore();
+    } else {
+      pingListener?.cancel();
+      pings.clear();
+      // updates the pings layer of the map to display the current pings listed in GeoJSON format
+      _mapController.setGeoJsonSource("pings", listToGeoJSON(pings));
+    }
+  }
+
+  // update the user's location indicator
   void _updateDeviceCircle(LatLng latLng) {
     setState(() {
       myLocation = latLng;
@@ -276,6 +354,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
         });
   }
 
+  // update route
   void update() async {
     // show loading circle
     showDialog(
@@ -303,6 +382,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
     }
   }
 
+  // initializes the lines of the map for the route
   void addLine() {
     _mapController.clearLines().then((value) => lines.clear());
     if (widget.route != null) {
@@ -340,6 +420,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
     }
   }
 
+  // initializes the points on the map
   void addPoints() {
     for (var circle in circles) {
       _mapController.removeCircle(circle);
@@ -360,6 +441,8 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
     }
   }
 
+  // when line on the map is tapped it adds another coordinate
+  // it clears the coordinates and reinitialize them again along with the lines
   void onLineTapped(Line pressedLine) {
     int index = lines.indexWhere((line) => pressedLine == line);
 
@@ -383,6 +466,9 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
         .then((value) => addLine());
   }
 
+  // if a coordinate is tapped it would be removed
+  // it will call add points to reinitialize all points again
+  // it will call add line to reinitilize all lines again
   void onCircleTapped(Circle pressedCircle) {
     int index = circles.indexWhere((circle) => pressedCircle == circle);
 
@@ -393,6 +479,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
     }
   }
 
+  // jeep selection on the map
   void onJeepTapped(Symbol pressedJeep) {
     if (selectedJeep != null) {
       if (pressedJeep != selectedJeep!.jeepSymbol) {
@@ -468,6 +555,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                 onMapCreated: (controller) {
                   _onMapCreated(controller);
                 },
+                // allows you to perform additional setup and customization of the map once the style has been fully loaded
                 onStyleLoadedCallback: () {
                   addETALayer(_mapController);
                   addImageFromAsset(_mapController);
@@ -475,7 +563,11 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                   _mapController.setSymbolTextAllowOverlap(true);
                   _mapController.setSymbolIconIgnorePlacement(true);
                   _mapController.setSymbolTextIgnorePlacement(true);
+                  refreshPingLayer();
                   widget.mapLoaded(true);
+                  setState(() {
+                    mapLoaded = true;
+                  });
                   startListening();
                 },
                 initialCameraPosition: CameraPosition(
