@@ -167,26 +167,17 @@ class _ReportsTableState extends State<ReportsTable> {
                           // String recipientEmail = recipientEmailController.text;
                           // String email = emailController.text;
                           // Add your send email logic here
-                          String? encodeQueryParameters(
-                              Map<String, String> params) {
-                            return params.entries
-                                .map((MapEntry<String, String> e) =>
-                                    '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
-                                .join('&');
-                          }
+                          String emailBody = emailController.text;
+                          String subject = 'Report Acknowledgement';
+                          String body = Uri.encodeComponent(emailBody);
 
-                          final Uri emailUri = Uri(
-                              scheme: 'mailto',
-                              path: reporterEmail,
-                              query: encodeQueryParameters(<String, String>{
-                                'subject': 'Report Acknowledgement',
-                                'body': 'test',
-                              }));
+                          final Uri emailUri = Uri.parse(
+                              'https://mail.google.com/mail/?view=cm&fs=1&to=$reporterEmail&su=$subject&body=$body');
 
-                          if (await launchUrl(emailUri)) {
-                            launchUrl(emailUri);
+                          if (await canLaunchUrl(emailUri)) {
+                            await launchUrl(emailUri);
                           } else {
-                            throw Exception('error');
+                            throw Exception('Could not launch $emailUri');
                           }
 
                           Navigator.pop(context);
