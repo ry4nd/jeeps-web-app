@@ -14,6 +14,7 @@ import 'package:transitrack_web/models/filter_model.dart';
 import 'package:transitrack_web/models/report_model.dart';
 import 'package:transitrack_web/models/route_model.dart';
 import 'package:transitrack_web/style/constants.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 // This widget is used in the Reports tab of the Data visualization panel of the route manager to list all the reports issued in the route.
 
@@ -161,11 +162,33 @@ class _ReportsTableState extends State<ReportsTable> {
                     spacing: 5.0,
                     children: [
                       ElevatedButton(
-                        onPressed: () {
+                        onPressed: () async {
                           // Handle send action
                           // String recipientEmail = recipientEmailController.text;
-                          String email = emailController.text;
+                          // String email = emailController.text;
                           // Add your send email logic here
+                          String? encodeQueryParameters(
+                              Map<String, String> params) {
+                            return params.entries
+                                .map((MapEntry<String, String> e) =>
+                                    '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
+                                .join('&');
+                          }
+
+                          final Uri emailUri = Uri(
+                              scheme: 'mailto',
+                              path: reporterEmail,
+                              query: encodeQueryParameters(<String, String>{
+                                'subject': 'Report Acknowledgement',
+                                'body': 'test',
+                              }));
+
+                          if (await launchUrl(emailUri)) {
+                            launchUrl(emailUri);
+                          } else {
+                            throw Exception('error');
+                          }
+
                           Navigator.pop(context);
                         },
                         child: Text('Send'),
