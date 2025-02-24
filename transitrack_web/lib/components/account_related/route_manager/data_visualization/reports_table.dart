@@ -6,6 +6,7 @@ import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'package:transitrack_web/components/account_related/route_manager/data_visualization/filters.dart';
 import 'package:transitrack_web/components/account_related/route_manager/data_visualization/reports_map.dart';
+import 'package:transitrack_web/components/acknowledge_report.dart';
 import 'package:transitrack_web/components/attach_img_button.dart';
 import 'package:transitrack_web/components/text_field.dart';
 import 'package:transitrack_web/models/account_model.dart';
@@ -101,6 +102,7 @@ class _ReportsTableState extends State<ReportsTable> {
     AwesomeDialog(
       context: context,
       dialogType: DialogType.noHeader,
+      title: 'Send Email',
       width: 1000,
       body: PointerInterceptor(
         child: Column(
@@ -117,83 +119,6 @@ class _ReportsTableState extends State<ReportsTable> {
                     style: TextStyle(color: Colors.red),
                   );
                 },
-              ),
-            ),
-          ],
-        ),
-      ),
-      showCloseIcon: true,
-      dismissOnBackKeyPress: true,
-      dismissOnTouchOutside: true,
-    ).show();
-  }
-
-  // Send report acknowledgement
-  void acknowledgeReport(String reporterEmail) {
-    AwesomeDialog(
-      context: context,
-      dialogType: DialogType.noHeader,
-      width: 500,
-      body: PointerInterceptor(
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(30.0),
-              child: Column(
-                children: [
-                  TextField(
-                    controller: TextEditingController(text: reporterEmail),
-                    decoration: InputDecoration(
-                      labelText: 'Reporter Email',
-                      border: OutlineInputBorder(),
-                    ),
-                    enabled: false, // Makes the text field uneditable
-                  ),
-                  const SizedBox(height: Constants.defaultPadding / 2),
-                  InputTextField(
-                    controller: emailController,
-                    obscureText: false,
-                    hintText: 'Message',
-                    lines: 12,
-                  ),
-                  const SizedBox(height: Constants.defaultPadding / 2),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    spacing: 5.0,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () async {
-                          // Handle send action
-                          // String recipientEmail = recipientEmailController.text;
-                          // String email = emailController.text;
-                          // Add your send email logic here
-                          String emailBody = emailController.text;
-                          String subject = 'Report Acknowledgement';
-                          String body = Uri.encodeComponent(emailBody);
-
-                          final Uri emailUri = Uri.parse(
-                              'https://mail.google.com/mail/?view=cm&fs=1&to=$reporterEmail&su=$subject&body=$body');
-
-                          if (await canLaunchUrl(emailUri)) {
-                            await launchUrl(emailUri);
-                          } else {
-                            throw Exception('Could not launch $emailUri');
-                          }
-
-                          Navigator.pop(context);
-                        },
-                        child: Text('Send'),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          // Handle cancel action
-                          Navigator.pop(context);
-                        },
-                        child: Text('Cancel'),
-                      ),
-                    ],
-                  ),
-                ],
               ),
             ),
           ],
@@ -372,7 +297,11 @@ class _ReportsTableState extends State<ReportsTable> {
                         child: ReportContents(
                             reportData: selectedReport!,
                             viewImg: viewImg,
-                            acknowledgeReport: acknowledgeReport)),
+                            acknowledgeReport: (report) => acknowledgeReport(
+                                context,
+                                report,
+                                emailController,
+                                widget.route.routeName))),
                   const Positioned(
                       right: Constants.defaultPadding,
                       bottom: Constants.defaultPadding * 2,
@@ -415,7 +344,7 @@ class Legends extends StatelessWidget {
 class ReportContents extends StatelessWidget {
   final ReportData reportData;
   final Function(String) viewImg;
-  final Function(String) acknowledgeReport;
+  final Function(ReportData) acknowledgeReport;
   const ReportContents(
       {super.key,
       required this.reportData,
@@ -503,8 +432,7 @@ class ReportContents extends StatelessWidget {
                       spacing: 5.0,
                       children: [
                         AttachmentButton(
-                            onPressed: () => acknowledgeReport(
-                                usersAdditionalInfo.senderData!.account_email),
+                            onPressed: () => acknowledgeReport(reportData),
                             label: "Acknowledge",
                             icon: Icons.send),
                         if (reportData.report_img != null &&
