@@ -3,6 +3,7 @@ import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'package:transitrack_web/components/account_related/route_manager/data_visualization/feedbacks_table.dart';
 import 'package:transitrack_web/components/account_related/route_manager/data_visualization/jeep_historical.dart';
 import 'package:transitrack_web/components/account_related/route_manager/data_visualization/manage_drivers_table.dart';
+import 'package:transitrack_web/components/account_related/route_manager/data_visualization/manage_commuters_table.dart';
 import 'package:transitrack_web/components/account_related/route_manager/data_visualization/reports_table.dart';
 import 'package:transitrack_web/components/account_related/route_manager/data_visualization/shared_locations_page.dart';
 import 'package:transitrack_web/components/left_drawer/logo.dart';
@@ -52,8 +53,13 @@ class _DataVisualizationTabState extends State<DataVisualizationTab> {
           routeData: widget.route,
         )),
     DataVisualizationMenuList(
-        menuName: "Manage Drivers",
+        menuName: "Drivers",
         menuWidget: ManageDriversTable(
+          route: widget.route,
+        )),
+    DataVisualizationMenuList(
+        menuName: "Commuters",
+        menuWidget: ManageCommutersTable(
           route: widget.route,
         )),
   ];
