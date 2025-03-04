@@ -166,8 +166,11 @@ class _ManageDriversTableState extends State<ManageDriversTable> {
                   ),
                   if (drivers != null)
                     const Padding(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: Constants.defaultPadding),
+                      padding: EdgeInsets.fromLTRB(
+                          Constants.defaultPadding,
+                          Constants.defaultPadding,
+                          Constants.defaultPadding,
+                          0.0),
                       child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [

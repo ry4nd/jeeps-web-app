@@ -182,20 +182,14 @@ class _ManageCommutersTableState extends State<ManageCommutersTable> {
                   ),
                   if (commuters != null)
                     const Padding(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: Constants.defaultPadding),
+                      padding: EdgeInsets.fromLTRB(
+                          Constants.defaultPadding,
+                          Constants.defaultPadding,
+                          Constants.defaultPadding,
+                          0.0),
                       child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                Text("Verified"),
-                                SizedBox(width: Constants.defaultPadding * 1.5),
-                                Text("Name")
-                              ],
-                            ),
-                            Text("PUV Operating")
-                          ]),
+                          children: [Text("Name"), Text("PUV Operating")]),
                     ),
                   if (commuters != null)
                     Expanded(
