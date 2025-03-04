@@ -189,7 +189,7 @@ class _ManageCommutersTableState extends State<ManageCommutersTable> {
                           0.0),
                       child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [Text("Name"), Text("PUV Operating")]),
+                          children: [Text("Name"), Text("Status")]),
                     ),
                   if (commuters != null)
                     Expanded(
@@ -209,57 +209,42 @@ class _ManageCommutersTableState extends State<ManageCommutersTable> {
                             }
 
                             return ListTile(
-                                onTap: () async {
-                                  if (selected == index) {
-                                    select(-1, null);
-                                  } else {
-                                    select(index, commuter);
-                                  }
-                                },
-                                selected: index == selected,
-                                selectedColor: Colors.white,
-                                selectedTileColor:
-                                    Color(widget.route.routeColor)
-                                        .withValues(alpha: 0.1),
-                                hoverColor: Colors.white.withValues(alpha: 0.2),
-                                subtitleTextStyle: TextStyle(
-                                    color: Colors.grey.withValues(alpha: 0.75),
-                                    fontStyle: FontStyle.italic,
-                                    fontSize: 12),
-                                leading: Padding(
-                                  padding: const EdgeInsets.only(
-                                      left: Constants.defaultPadding + 5),
-                                  child: Icon(
-                                    commuter.is_verified
-                                        ? Icons.verified_user
-                                        : Icons.remove_moderator,
-                                    color: commuter.is_verified
-                                        ? Colors.blue
-                                        : Colors.grey,
-                                    size: 15,
-                                  ),
-                                ),
-                                title: Padding(
-                                  padding: const EdgeInsets.only(
-                                      left: Constants.defaultPadding * 2),
-                                  child: Text(
-                                    commuter.account_name,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                subtitle: Padding(
-                                  padding: const EdgeInsets.only(
-                                      left: Constants.defaultPadding * 2),
-                                  child: Text(
-                                    "<${commuter.account_email}>",
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                trailing: Text(commuter.jeep_driving != ""
-                                    ? commuter.jeep_driving!
-                                    : "NA"));
+                              onTap: () async {
+                                if (selected == index) {
+                                  select(-1, null);
+                                } else {
+                                  select(index, commuter);
+                                }
+                              },
+                              selected: index == selected,
+                              selectedColor: Colors.white,
+                              selectedTileColor: Color(widget.route.routeColor)
+                                  .withValues(alpha: 0.1),
+                              hoverColor: Colors.white.withValues(alpha: 0.2),
+                              subtitleTextStyle: TextStyle(
+                                  color: Colors.grey.withValues(alpha: 0.75),
+                                  fontStyle: FontStyle.italic,
+                                  fontSize: 12),
+                              title: Text(
+                                commuter.account_name,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              subtitle: Text(
+                                "<${commuter.account_email}>",
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              trailing: Icon(
+                                commuter.account_banned
+                                    ? Icons.no_accounts_outlined
+                                    : Icons.account_circle_outlined,
+                                color: commuter.account_banned
+                                    ? Colors.red
+                                    : Colors.grey,
+                                size: 20,
+                              ),
+                            );
                           },
                         ),
                       ),
