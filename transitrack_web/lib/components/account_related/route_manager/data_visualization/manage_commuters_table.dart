@@ -164,7 +164,7 @@ class _ManageCommutersTableState extends State<ManageCommutersTable> {
                               body: PointerInterceptor(
                                   child: Filters(
                                 route: widget.route,
-                                dropdownList: FilterParameters.driversOrderBy,
+                                dropdownList: FilterParameters.commutersOrderBy,
                                 oldFilter: orderBy,
                                 newFilter: (FilterParameters newFilter) {
                                   setState(() {
