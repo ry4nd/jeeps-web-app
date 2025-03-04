@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'package:transitrack_web/components/account_related/route_manager/data_visualization/filters.dart';
-import 'package:transitrack_web/components/account_related/route_manager/data_visualization/selected_driver_details.dart';
+import 'package:transitrack_web/components/account_related/route_manager/data_visualization/selected_commuter_details.dart';
 import 'package:transitrack_web/components/left_drawer/logo.dart';
 import 'package:transitrack_web/models/account_model.dart';
 import 'package:transitrack_web/models/feedback_model.dart';
@@ -256,11 +256,11 @@ class _ManageCommutersTableState extends State<ManageCommutersTable> {
             Expanded(
               child: Center(
                 child: selectedCommuter != null
-                    ? SelectedDriverDetails(
+                    ? SelectedCommuterDetails(
                         driver: selectedCommuter!,
                         routes: routes,
                         route: widget.route,
-                        loadDrivers: () => loadCommuters(),
+                        loadCommuters: () => loadCommuters(),
                       )
                     : const Logo(),
               ),
