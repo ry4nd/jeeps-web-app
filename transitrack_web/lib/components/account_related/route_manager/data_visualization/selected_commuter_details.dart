@@ -61,60 +61,43 @@ class _SelectedCommuterDetailsState extends State<SelectedCommuterDetails> {
               return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(mainAxisAlignment: MainAxisAlignment.start, children: [
-                      Container(
-                        width: 34,
-                        height: 34,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Color(widget.route.routeColor), // Circle color
-                        ),
-                        child: const Center(
-                          child: Icon(
-                            Icons.person,
-                            size: 22,
-                            color: Constants.bgColor, // Icon color
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: Constants.defaultPadding),
-                      Expanded(
-                        child: Column(
-                          children: [
-                            Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                    Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.account_circle,
+                                color: Color(widget.route.routeColor),
+                                size: 32,
+                              ),
+                              const SizedBox(width: Constants.defaultPadding),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Row(children: [
-                                    Text(widget.commuter.account_name),
-                                    const SizedBox(
-                                        width: Constants.defaultPadding / 2),
-                                    Icon(
-                                        widget.commuter.is_verified
-                                            ? Icons.verified_user
-                                            : Icons.remove_moderator,
-                                        color: widget.commuter.is_verified
-                                            ? Colors.blue
-                                            : Colors.grey,
-                                        size: 13)
-                                  ]),
-                                ]),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text('<${widget.commuter.account_email}>',
-                                    style: TextStyle(
-                                        fontSize: 11,
-                                        color: Colors.white
-                                            .withValues(alpha: 0.5))),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ]),
-                    const Divider(color: Colors.white),
-                    const SizedBox(height: Constants.defaultPadding),
+                                  Text(widget.commuter.account_name),
+                                  Text(widget.commuter.account_email,
+                                      style: TextStyle(
+                                          fontSize: 11,
+                                          color: Colors.white
+                                              .withValues(alpha: 0.2))),
+                                ],
+                              ),
+                            ],
+                          ),
+                          Text(
+                            widget.commuter.account_banned
+                                ? "Banned"
+                                : "Active",
+                            style: TextStyle(
+                                color: widget.commuter.account_banned
+                                    ? Colors.red[600]
+                                    : Color(widget.route.routeColor)),
+                          ),
+                        ]),
+                    // const Divider(color: Colors.white),
+                    // const SizedBox(height: Constants.defaultPadding),
                     const SizedBox(height: Constants.defaultPadding),
                     const Divider(color: Colors.white),
                     if (snapshot.hasData && snapshot.data!.feedback!.isNotEmpty)

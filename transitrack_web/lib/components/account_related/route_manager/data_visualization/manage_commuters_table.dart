@@ -241,8 +241,8 @@ class _ManageCommutersTableState extends State<ManageCommutersTable> {
                                     ? Icons.no_accounts_outlined
                                     : Icons.account_circle_outlined,
                                 color: commuter.account_banned
-                                    ? Colors.red
-                                    : Colors.grey,
+                                    ? Colors.red[600]
+                                    : Colors.blue,
                                 size: 20,
                               ),
                             );
