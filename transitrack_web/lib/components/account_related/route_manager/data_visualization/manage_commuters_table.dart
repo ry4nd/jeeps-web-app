@@ -8,7 +8,7 @@ import 'package:transitrack_web/components/left_drawer/logo.dart';
 import 'package:transitrack_web/models/account_model.dart';
 import 'package:transitrack_web/models/feedback_model.dart';
 import 'package:transitrack_web/models/filter_model.dart';
-import 'package:transitrack_web/models/jeep_model.dart';
+import 'package:transitrack_web/models/report_model.dart';
 import 'package:transitrack_web/models/route_model.dart';
 import 'package:transitrack_web/style/constants.dart';
 
@@ -20,13 +20,14 @@ class ManageCommutersTable extends StatefulWidget {
   State<ManageCommutersTable> createState() => _ManageCommutersTableState();
 }
 
-class JeepDataRatingAndAddress {
-  List<FeedbackData>? rating;
-  JeepData? jeepData;
-  String? address;
+class CommuterFeedbackAndReport {
+  List<FeedbackData>? feedback;
+  List<ReportData>? report;
 
-  JeepDataRatingAndAddress(
-      {required this.rating, required this.jeepData, required this.address});
+  CommuterFeedbackAndReport({
+    required this.feedback,
+    required this.report,
+  });
 }
 
 class _ManageCommutersTableState extends State<ManageCommutersTable> {
@@ -257,7 +258,7 @@ class _ManageCommutersTableState extends State<ManageCommutersTable> {
               child: Center(
                 child: selectedCommuter != null
                     ? SelectedCommuterDetails(
-                        driver: selectedCommuter!,
+                        commuter: selectedCommuter!,
                         routes: routes,
                         route: widget.route,
                         loadCommuters: () => loadCommuters(),

@@ -6,21 +6,20 @@ import 'package:transitrack_web/components/account_related/route_manager/data_vi
 import 'package:transitrack_web/components/right_panel/feedback_tab.dart';
 import 'package:transitrack_web/models/account_model.dart';
 import 'package:transitrack_web/models/feedback_model.dart';
-import 'package:transitrack_web/models/jeep_model.dart';
+import 'package:transitrack_web/models/report_model.dart';
 import 'package:transitrack_web/models/route_model.dart';
-import 'package:transitrack_web/services/find_location.dart';
 import 'package:transitrack_web/style/constants.dart';
 
 class SelectedCommuterDetails extends StatefulWidget {
   final List<RouteData> routes;
   final RouteData route;
-  final AccountData driver;
+  final AccountData commuter;
   final Function loadCommuters;
   const SelectedCommuterDetails(
       {super.key,
       required this.routes,
       required this.route,
-      required this.driver,
+      required this.commuter,
       required this.loadCommuters});
 
   @override
@@ -29,26 +28,11 @@ class SelectedCommuterDetails extends StatefulWidget {
 }
 
 class _SelectedCommuterDetailsState extends State<SelectedCommuterDetails> {
-  Future<JeepDataRatingAndAddress?> getAddress(
-      String email, String jeep) async {
-    List<FeedbackData>? ratings = await getRating(email, 'feedback_recepient');
+  Future<CommuterFeedbackAndReport?> getFeedbackAndReport(String email) async {
+    List<FeedbackData>? feedback = await getFeedbackSender(email);
+    List<ReportData>? report = await getReportSender(email);
 
-    if (jeep == "") {
-      return JeepDataRatingAndAddress(
-          jeepData: null, address: null, rating: ratings);
-    }
-    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-        .collection('jeeps_realtime')
-        .where('device_id', isEqualTo: jeep)
-        .get();
-
-    JeepData jeepData = JeepData.fromSnapshot(querySnapshot.docs.first);
-
-    String address = await findAddress(
-        LatLng(jeepData.location.latitude, jeepData.location.longitude));
-
-    return JeepDataRatingAndAddress(
-        jeepData: jeepData, address: address, rating: ratings);
+    return CommuterFeedbackAndReport(feedback: feedback, report: report);
   }
 
   @override
@@ -61,8 +45,7 @@ class _SelectedCommuterDetailsState extends State<SelectedCommuterDetails> {
                 width: 2, color: Colors.white.withValues(alpha: 0.5)),
             borderRadius: BorderRadius.circular(Constants.defaultPadding / 2)),
         child: FutureBuilder(
-            future: getAddress(
-                widget.driver.account_email, widget.driver.jeep_driving!),
+            future: getFeedbackAndReport(widget.commuter.account_email),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return Center(
@@ -73,19 +56,6 @@ class _SelectedCommuterDetailsState extends State<SelectedCommuterDetails> {
 
               if (snapshot.hasError) {
                 return Text(snapshot.error.toString());
-              }
-
-              JeepDataRatingAndAddress? jeep;
-              double? ratingAve;
-              if (snapshot.hasData) {
-                jeep = snapshot.data;
-                if (jeep!.rating != null && jeep.rating!.isNotEmpty) {
-                  ratingAve = (jeep.rating!
-                          .map((e) => e.feedback_driving_rating)
-                          .toList()
-                          .reduce((value, element) => value + element) /
-                      jeep.rating!.length);
-                }
               }
 
               return Column(
@@ -116,55 +86,27 @@ class _SelectedCommuterDetailsState extends State<SelectedCommuterDetails> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Row(children: [
-                                    Text(widget.driver.account_name),
+                                    Text(widget.commuter.account_name),
                                     const SizedBox(
                                         width: Constants.defaultPadding / 2),
                                     Icon(
-                                        widget.driver.is_verified
+                                        widget.commuter.is_verified
                                             ? Icons.verified_user
                                             : Icons.remove_moderator,
-                                        color: widget.driver.is_verified
+                                        color: widget.commuter.is_verified
                                             ? Colors.blue
                                             : Colors.grey,
                                         size: 13)
                                   ]),
-                                  Row(
-                                    children: [
-                                      Text(jeep!.jeepData != null
-                                          ? jeep.jeepData!.device_id
-                                          : "Not Operating"),
-                                      const SizedBox(
-                                          width: Constants.defaultPadding / 2),
-                                      Icon(
-                                        jeep.jeepData != null
-                                            ? Icons.circle
-                                            : Icons.circle_outlined,
-                                        color: jeep.jeepData != null
-                                            ? Color(widget
-                                                .routes[jeep.jeepData!.route_id]
-                                                .routeColor)
-                                            : Colors.grey,
-                                        size: 13,
-                                      ),
-                                    ],
-                                  ),
                                 ]),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text('<${widget.driver.account_email}>',
+                                Text('<${widget.commuter.account_email}>',
                                     style: TextStyle(
                                         fontSize: 11,
                                         color: Colors.white
                                             .withValues(alpha: 0.5))),
-                                if (jeep.address != null)
-                                  Text(jeep.address!,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                          fontSize: 11,
-                                          color: Colors.white
-                                              .withValues(alpha: 0.5))),
                               ],
                             ),
                           ],
@@ -173,37 +115,15 @@ class _SelectedCommuterDetailsState extends State<SelectedCommuterDetails> {
                     ]),
                     const Divider(color: Colors.white),
                     const SizedBox(height: Constants.defaultPadding),
-                    Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                      Text(
-                          "Average Rating: ${ratingAve != null ? double.parse(ratingAve.toString()).toStringAsFixed(1) : "No Rating Found."}"),
-                      if (ratingAve != null)
-                        const SizedBox(width: Constants.defaultPadding),
-                      if (ratingAve != null)
-                        Row(
-                          children: List.generate(5, (index) {
-                            return Icon(
-                              index < ratingAve!.round()
-                                  ? Icons.star
-                                  : Icons.star_border,
-                              color: index < ratingAve.round()
-                                  ? Color(widget.route.routeColor)
-                                  : Colors.grey,
-                              size: 20,
-                            );
-                          }),
-                        ),
-                      if (ratingAve != null)
-                        Text(" (${jeep.rating!.length} results)")
-                    ]),
                     const SizedBox(height: Constants.defaultPadding),
                     const Divider(color: Colors.white),
-                    if (jeep.rating!.isNotEmpty)
-                      const SizedBox(height: Constants.defaultPadding),
-                    if (jeep.rating!.isNotEmpty)
-                      FeedBack(feedbacks: jeep.rating!, routes: widget.routes),
-                    const SizedBox(height: Constants.defaultPadding),
-                    if (jeep.rating!.isNotEmpty)
-                      const Divider(color: Colors.white),
+                    // if (jeep.rating!.isNotEmpty)
+                    //   const SizedBox(height: Constants.defaultPadding),
+                    // if (jeep.rating!.isNotEmpty)
+                    //   FeedBack(feedbacks: jeep.rating!, routes: widget.routes),
+                    // const SizedBox(height: Constants.defaultPadding),
+                    // if (jeep.rating!.isNotEmpty)
+                    //   const Divider(color: Colors.white),
                     Row(
                       children: [
                         Expanded(
@@ -213,36 +133,36 @@ class _SelectedCommuterDetailsState extends State<SelectedCommuterDetails> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Icon(
-                                      widget.driver.is_verified
-                                          ? Icons.remove_moderator
-                                          : Icons.verified_user,
-                                      color: widget.driver.is_verified
-                                          ? Colors.red[600]
-                                          : Colors.blue,
+                                      widget.commuter.account_banned
+                                          ? Icons.account_circle_outlined
+                                          : Icons.no_accounts_outlined,
+                                      color: widget.commuter.account_banned
+                                          ? Colors.blue
+                                          : Colors.red[600],
                                       size: 15),
                                   const SizedBox(
                                       width: Constants.defaultPadding / 2),
-                                  Text(widget.driver.is_verified
-                                      ? "Unverify Driver"
-                                      : "Verify Driver"),
+                                  Text(widget.commuter.account_banned
+                                      ? "Enable Account"
+                                      : "Ban Account"),
                                 ],
                               ),
                               onPressed: () => AwesomeDialog(
                                   context: context,
                                   width: 400,
-                                  dialogType: widget.driver.is_verified
+                                  dialogType: widget.commuter.account_banned
                                       ? DialogType.error
                                       : DialogType.success,
                                   padding: const EdgeInsets.all(
                                       Constants.defaultPadding),
                                   desc:
-                                      "You are about to ${widget.driver.is_verified ? "unverify" : "verify"} ${widget.driver.account_name}.",
-                                  btnOkText: widget.driver.is_verified
-                                      ? "Unverify"
-                                      : "Verify",
-                                  btnOkColor: widget.driver.is_verified
-                                      ? Colors.red[600]
-                                      : Colors.blue,
+                                      "You are about to ${widget.commuter.account_banned ? "enable" : "ban"} ${widget.commuter.account_name}.",
+                                  btnOkText: widget.commuter.account_banned
+                                      ? "Enable"
+                                      : "Ban",
+                                  btnOkColor: widget.commuter.is_verified
+                                      ? Colors.blue
+                                      : Colors.red[600],
                                   btnOkOnPress: () async {
                                     await AwesomeDialog(
                                             context: context,
@@ -260,10 +180,11 @@ class _SelectedCommuterDetailsState extends State<SelectedCommuterDetails> {
                                                 milliseconds: 1000))
                                         .show();
                                     await AccountData.updateAccountFirestore(
-                                        widget.driver.account_email, {
-                                      'is_verified': widget.driver.is_verified
-                                          ? false
-                                          : true
+                                        widget.commuter.account_email, {
+                                      'account_banned':
+                                          widget.commuter.account_banned
+                                              ? true
+                                              : false
                                     }).then((bool success) => AwesomeDialog(
                                         width: 400,
                                         context: context,
@@ -274,8 +195,8 @@ class _SelectedCommuterDetailsState extends State<SelectedCommuterDetails> {
                                           Constants.defaultPadding,
                                         ),
                                         desc: success
-                                            ? "Successfully ${widget.driver.is_verified ? "unverified" : "verified"} ${widget.driver.account_name}. Reloading."
-                                            : "Unable to ${widget.driver.is_verified ? "unverify" : "verify"} ${widget.driver.account_name}. Check your connection!",
+                                            ? "Successfully ${widget.commuter.account_banned ? "banned" : "enabled"} ${widget.commuter.account_name}. Reloading."
+                                            : "Unable to ${widget.commuter.account_banned ? "ban" : "enable"} ${widget.commuter.account_name}. Check your connection!",
                                         autoHide:
                                             const Duration(milliseconds: 3000),
                                         onDismissCallback: (_) =>

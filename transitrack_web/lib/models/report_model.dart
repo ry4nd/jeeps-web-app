@@ -78,3 +78,22 @@ class ReportEntity {
 
   ReportEntity({required this.reportData, required this.reportCircle});
 }
+
+Future<List<ReportData>?> getReportSender(String email) async {
+  try {
+    QuerySnapshot snapshot = await FirebaseFirestore.instance
+        .collection('reports')
+        .where("report_sender", isEqualTo: email)
+        .limit(50)
+        .get();
+    if (snapshot.docs.isNotEmpty) {
+      return snapshot.docs.map((e) => ReportData.fromFirestore(e)).toList();
+    } else {
+      // print("Error: No Feedback found");
+      return [];
+    }
+  } catch (e) {
+    // print(e.toString());
+    return null;
+  }
+}

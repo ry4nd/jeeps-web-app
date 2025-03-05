@@ -82,3 +82,22 @@ Future<List<FeedbackData>?> getRating(String email, String field) async {
     return null;
   }
 }
+
+Future<List<FeedbackData>?> getFeedbackSender(String email) async {
+  try {
+    QuerySnapshot snapshot = await FirebaseFirestore.instance
+        .collection('feedbacks')
+        .where("feedback_sender", isEqualTo: email)
+        .limit(50)
+        .get();
+    if (snapshot.docs.isNotEmpty) {
+      return snapshot.docs.map((e) => FeedbackData.fromFirestore(e)).toList();
+    } else {
+      print("Error: No Feedback found");
+      return [];
+    }
+  } catch (e) {
+    print(e.toString());
+    return null;
+  }
+}
