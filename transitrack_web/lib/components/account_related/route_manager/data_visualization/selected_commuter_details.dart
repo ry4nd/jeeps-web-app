@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:transitrack_web/components/account_related/route_manager/data_visualization/manage_commuters_table.dart';
-import 'package:transitrack_web/components/right_panel/feedback_tab.dart';
+import 'package:transitrack_web/components/right_panel/commuter_feedback_tab.dart';
 import 'package:transitrack_web/models/account_model.dart';
 import 'package:transitrack_web/models/feedback_model.dart';
 import 'package:transitrack_web/models/report_model.dart';
@@ -117,13 +117,15 @@ class _SelectedCommuterDetailsState extends State<SelectedCommuterDetails> {
                     const SizedBox(height: Constants.defaultPadding),
                     const SizedBox(height: Constants.defaultPadding),
                     const Divider(color: Colors.white),
-                    // if (jeep.rating!.isNotEmpty)
-                    //   const SizedBox(height: Constants.defaultPadding),
-                    // if (jeep.rating!.isNotEmpty)
-                    //   FeedBack(feedbacks: jeep.rating!, routes: widget.routes),
-                    // const SizedBox(height: Constants.defaultPadding),
-                    // if (jeep.rating!.isNotEmpty)
-                    //   const Divider(color: Colors.white),
+                    if (snapshot.hasData && snapshot.data!.feedback!.isNotEmpty)
+                      const SizedBox(height: Constants.defaultPadding),
+                    if (snapshot.hasData && snapshot.data!.feedback!.isNotEmpty)
+                      FeedBack(
+                          feedbacks: snapshot.data!.feedback!,
+                          routes: widget.routes),
+                    const SizedBox(height: Constants.defaultPadding),
+                    if (snapshot.hasData && snapshot.data!.feedback!.isNotEmpty)
+                      const Divider(color: Colors.white),
                     Row(
                       children: [
                         Expanded(
@@ -242,9 +244,8 @@ class FeedBackState extends State<FeedBack> {
                 },
                 icon: const Icon(Icons.arrow_left)),
             Expanded(
-              child: FeedbackTab(
+              child: CommuterFeedbackTab(
                   route: widget.routes[widget.feedbacks[index].feedback_route],
-                  isDriver: true,
                   feedBack: widget.feedbacks[index]),
             ),
             IconButton(
