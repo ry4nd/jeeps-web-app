@@ -146,7 +146,8 @@ class _SelectedCommuterDetailsState extends State<SelectedCommuterDetails> {
                     if (snapshot.hasData && snapshot.data!.feedback!.isNotEmpty)
                       FeedBack(
                           feedbacks: snapshot.data!.feedback!,
-                          routes: widget.routes),
+                          routes: widget.routes,
+                          loadCommuters: widget.loadCommuters),
                     const SizedBox(height: Constants.defaultPadding),
                     if (snapshot.hasData && snapshot.data!.feedback!.isNotEmpty)
                       const Divider(color: Colors.white),
@@ -223,7 +224,12 @@ class _SelectedCommuterDetailsState extends State<SelectedCommuterDetails> {
 class FeedBack extends StatefulWidget {
   final List<RouteData> routes;
   final List<FeedbackData> feedbacks;
-  const FeedBack({super.key, required this.routes, required this.feedbacks});
+  final Function loadCommuters;
+  const FeedBack(
+      {super.key,
+      required this.routes,
+      required this.feedbacks,
+      required this.loadCommuters});
 
   @override
   State<FeedBack> createState() => FeedBackState();
@@ -251,8 +257,10 @@ class FeedBackState extends State<FeedBack> {
                 icon: const Icon(Icons.arrow_left)),
             Expanded(
               child: CommuterFeedbackTab(
-                  route: widget.routes[widget.feedbacks[index].feedback_route],
-                  feedBack: widget.feedbacks[index]),
+                route: widget.routes[widget.feedbacks[index].feedback_route],
+                feedBack: widget.feedbacks[index],
+                loadCommuters: widget.loadCommuters,
+              ),
             ),
             IconButton(
                 onPressed: () {
