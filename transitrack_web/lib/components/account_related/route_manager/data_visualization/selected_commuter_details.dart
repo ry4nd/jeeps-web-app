@@ -1,7 +1,6 @@
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:transitrack_web/components/account_related/route_manager/data_visualization/manage_commuters_table.dart';
 import 'package:transitrack_web/components/right_panel/commuter_feedback_tab.dart';
 import 'package:transitrack_web/models/account_model.dart';
@@ -9,6 +8,7 @@ import 'package:transitrack_web/models/feedback_model.dart';
 import 'package:transitrack_web/models/report_model.dart';
 import 'package:transitrack_web/models/route_model.dart';
 import 'package:transitrack_web/style/constants.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 
 class SelectedCommuterDetails extends StatefulWidget {
   final List<RouteData> routes;
@@ -33,6 +33,47 @@ class _SelectedCommuterDetailsState extends State<SelectedCommuterDetails> {
     List<ReportData>? report = await getReportSender(email);
 
     return CommuterFeedbackAndReport(feedback: feedback, report: report);
+  }
+
+  // Method to disable a user by calling the Firebase function
+  Future<void> toggleCommuterStatus(String email, bool disable) async {
+    try {
+      QuerySnapshot snapshot = await FirebaseFirestore.instance
+          .collection('accounts')
+          .where('account_email', isEqualTo: email)
+          .limit(1)
+          .get();
+
+      // Get the UID from the 'account_id' field in the Firestore document
+      String uid = snapshot.docs.first.get('account_uid');
+
+      // Get the instance of the Firebase function
+      final HttpsCallable callable =
+          FirebaseFunctions.instance.httpsCallable('toggleUserStatus');
+
+      // Call the function with the user ID
+      await callable.call(<String, dynamic>{
+        'uid': uid,
+        'disable': disable,
+      });
+    } catch (e) {
+      // Display the error message
+      errorMessage('Error ${disable ? 'banning' : 'activating'} account: $e');
+    }
+  }
+
+  void errorMessage(String message) {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+              backgroundColor: Constants.bgColor,
+              title: Center(
+                  child: Text(
+                message,
+                style: const TextStyle(color: Colors.white),
+              )));
+        });
   }
 
   @override
@@ -136,8 +177,8 @@ class _SelectedCommuterDetailsState extends State<SelectedCommuterDetails> {
                                   context: context,
                                   width: 400,
                                   dialogType: widget.commuter.account_banned
-                                      ? DialogType.error
-                                      : DialogType.success,
+                                      ? DialogType.info
+                                      : DialogType.warning,
                                   padding: const EdgeInsets.all(
                                       Constants.defaultPadding),
                                   desc:
@@ -145,10 +186,13 @@ class _SelectedCommuterDetailsState extends State<SelectedCommuterDetails> {
                                   btnOkText: widget.commuter.account_banned
                                       ? "Enable"
                                       : "Ban",
-                                  btnOkColor: widget.commuter.is_verified
+                                  btnOkColor: widget.commuter.account_banned
                                       ? Colors.blue
                                       : Colors.red[600],
                                   btnOkOnPress: () async {
+                                    await toggleCommuterStatus(
+                                        widget.commuter.account_email,
+                                        !widget.commuter.account_banned);
                                     await AwesomeDialog(
                                             context: context,
                                             width: 150,
@@ -164,28 +208,7 @@ class _SelectedCommuterDetailsState extends State<SelectedCommuterDetails> {
                                             autoHide: const Duration(
                                                 milliseconds: 1000))
                                         .show();
-                                    await AccountData.updateAccountFirestore(
-                                        widget.commuter.account_email, {
-                                      'account_banned':
-                                          widget.commuter.account_banned
-                                              ? true
-                                              : false
-                                    }).then((bool success) => AwesomeDialog(
-                                        width: 400,
-                                        context: context,
-                                        dialogType: success
-                                            ? DialogType.success
-                                            : DialogType.error,
-                                        padding: const EdgeInsets.all(
-                                          Constants.defaultPadding,
-                                        ),
-                                        desc: success
-                                            ? "Successfully ${widget.commuter.account_banned ? "banned" : "enabled"} ${widget.commuter.account_name}. Reloading."
-                                            : "Unable to ${widget.commuter.account_banned ? "ban" : "enable"} ${widget.commuter.account_name}. Check your connection!",
-                                        autoHide:
-                                            const Duration(milliseconds: 3000),
-                                        onDismissCallback: (_) =>
-                                            widget.loadCommuters()).show());
+                                    widget.loadCommuters();
                                   }).show(),
                             ),
                           ),

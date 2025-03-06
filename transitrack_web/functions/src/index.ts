@@ -3,9 +3,12 @@ import * as admin from "firebase-admin";
 
 admin.initializeApp();
 
-export const disableUser = functions.https.onCall(
-  async (data, context: functions.https.CallableContext) => {
-    // check if the request is authenticated
+export const toggleUserStatus = functions.https.onCall(
+  async (
+    data: { uid: string; disable: boolean },
+    context: functions.https.CallableContext
+  ) => {
+    // Check if the request is authenticated
     if (!context?.auth) {
       throw new functions.https.HttpsError(
         "unauthenticated",
@@ -13,22 +16,40 @@ export const disableUser = functions.https.onCall(
       );
     }
 
-    const uid = data.uid; // get the user ID from the request data
+    const { uid, disable } = data; // Get the user ID and disable flag from request data
 
-    if (!uid) {
+    if (!uid || typeof disable !== "boolean") {
       throw new functions.https.HttpsError(
         "invalid-argument",
-        "The function must be called with a valid user ID."
+        "The function must be called with a valid user ID and disable flag."
       );
     }
 
     try {
-      await admin.auth().updateUser(uid, { disabled: true }); // disable the user
-      return { message: `Successfully disabled user with UID: ${uid}` };
+      // Update authentication status
+      await admin.auth().updateUser(uid, { disabled: disable });
+
+      // Update Firestore account status only for the document where account_uid matches uid
+      const accountsRef = admin.firestore().collection("accounts");
+      const querySnapshot = await accountsRef
+        .where("account_uid", "==", uid)
+        .get();
+
+      if (!querySnapshot.empty) {
+        querySnapshot.forEach(async (doc) => {
+          await doc.ref.set({ account_banned: disable }, { merge: true });
+        });
+      }
+
+      return {
+        message: `Successfully ${
+          disable ? "disabled" : "enabled"
+        } user with UID: ${uid}`,
+      };
     } catch (error) {
       throw new functions.https.HttpsError(
         "internal",
-        `Error disabling user: ${(error as Error).message}`
+        `Error updating user status: ${(error as Error).message}`
       );
     }
   }
