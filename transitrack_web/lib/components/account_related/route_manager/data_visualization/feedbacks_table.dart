@@ -10,7 +10,6 @@ import 'package:transitrack_web/models/feedback_model.dart';
 import 'package:transitrack_web/models/filter_model.dart';
 import 'package:transitrack_web/models/route_model.dart';
 import 'package:transitrack_web/style/constants.dart';
-import 'package:cloud_functions/cloud_functions.dart';
 
 // This widget is called when route manager opens the feedback tab in the data visualization panel
 
@@ -71,54 +70,32 @@ class _FeedbacksTableState extends State<FeedbacksTable> {
     });
   }
 
-  // Method to disable a user by calling the Firebase function
-  Future<void> disableUser(String email) async {
+  Future<void> deleteFeedback(String senderEmail, Timestamp timestamp) async {
     try {
-      QuerySnapshot snapshot = await FirebaseFirestore.instance
-          .collection('accounts')
-          .where('account_email', isEqualTo: email)
-          .limit(1)
-          .get();
+      // Query the Firestore collection to find feedback documents
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('feedbacks')
+          .where('feedback_sender',
+              isEqualTo: senderEmail) // Filter by sender email
+          .where('timestamp', isEqualTo: timestamp) // Filter by timestamp
+          .limit(1) // Limit the query to 1 document
+          .get(); // Retrieve the matching document
 
-      if (snapshot.docs.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('No user found with this email')),
-        );
-        return;
+      // Check if any document was found.
+      if (querySnapshot.docs.isNotEmpty) {
+        // Get the first document and delete it.
+        await querySnapshot.docs.first.reference.delete();
+
+        // Print success message in the console.
+        // print("Feedback deleted successfully.");
+      } else {
+        // Print a message if no matching feedback is found.
+        // print("No matching feedback found to delete.");
       }
-
-      // Get the UID from the 'account_id' field in the Firestore document
-      String uid = snapshot.docs.first.get('account_uid');
-
-      // Get the instance of the Firebase function
-      final HttpsCallable callable =
-          FirebaseFunctions.instance.httpsCallable('disableUser');
-
-      // Call the function with the user ID
-      await callable.call(<String, dynamic>{
-        'uid': uid,
-      });
-
-      // Display the result (for example, show a success message)
-      errorMessage('User Banned Successfully');
-    } catch (e) {
-      // Display the error message
-      errorMessage('Error Banning User: $e');
+    } catch (error) {
+      // Print an error message if something goes wrong.
+      // print("Error deleting feedback: $error");
     }
-  }
-
-  void errorMessage(String message) {
-    showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-              backgroundColor: Constants.bgColor,
-              title: Center(
-                  child: Text(
-                message,
-                style: const TextStyle(color: Colors.white),
-              )));
-        });
   }
 
   @override
@@ -330,16 +307,17 @@ class _FeedbacksTableState extends State<FeedbacksTable> {
                                         ),
                                       ],
                                     ),
-                                    TextButton(
-                                      onPressed: () {
-                                        disableUser(
-                                            selectedFeedback!.feedback_sender);
-                                      },
-                                      child: Text('Ban Account',
-                                          style: TextStyle(
-                                            color: Colors.red,
-                                          )),
-                                    ),
+                                    Text(
+                                        feedbackAdditionalInfo
+                                                .senderData!.account_banned
+                                            ? "Banned"
+                                            : "Active",
+                                        style: TextStyle(
+                                            color: feedbackAdditionalInfo
+                                                    .senderData!.account_banned
+                                                ? Colors.red
+                                                : Color(
+                                                    widget.route.routeColor))),
                                   ],
                                 ),
                                 const Spacer(),
@@ -358,12 +336,12 @@ class _FeedbacksTableState extends State<FeedbacksTable> {
                                     child: Column(
                                       children: [
                                         Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
                                           children: [
-                                            Expanded(
-                                                child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
                                               children: [
                                                 Text(DateFormat('MMMM d, y')
                                                     .format(selectedFeedback!
@@ -381,7 +359,65 @@ class _FeedbacksTableState extends State<FeedbacksTable> {
                                                             .withValues(
                                                                 alpha: 0.5))),
                                               ],
-                                            )),
+                                            ),
+                                            TextButton.icon(
+                                              onPressed: () {
+                                                AwesomeDialog(
+                                                  context: context,
+                                                  width: 400,
+                                                  dialogType:
+                                                      DialogType.warning,
+                                                  padding: const EdgeInsets.all(
+                                                      Constants.defaultPadding),
+                                                  desc:
+                                                      "You are about to delete this feedback. This action cannot be undone.",
+                                                  btnOkText: "Delete",
+                                                  btnOkColor: Colors.red[600],
+                                                  btnCancelText: "Cancel",
+                                                  btnCancelColor:
+                                                      Constants.bgColor,
+                                                  btnCancelOnPress: () {},
+                                                  btnOkOnPress: () async {
+                                                    await deleteFeedback(
+                                                        selectedFeedback!
+                                                            .feedback_sender,
+                                                        selectedFeedback!
+                                                            .timestamp);
+
+                                                    await AwesomeDialog(
+                                                            context: context,
+                                                            width: 150,
+                                                            padding: const EdgeInsets
+                                                                .only(
+                                                                bottom:
+                                                                    Constants
+                                                                        .defaultPadding),
+                                                            dialogType:
+                                                                DialogType
+                                                                    .noHeader,
+                                                            body: CircularProgressIndicator(
+                                                                color: Color(widget
+                                                                    .route
+                                                                    .routeColor)),
+                                                            dismissOnBackKeyPress:
+                                                                false,
+                                                            dismissOnTouchOutside:
+                                                                false,
+                                                            autoHide:
+                                                                const Duration(
+                                                                    milliseconds:
+                                                                        1000))
+                                                        .show();
+                                                    loadFeedbacks();
+                                                  },
+                                                ).show();
+                                              },
+                                              icon: Icon(Icons.delete,
+                                                  color: Colors.red[600]),
+                                              label: Text("Delete",
+                                                  style: TextStyle(
+                                                      color: Colors.red[600])),
+                                            )
                                           ],
                                         ),
                                         const SizedBox(
@@ -425,7 +461,6 @@ class _FeedbacksTableState extends State<FeedbacksTable> {
                                                         ? Color(widget
                                                             .route.routeColor)
                                                         : Colors.grey,
-                                                    size: 16,
                                                   );
                                                 }),
                                               ),
@@ -461,7 +496,6 @@ class _FeedbacksTableState extends State<FeedbacksTable> {
                                                         ? Color(widget
                                                             .route.routeColor)
                                                         : Colors.grey,
-                                                    size: 16,
                                                   );
                                                 }),
                                               ),
