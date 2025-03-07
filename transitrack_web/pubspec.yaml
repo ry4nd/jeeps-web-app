@@ -30,13 +30,14 @@ environment:
 dependencies:
   awesome_dialog: ^3.1.0
   cloud_firestore: ^5.6.2
-  firebase_storage: ^12.4.2
+  cloud_functions: ^5.3.3
   connectivity_plus: ^6.1.2
   csv: ^6.0.0
   cupertino_icons: ^1.0.5
   firebase_auth: ^5.4.1
-  firebase_core: ^3.11.0
+  firebase_core: ^3.10.1
   firebase_database: ^11.3.1
+  firebase_storage: ^12.4.2
   fl_chart: ^0.70.2
   flutter:
     sdk: flutter
@@ -49,6 +50,7 @@ dependencies:
   google_fonts: ^6.2.1
   google_sign_in: ^6.2.1
   http: ^1.2.0
+  image_picker: ^1.1.2
   intl: ^0.20.1
   mapbox_gl:
     git:
@@ -61,11 +63,15 @@ dependencies:
   shimmer_effect: ^1.0.4
   table_calendar: ^3.0.9
   universal_html: ^2.2.2
-  url_launcher: ^6.2.6
-
+  url_launcher: ^6.3.1
   image_picker: ^1.1.2
-
+  
 dev_dependencies:
+  # The "flutter_lints" package below contains a set of recommended lints to
+  # encourage good coding practices. The lint set provided by the package is
+  # activated in the `analysis_options.yaml` file located at the root of your
+  # package. See that file for information about deactivating specific lint
+  # rules and activating additional ones.
   flutter_lints: ^5.0.0
   flutter_test:
     sdk: flutter

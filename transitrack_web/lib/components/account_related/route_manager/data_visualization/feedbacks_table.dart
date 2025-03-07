@@ -10,6 +10,7 @@ import 'package:transitrack_web/models/feedback_model.dart';
 import 'package:transitrack_web/models/filter_model.dart';
 import 'package:transitrack_web/models/route_model.dart';
 import 'package:transitrack_web/style/constants.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 
 // This widget is called when route manager opens the feedback tab in the data visualization panel
 
@@ -68,6 +69,56 @@ class _FeedbacksTableState extends State<FeedbacksTable> {
         return FeedbackData.fromFirestore(document);
       }).toList();
     });
+  }
+
+  // Method to disable a user by calling the Firebase function
+  Future<void> disableUser(String email) async {
+    try {
+      QuerySnapshot snapshot = await FirebaseFirestore.instance
+          .collection('accounts')
+          .where('account_email', isEqualTo: email)
+          .limit(1)
+          .get();
+
+      if (snapshot.docs.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('No user found with this email')),
+        );
+        return;
+      }
+
+      // Get the UID from the 'account_id' field in the Firestore document
+      String uid = snapshot.docs.first.get('account_uid');
+
+      // Get the instance of the Firebase function
+      final HttpsCallable callable =
+          FirebaseFunctions.instance.httpsCallable('disableUser');
+
+      // Call the function with the user ID
+      await callable.call(<String, dynamic>{
+        'uid': uid,
+      });
+
+      // Display the result (for example, show a success message)
+      errorMessage('User Banned Successfully');
+    } catch (e) {
+      // Display the error message
+      errorMessage('Error Banning User: $e');
+    }
+  }
+
+  void errorMessage(String message) {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+              backgroundColor: Constants.bgColor,
+              title: Center(
+                  child: Text(
+                message,
+                style: const TextStyle(color: Colors.white),
+              )));
+        });
   }
 
   @override
@@ -261,10 +312,15 @@ class _FeedbacksTableState extends State<FeedbacksTable> {
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
+                                            Text(feedbackAdditionalInfo
+                                                        .senderData !=
+                                                    null
+                                                ? feedbackAdditionalInfo
+                                                    .senderData!.account_name
+                                                : "No Data"),
                                             Text(
-                                                'Feedback by ${feedbackAdditionalInfo.senderData != null ? feedbackAdditionalInfo.senderData!.account_name : "No Data"}'),
-                                            Text(
-                                                '<${selectedFeedback!.feedback_sender}>',
+                                                selectedFeedback!
+                                                    .feedback_sender,
                                                 style: TextStyle(
                                                     fontSize: 11,
                                                     color: Colors.white
@@ -274,23 +330,16 @@ class _FeedbacksTableState extends State<FeedbacksTable> {
                                         ),
                                       ],
                                     ),
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.end,
-                                      children: [
-                                        Text(DateFormat('MMMM d, y').format(
-                                            selectedFeedback!.timestamp
-                                                .toDate())),
-                                        Text(
-                                            DateFormat('hh:mm a').format(
-                                                selectedFeedback!.timestamp
-                                                    .toDate()),
-                                            style: TextStyle(
-                                                fontSize: 13,
-                                                color: Colors.white
-                                                    .withValues(alpha: 0.5))),
-                                      ],
-                                    )
+                                    TextButton(
+                                      onPressed: () {
+                                        disableUser(
+                                            selectedFeedback!.feedback_sender);
+                                      },
+                                      child: Text('Ban Account',
+                                          style: TextStyle(
+                                            color: Colors.red,
+                                          )),
+                                    ),
                                   ],
                                 ),
                                 const Spacer(),
@@ -311,69 +360,53 @@ class _FeedbacksTableState extends State<FeedbacksTable> {
                                         Row(
                                           children: [
                                             Expanded(
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  const Text(
-                                                    "Driver",
-                                                    textAlign: TextAlign.right,
-                                                    maxLines: 1,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                  ),
-                                                  Text(
-                                                    feedbackAdditionalInfo
-                                                                .recepientData !=
-                                                            null
-                                                        ? feedbackAdditionalInfo
-                                                            .recepientData!
-                                                            .account_name
-                                                        : "No Data",
-                                                    textAlign: TextAlign.right,
-                                                    maxLines: 1,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            const SizedBox(
-                                                width:
-                                                    Constants.defaultPadding *
-                                                        2),
-                                            Expanded(
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  const Text(
-                                                    "Jeepney",
-                                                    textAlign: TextAlign.right,
-                                                    maxLines: 1,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                  ),
-                                                  Text(
-                                                    selectedFeedback!
-                                                        .feedback_jeepney,
-                                                    textAlign: TextAlign.right,
-                                                    maxLines: 1,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
+                                                child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Text(DateFormat('MMMM d, y')
+                                                    .format(selectedFeedback!
+                                                        .timestamp
+                                                        .toDate())),
+                                                Text(
+                                                    DateFormat('hh:mm a')
+                                                        .format(
+                                                            selectedFeedback!
+                                                                .timestamp
+                                                                .toDate()),
+                                                    style: TextStyle(
+                                                        fontSize: 13,
+                                                        color: Colors.white
+                                                            .withValues(
+                                                                alpha: 0.5))),
+                                              ],
+                                            )),
                                           ],
                                         ),
                                         const SizedBox(
                                             height:
                                                 Constants.defaultPadding / 2),
+                                        const Divider(color: Colors.white),
+                                        const SizedBox(
+                                            height:
+                                                Constants.defaultPadding / 2),
                                         Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
                                           children: [
+                                            Text(
+                                              feedbackAdditionalInfo
+                                                          .recepientData !=
+                                                      null
+                                                  ? feedbackAdditionalInfo
+                                                      .recepientData!
+                                                      .account_name
+                                                  : "No Data",
+                                              textAlign: TextAlign.right,
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
                                             Expanded(
                                               child: Row(
                                                 mainAxisAlignment:
@@ -392,15 +425,24 @@ class _FeedbacksTableState extends State<FeedbacksTable> {
                                                         ? Color(widget
                                                             .route.routeColor)
                                                         : Colors.grey,
-                                                    size: 20,
+                                                    size: 16,
                                                   );
                                                 }),
                                               ),
                                             ),
-                                            const SizedBox(
-                                                width:
-                                                    Constants.defaultPadding *
-                                                        2),
+                                          ],
+                                        ),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              selectedFeedback!
+                                                  .feedback_jeepney,
+                                              textAlign: TextAlign.right,
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
                                             Expanded(
                                               child: Row(
                                                 mainAxisAlignment:
@@ -419,7 +461,7 @@ class _FeedbacksTableState extends State<FeedbacksTable> {
                                                         ? Color(widget
                                                             .route.routeColor)
                                                         : Colors.grey,
-                                                    size: 20,
+                                                    size: 16,
                                                   );
                                                 }),
                                               ),
@@ -431,7 +473,8 @@ class _FeedbacksTableState extends State<FeedbacksTable> {
                                                 Constants.defaultPadding / 2),
                                         const Divider(color: Colors.white),
                                         const SizedBox(
-                                            height: Constants.defaultPadding),
+                                            height:
+                                                Constants.defaultPadding / 2),
                                         RichText(
                                             textAlign: TextAlign.justify,
                                             text: TextSpan(
