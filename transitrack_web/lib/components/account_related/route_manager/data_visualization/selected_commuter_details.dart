@@ -76,6 +76,8 @@ class _SelectedCommuterDetailsState extends State<SelectedCommuterDetails> {
         });
   }
 
+  bool showFeedback = true;
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -137,20 +139,71 @@ class _SelectedCommuterDetailsState extends State<SelectedCommuterDetails> {
                                     : Color(widget.route.routeColor)),
                           ),
                         ]),
-                    // const Divider(color: Colors.white),
-                    // const SizedBox(height: Constants.defaultPadding),
-                    const SizedBox(height: Constants.defaultPadding),
                     const Divider(color: Colors.white),
-                    if (snapshot.hasData && snapshot.data!.feedback!.isNotEmpty)
-                      const SizedBox(height: Constants.defaultPadding),
-                    if (snapshot.hasData && snapshot.data!.feedback!.isNotEmpty)
-                      FeedBack(
-                          feedbacks: snapshot.data!.feedback!,
-                          routes: widget.routes,
-                          loadCommuters: widget.loadCommuters),
                     const SizedBox(height: Constants.defaultPadding),
-                    if (snapshot.hasData && snapshot.data!.feedback!.isNotEmpty)
-                      const Divider(color: Colors.white),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ToggleButtons(
+                          isSelected: [showFeedback, !showFeedback],
+                          onPressed: (index) {
+                            setState(() {
+                              showFeedback = index == 0;
+                            });
+                          },
+                          borderRadius: BorderRadius.circular(
+                              Constants.defaultPadding / 2),
+                          color: Colors.white, // Default text color
+                          selectedColor: Colors.white,
+                          fillColor: Color(widget.route.routeColor)
+                              .withValues(alpha: 0.2),
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: Constants.defaultPadding),
+                              child: Text('Feedback'),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: Constants.defaultPadding),
+                              child: Text('Reports'),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    if (showFeedback)
+                      if (snapshot.hasData &&
+                          snapshot.data!.feedback!.isNotEmpty)
+                        Column(
+                          children: [
+                            Padding(
+                                padding: EdgeInsetsDirectional.symmetric(
+                                    vertical: Constants.defaultPadding),
+                                child: FeedBack(
+                                    feedbacks: snapshot.data!.feedback!,
+                                    routes: widget.routes,
+                                    loadCommuters: widget.loadCommuters)),
+                            const Divider(color: Colors.white)
+                          ],
+                        )
+                      else
+                        Center(
+                          child: Text("No feedback"),
+                        ),
+                    if (!showFeedback)
+                      if (snapshot.hasData && snapshot.data!.report!.isNotEmpty)
+                        Padding(
+                            padding: EdgeInsetsDirectional.symmetric(
+                                vertical: Constants.defaultPadding),
+                            child: Report(
+                                routes: widget.routes,
+                                reports: snapshot.data!.report!,
+                                loadCommuters: widget.loadCommuters))
+                      else
+                        Center(
+                          child: Text("No reports"),
+                        ),
                     Row(
                       children: [
                         Expanded(
@@ -275,6 +328,70 @@ class FeedBackState extends State<FeedBack> {
         ),
         const SizedBox(height: Constants.defaultPadding),
         Text("${index + 1}/${widget.feedbacks.length}")
+      ],
+    );
+  }
+}
+
+class Report extends StatefulWidget {
+  final List<RouteData> routes;
+  final List<ReportData> reports;
+  final Function loadCommuters;
+
+  const Report({
+    super.key,
+    required this.routes,
+    required this.reports,
+    required this.loadCommuters,
+  });
+
+  @override
+  State<Report> createState() => ReportState();
+}
+
+class ReportState extends State<Report> {
+  int index = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            IconButton(
+              onPressed: () {
+                if (index > 0) {
+                  setState(() {
+                    index--;
+                  });
+                }
+              },
+              icon: const Icon(Icons.arrow_left),
+            ),
+            Expanded(
+              child: CommuterReportTab(
+                route: widget.routes[widget.reports[index].report_route],
+                report: widget.reports[index],
+                loadCommuters: widget.loadCommuters,
+              ),
+            ),
+            IconButton(
+              onPressed: () {
+                if (index < widget.reports.length - 1) {
+                  setState(() {
+                    index++;
+                  });
+                }
+              },
+              icon: const Icon(Icons.arrow_right),
+            ),
+          ],
+        ),
+        const SizedBox(height: Constants.defaultPadding),
+        Text("${index + 1}/${widget.reports.length}")
       ],
     );
   }
