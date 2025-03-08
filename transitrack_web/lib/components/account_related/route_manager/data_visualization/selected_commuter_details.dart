@@ -175,22 +175,20 @@ class _SelectedCommuterDetailsState extends State<SelectedCommuterDetails> {
                     if (showFeedback)
                       if (snapshot.hasData &&
                           snapshot.data!.feedback!.isNotEmpty)
-                        Column(
-                          children: [
-                            Padding(
-                                padding: EdgeInsetsDirectional.symmetric(
-                                    vertical: Constants.defaultPadding),
-                                child: FeedBack(
-                                    feedbacks: snapshot.data!.feedback!,
-                                    routes: widget.routes,
-                                    loadCommuters: widget.loadCommuters)),
-                            const Divider(color: Colors.white)
-                          ],
-                        )
+                        Padding(
+                            padding: EdgeInsetsDirectional.symmetric(
+                                vertical: Constants.defaultPadding),
+                            child: FeedBack(
+                                feedbacks: snapshot.data!.feedback!,
+                                routes: widget.routes,
+                                loadCommuters: widget.loadCommuters))
                       else
-                        Center(
-                          child: Text("No feedback"),
-                        ),
+                        Padding(
+                            padding: EdgeInsetsDirectional.symmetric(
+                                vertical: Constants.defaultPadding),
+                            child: Center(
+                              child: Text("No feedback yet"),
+                            )),
                     if (!showFeedback)
                       if (snapshot.hasData && snapshot.data!.report!.isNotEmpty)
                         Padding(
@@ -201,9 +199,13 @@ class _SelectedCommuterDetailsState extends State<SelectedCommuterDetails> {
                                 reports: snapshot.data!.report!,
                                 loadCommuters: widget.loadCommuters))
                       else
-                        Center(
-                          child: Text("No reports"),
-                        ),
+                        Padding(
+                            padding: EdgeInsetsDirectional.symmetric(
+                                vertical: Constants.defaultPadding),
+                            child: Center(
+                              child: Text("No reports available"),
+                            )),
+                    const Divider(color: Colors.white),
                     Row(
                       children: [
                         Expanded(

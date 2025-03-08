@@ -339,8 +339,7 @@ class CommuterReportTab extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                      "[${ReportData.reportDetails[report.report_type].reportType}]"),
+                  Text(ReportData.reportDetails[report.report_type].reportType),
                   Text(address),
                 ],
               ),
