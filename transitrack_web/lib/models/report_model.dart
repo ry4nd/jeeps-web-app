@@ -55,6 +55,13 @@ class ReportData {
     'Other Concerns': 4,
   };
 
+  // Method to get the report type as a string
+  String getReportType() {
+    return reportTypeMap.entries
+        .firstWhere((entry) => entry.value == report_type)
+        .key;
+  }
+
   static List<ReportDetails> reportDetails = [
     ReportDetails(reportType: 'Lost Item', reportColors: Colors.lightBlue),
     ReportDetails(reportType: 'Crime Incident', reportColors: Colors.red),

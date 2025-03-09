@@ -6,13 +6,16 @@ import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'package:transitrack_web/components/account_related/route_manager/data_visualization/filters.dart';
 import 'package:transitrack_web/components/account_related/route_manager/data_visualization/reports_map.dart';
+import 'package:transitrack_web/components/acknowledge_report.dart';
 import 'package:transitrack_web/components/attach_img_button.dart';
+import 'package:transitrack_web/components/text_field.dart';
 import 'package:transitrack_web/models/account_model.dart';
 import 'package:transitrack_web/models/feedback_model.dart';
 import 'package:transitrack_web/models/filter_model.dart';
 import 'package:transitrack_web/models/report_model.dart';
 import 'package:transitrack_web/models/route_model.dart';
 import 'package:transitrack_web/style/constants.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 // This widget is used in the Reports tab of the Data visualization panel of the route manager to list all the reports issued in the route.
 
@@ -27,6 +30,10 @@ class ReportsTable extends StatefulWidget {
 
 class _ReportsTableState extends State<ReportsTable> {
   TextEditingController searchController = TextEditingController();
+
+  // For report acknowledgement
+  // TextEditingController recipientEmailController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
 
   bool mapLoaded = false;
   int selected = -1;
@@ -95,6 +102,7 @@ class _ReportsTableState extends State<ReportsTable> {
     AwesomeDialog(
       context: context,
       dialogType: DialogType.noHeader,
+      title: 'Send Email',
       width: 1000,
       body: PointerInterceptor(
         child: Column(
@@ -290,6 +298,11 @@ class _ReportsTableState extends State<ReportsTable> {
                             reportData: selectedReport!,
                             viewImg: viewImg,
                             loadReports: loadReports)),
+                            acknowledgeReport: (report) => acknowledgeReport(
+                                context,
+                                report,
+                                emailController,
+                                widget.route.routeName))),
                   const Positioned(
                       right: Constants.defaultPadding,
                       bottom: Constants.defaultPadding * 2,
@@ -333,11 +346,13 @@ class ReportContents extends StatelessWidget {
   final ReportData reportData;
   final Function(String) viewImg;
   final Function loadReports;
+  final Function(ReportData) acknowledgeReport;
   const ReportContents(
       {super.key,
       required this.reportData,
       required this.viewImg,
-      required this.loadReports});
+      required this.loadReports
+      required this.acknowledgeReport});});
 
   Future<void> deleteReport(String senderEmail, Timestamp timestamp) async {
     try {
@@ -480,12 +495,21 @@ class ReportContents extends StatelessWidget {
                         ],
                       )),
                   const SizedBox(height: Constants.defaultPadding / 2),
-                  if (reportData.report_img != null &&
-                      reportData.report_img!.isNotEmpty)
-                    AttachmentButton(
-                        onPressed: () => viewImg(reportData.report_img!),
-                        label: "View Image",
-                        icon: Icons.photo),
+                  Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      spacing: 5.0,
+                      children: [
+                        AttachmentButton(
+                            onPressed: () => acknowledgeReport(reportData),
+                            label: "Acknowledge",
+                            icon: Icons.send),
+                        if (reportData.report_img != null &&
+                            reportData.report_img!.isNotEmpty)
+                          AttachmentButton(
+                              onPressed: () => viewImg(reportData.report_img!),
+                              label: "View Image",
+                              icon: Icons.photo),
+                      ]),
                 ],
               ),
               const SizedBox(height: Constants.defaultPadding / 2),
