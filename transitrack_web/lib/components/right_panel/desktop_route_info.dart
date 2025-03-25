@@ -15,6 +15,7 @@ import '../select_jeep_prompt.dart';
 import '../../components/cooldown_button.dart';
 import '../../services/send_ping.dart';
 
+import '../../components/fare_matrix.dart';
 // This widget displays all the information for the route for the desktop view
 
 class DesktopRouteInfo extends StatefulWidget {
@@ -175,24 +176,25 @@ class _DesktopRouteInfoState extends State<DesktopRouteInfo> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            Expanded(
-                child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 5.5),
-              child: Text(
-                _value.routeName,
-                style:
-                    const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            )),
+            // Expanded(
+            //     child: Padding(
+            //   padding: const EdgeInsets.symmetric(vertical: 5.5),
+            //   child: Text(
+            //     _value.routeName,
+            //     style:
+            //         const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+            //     maxLines: 1,
+            //     overflow: TextOverflow.ellipsis,
+            //   ),
+            // )),
+            FareMatrix(route: widget.route),
             const SizedBox(width: Constants.defaultPadding / 2),
             if (widget.user != null)
               Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                const Text("Wait a Ride",
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: 10)),
+                // const Text("Wait a Ride",
+                //     maxLines: 1,
+                //     overflow: TextOverflow.ellipsis,
+                //     style: TextStyle(fontSize: 10)),
                 const SizedBox(width: Constants.defaultPadding / 3),
                 if (_gpsPermission)
                   CooldownButton(
