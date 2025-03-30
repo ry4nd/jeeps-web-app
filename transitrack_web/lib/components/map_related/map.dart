@@ -804,6 +804,11 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                                 _configRoute = -1;
                               }
                             },
+                            stopsConfig: (int stopsConfig) {
+                              // Dummy implementation for stopsConfig
+                              print(
+                                  "stopsConfig called with value: $stopsConfig");
+                            },
                           ))
                   ],
                 ))

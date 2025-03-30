@@ -4,6 +4,7 @@ import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'package:transitrack_web/components/account_related/route_manager/data_visualization.dart';
 import 'package:transitrack_web/components/account_related/route_manager/route_coordinates_settings.dart';
 import 'package:transitrack_web/components/account_related/route_manager/route_properties_settings.dart';
+import 'package:transitrack_web/components/account_related/route_manager/route_stops_settings.dart';
 import '../../../models/route_model.dart';
 import '../../../style/constants.dart';
 import '../../account_related/route_manager/route_vehicles_settings.dart';
@@ -15,13 +16,15 @@ class RouteManagerOptions extends StatefulWidget {
   final RouteData route;
   final List<JeepsAndDrivers> jeeps;
   final ValueChanged<int> coordConfig;
+  final ValueChanged<int> stopsConfig;
   final ValueChanged<JeepsAndDrivers> pressedJeep;
   const RouteManagerOptions(
       {super.key,
       required this.route,
       required this.jeeps,
       required this.pressedJeep,
-      required this.coordConfig});
+      required this.coordConfig,
+      required this.stopsConfig});
 
   @override
   State<RouteManagerOptions> createState() => _RouteManagerOptionsState();
@@ -55,7 +58,9 @@ class _RouteManagerOptionsState extends State<RouteManagerOptions> {
                           selected = -1;
                           optionTitle = "Route Management";
                         });
+                        // No mode selected for route coordinates settings
                         widget.coordConfig(-2);
+                        widget.stopsConfig(-2);
                       },
                       child: const Icon(
                         Icons.keyboard_backspace_outlined,
@@ -187,17 +192,34 @@ class _RouteManagerOptionsState extends State<RouteManagerOptions> {
                 child: PropertiesSettings(route: widget.route),
               ),
             ),
+          // if the edit coordinates is selected
           if (selected == 1)
-            CoordinatesSettings(
-                route: widget.route,
-                coordConfig: (int coordConfig) {
-                  if (coordConfig == -1) {
-                    setState(() {
-                      selected = -1;
-                    });
-                  }
-                  widget.coordConfig(coordConfig);
-                }),
+            Column(
+              children: [
+                CoordinatesSettings(
+                  route: widget.route,
+                  coordConfig: (int coordConfig) {
+                    if (coordConfig == -1) {
+                      setState(() {
+                        selected = -1;
+                      });
+                    }
+                    widget.coordConfig(coordConfig);
+                  },
+                ),
+                const SizedBox(height: Constants.defaultPadding),
+                SizedBox(
+                  child: PointerInterceptor(
+                    child: RouteStopsSettings(
+                      route: widget.route,
+                      stopsConfig: (int stopsConfig) {
+                        widget.stopsConfig(stopsConfig);
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
           if (selected == 2)
             SizedBox(
               height: 250,

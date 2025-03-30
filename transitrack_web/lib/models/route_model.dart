@@ -9,6 +9,7 @@ class RouteData {
   bool enabled;
   int routeColor;
   List<LatLng> routeCoordinates;
+  List<LatLng>? routeStops;
   double routeFare; // Regular Fare
   double routeFareDiscounted; // for PWDs, Students, Senior Citizens
   int routeId;
@@ -21,6 +22,7 @@ class RouteData {
       {required this.enabled,
       required this.routeColor,
       required this.routeCoordinates,
+      this.routeStops,
       required this.routeFare,
       required this.routeFareDiscounted,
       required this.routeId,

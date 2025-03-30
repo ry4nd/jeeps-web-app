@@ -7,6 +7,7 @@ import '../../../style/constants.dart';
 
 class CoordinatesSettings extends StatefulWidget {
   final RouteData route;
+  // used to communicate changes in mode: -1 = no mode | 0 = edit | 1 = add/delete | -2 = close/ reset
   final ValueChanged<int> coordConfig;
   const CoordinatesSettings(
       {super.key, required this.route, required this.coordConfig});
@@ -16,6 +17,7 @@ class CoordinatesSettings extends StatefulWidget {
 }
 
 class _CoordinatesSettingsState extends State<CoordinatesSettings> {
+  // this tracks the mode: -1 = no mode selected | 0 = edit | 1 = add/remove
   int selected = -1;
 
   @override
@@ -35,12 +37,13 @@ class _CoordinatesSettingsState extends State<CoordinatesSettings> {
             GestureDetector(
                 onTap: () {
                   if (selected == -1) {
-                    widget.coordConfig(-1);
+                    widget.coordConfig(-1); // Notify parent: No mode selected
                   } else {
                     setState(() {
-                      selected = -1;
+                      selected = -1; // Reset to no mode
                     });
-                    widget.coordConfig(-2);
+                    widget.coordConfig(
+                        -2); // Notify parent: Close/reset configuration
                   }
                 },
                 child: Icon(selected == -1
@@ -57,14 +60,14 @@ class _CoordinatesSettingsState extends State<CoordinatesSettings> {
                 onTap: () {
                   if (selected == -1) {
                     setState(() {
-                      selected = 0;
+                      selected = 0; // Enter edit mode
                     });
-                    widget.coordConfig(0);
+                    widget.coordConfig(0); // Notify parent: Enter edit mode
                   } else if (selected == 0) {
                     setState(() {
-                      selected = -1;
+                      selected = -1; // Exit edit mode
                     });
-                    widget.coordConfig(-1);
+                    widget.coordConfig(-1); // Notify parent: No mode selected
                   }
                 },
                 child: Container(
@@ -84,14 +87,15 @@ class _CoordinatesSettingsState extends State<CoordinatesSettings> {
                 onTap: () {
                   if (selected == -1) {
                     setState(() {
-                      selected = 1;
+                      selected = 1; // Enter add/remove mode
                     });
-                    widget.coordConfig(1);
+                    widget
+                        .coordConfig(1); // Notify parent: Enter add/remove mode
                   } else if (selected == 1) {
                     setState(() {
-                      selected = -1;
+                      selected = -1; // Exit add/remove mode
                     });
-                    widget.coordConfig(-1);
+                    widget.coordConfig(-1); // Notify parent: No mode selected
                   }
                 },
                 child: Container(
