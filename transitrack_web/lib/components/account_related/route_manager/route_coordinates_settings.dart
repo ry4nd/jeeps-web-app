@@ -25,101 +25,108 @@ class _CoordinatesSettingsState extends State<CoordinatesSettings> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text(
-              "Coordinates",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            GestureDetector(
-                onTap: () {
-                  if (selected == -1) {
-                    widget.coordConfig(-1); // Notify parent: No mode selected
-                  } else {
-                    setState(() {
-                      selected = -1; // Reset to no mode
-                    });
-                    widget.coordConfig(
-                        -2); // Notify parent: Close/reset configuration
-                  }
-                },
-                child: Icon(selected == -1
-                    ? Icons.keyboard_backspace_outlined
-                    : Icons.close))
-          ],
-        ),
+        buildHeadear(),
         const SizedBox(height: Constants.defaultPadding),
-        Row(
-          children: [
-            if (selected == -1 || selected == 0)
-              Expanded(
-                  child: GestureDetector(
-                onTap: () {
-                  if (selected == -1) {
-                    setState(() {
-                      selected = 0; // Enter edit mode
-                    });
-                    widget.coordConfig(0); // Notify parent: Enter edit mode
-                  } else if (selected == 0) {
-                    setState(() {
-                      selected = -1; // Exit edit mode
-                    });
-                    widget.coordConfig(-1); // Notify parent: No mode selected
-                  }
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                      vertical: Constants.defaultPadding),
-                  color: selected == 0
-                      ? Color(widget.route.routeColor)
-                      : Color(widget.route.routeColor).withValues(alpha: 0.6),
-                  child: Center(
-                    child: Icon(selected == 0 ? Icons.save : Icons.edit),
-                  ),
-                ),
-              )),
-            if (selected == -1 || selected == 1)
-              Expanded(
-                  child: GestureDetector(
-                onTap: () {
-                  if (selected == -1) {
-                    setState(() {
-                      selected = 1; // Enter add/remove mode
-                    });
-                    widget
-                        .coordConfig(1); // Notify parent: Enter add/remove mode
-                  } else if (selected == 1) {
-                    setState(() {
-                      selected = -1; // Exit add/remove mode
-                    });
-                    widget.coordConfig(-1); // Notify parent: No mode selected
-                  }
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                      vertical: Constants.defaultPadding),
-                  color: selected == 1
-                      ? Color(widget.route.routeColor)
-                      : Color(widget.route.routeColor).withValues(alpha: 0.5),
-                  child: Center(
-                      child: selected == 1
-                          ? const Icon(Icons.save)
-                          : const Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.add),
-                                Text("/"),
-                                Icon(Icons.remove)
-                              ],
-                            )),
-                ),
-              ))
-          ],
-        ),
+        buildModeButtons(),
       ],
+    );
+  }
+
+  Widget buildHeadear() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        const Text("Coordinates",
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis),
+        if (selected == -1)
+          GestureDetector(
+            onTap: () {
+              widget.coordConfig(-1); // Notify parent: No mode selected
+            },
+            child: const Icon(Icons.keyboard_backspace_outlined),
+          ),
+      ],
+    );
+  }
+
+  // ... is a spread operator - it takes a list of iterable and spread them in the widget tree
+  // this is an alternative to using another Row for the build button save and cancel
+  Widget buildModeButtons() {
+    return Row(
+      children: [
+        if (selected == -1) buildButton(Icons.edit, "Edit", 0, 0.6),
+        if (selected == 0) ...[
+          buildButton(Icons.save, "Save", -1, 0.6),
+          buildCancelButton(),
+        ],
+        if (selected == -1)
+          buildButton(
+            null,
+            "Add/Remove",
+            1,
+            0.5,
+            isAddRemove: true,
+          ),
+        if (selected == 1) ...[
+          buildButton(Icons.save, "Save", -1, 0.6),
+          buildCancelButton(),
+        ],
+      ],
+    );
+  }
+
+  Widget buildButton(IconData? icon, String label, int newState, double alpha,
+      {bool isAddRemove = false}) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            selected = newState; // Update the selected mode
+          });
+          widget.coordConfig(newState); // Notify parent of the mode change
+        },
+        child: Container(
+          padding:
+              const EdgeInsets.symmetric(vertical: Constants.defaultPadding),
+          color: Color(widget.route.routeColor)
+              .withValues(alpha: alpha), // Highlight active mode
+          child: Center(
+            child: isAddRemove
+                ? const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.add),
+                      Text("/"),
+                      Icon(Icons.remove),
+                    ],
+                  )
+                : Icon(icon, color: Colors.white),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildCancelButton() {
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            selected = -1; // Reset to no mode
+          });
+          widget.coordConfig(-2); // Notify parent: Close/reset configuration
+        },
+        child: Container(
+          padding:
+              const EdgeInsets.symmetric(vertical: Constants.defaultPadding),
+          color: Color(widget.route.routeColor).withValues(alpha: 0.5),
+          child: const Center(
+            child: Icon(Icons.close, color: Colors.white),
+          ),
+        ),
+      ),
     );
   }
 }
