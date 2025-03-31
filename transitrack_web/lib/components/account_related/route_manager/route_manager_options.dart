@@ -4,7 +4,6 @@ import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'package:transitrack_web/components/account_related/route_manager/data_visualization.dart';
 import 'package:transitrack_web/components/account_related/route_manager/route_coordinates_settings.dart';
 import 'package:transitrack_web/components/account_related/route_manager/route_properties_settings.dart';
-import 'package:transitrack_web/components/account_related/route_manager/route_stops_settings.dart';
 import '../../../models/route_model.dart';
 import '../../../style/constants.dart';
 import '../../account_related/route_manager/route_vehicles_settings.dart';
@@ -192,7 +191,7 @@ class _RouteManagerOptionsState extends State<RouteManagerOptions> {
                 child: PropertiesSettings(route: widget.route),
               ),
             ),
-          // if the edit coordinates is selected
+          // if the modify coordinates is selected
           if (selected == 1)
             Column(
               children: [
@@ -206,17 +205,14 @@ class _RouteManagerOptionsState extends State<RouteManagerOptions> {
                     }
                     widget.coordConfig(coordConfig);
                   },
-                ),
-                const SizedBox(height: Constants.defaultPadding),
-                SizedBox(
-                  child: PointerInterceptor(
-                    child: RouteStopsSettings(
-                      route: widget.route,
-                      stopsConfig: (int stopsConfig) {
-                        widget.stopsConfig(stopsConfig);
-                      },
-                    ),
-                  ),
+                  stopsConfig: (int stopsConfig) {
+                    if (stopsConfig == -1) {
+                      setState(() {
+                        selected = -1;
+                      });
+                    }
+                    widget.stopsConfig(stopsConfig);
+                  },
                 ),
               ],
             ),
