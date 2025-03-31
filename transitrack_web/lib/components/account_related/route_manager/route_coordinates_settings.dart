@@ -35,14 +35,18 @@ class _CoordinatesSettingsState extends State<CoordinatesSettings> {
             withBackButton: true),
         const SizedBox(height: Constants.defaultPadding),
         buildModeButtons(routeCoordSettingsMode, updateRouteCoordSettingsMode,
-            updateRouteCoordCancelMode),
+            updateRouteCoordCancelMode,
+            enabled:
+                stopsCoordSettingsMode != 0 && stopsCoordSettingsMode != 1),
 
         // For stops coordinates
         const SizedBox(height: Constants.defaultPadding),
         buildHeader('Usual Stops', stopsCoordSettingsMode, widget.stopsConfig),
         const SizedBox(height: Constants.defaultPadding),
         buildModeButtons(stopsCoordSettingsMode, updateStopsCoordSettingsMode,
-            updateStopsCoordCancelMode),
+            updateStopsCoordCancelMode,
+            enabled:
+                routeCoordSettingsMode != 0 && routeCoordSettingsMode != 1),
       ],
     );
   }
@@ -97,11 +101,14 @@ class _CoordinatesSettingsState extends State<CoordinatesSettings> {
 
   // ... is a spread operator - it takes a list of iterable and spread them in the widget tree
   // this is an alternative to using another Row for the build button save and cancel
-  Widget buildModeButtons(int mode, ValueChanged<int> onModeChange,
-      ValueChanged<int> onModeCancel) {
+  Widget buildModeButtons(
+      int mode, ValueChanged<int> onModeChange, ValueChanged<int> onModeCancel,
+      {bool enabled = true}) {
     return Row(
       children: [
-        if (mode == -1) buildButton(Icons.edit, "Edit", 0, 0.6, onModeChange),
+        if (mode == -1)
+          buildButton(Icons.edit, "Edit", 0, 0.6, onModeChange,
+              enabled: enabled),
         if (mode == 0) ...[
           buildButton(Icons.save, "Save", -1, 0.6, onModeChange),
           buildCancelButton(-1, onModeCancel),
@@ -113,6 +120,7 @@ class _CoordinatesSettingsState extends State<CoordinatesSettings> {
             1,
             0.5,
             onModeChange,
+            enabled: enabled,
             isAddRemove: true,
           ),
         if (mode == 1) ...[
@@ -125,28 +133,59 @@ class _CoordinatesSettingsState extends State<CoordinatesSettings> {
 
   Widget buildButton(IconData? icon, String label, int newMode, double alpha,
       ValueChanged<int> onModeChange,
-      {bool isAddRemove = false}) {
+      {bool isAddRemove = false, bool enabled = true}) {
     return Expanded(
       child: GestureDetector(
-        onTap: () {
-          onModeChange(newMode);
-        },
+        onTap: enabled
+            ? () {
+                onModeChange(newMode);
+              }
+            : null, // Disable onTap if the button is not enabled
         child: Container(
           padding:
               const EdgeInsets.symmetric(vertical: Constants.defaultPadding),
-          color: Color(widget.route.routeColor)
-              .withValues(alpha: alpha), // Highlight active mode
+
+          color: enabled
+              ? Color(widget.route.routeColor).withValues(alpha: alpha)
+              : Color(widget.route.routeColor)
+                  .withValues(alpha: 0.1), // Highlight active mode
           child: Center(
             child: isAddRemove
-                ? const Row(
+                ? Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.add),
-                      Text("/"),
-                      Icon(Icons.remove),
+                      Icon(
+                        Icons.add,
+                        color: enabled
+                            ? Colors.white
+                            : Colors.white.withValues(
+                                alpha: 0.1), // Reduced opacity when disabled
+                      ),
+                      Text(
+                        "/",
+                        style: TextStyle(
+                          color: enabled
+                              ? Colors.white
+                              : Colors.white.withValues(
+                                  alpha: 0.1), // Reduced opacity when disabled
+                        ),
+                      ),
+                      Icon(
+                        Icons.remove,
+                        color: enabled
+                            ? Colors.white
+                            : Colors.white.withValues(
+                                alpha: 0.1), // Reduced opacity when disabled
+                      ),
                     ],
                   )
-                : Icon(icon, color: Colors.white),
+                : Icon(
+                    icon,
+                    color: enabled
+                        ? Colors.white
+                        : Colors.white.withValues(
+                            alpha: 0.1), // Reduced opacity when disabled
+                  ),
           ),
         ),
       ),
