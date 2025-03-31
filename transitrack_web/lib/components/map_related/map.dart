@@ -55,6 +55,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
   late List<JeepsAndDrivers>? jeeps;
   late LatLng? myLocation;
   late int _configRoute;
+  late int _configStops;
 
   late MapboxMapController _mapController;
   late StreamSubscription<Position> _positionStream;
@@ -65,6 +66,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
 
   // for route points, lines, and jeepneys
   late List<LatLng> setRoute;
+  late List<LatLng> setStops;
   List<Circle> circles = [];
   List<Line> lines = [];
   List<JeepEntity> jeepEntities = [];
@@ -363,6 +365,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
           return const Center(child: CircularProgressIndicator());
         });
 
+    // updates route coordinates
     try {
       Map<String, dynamic> newAccountSettings = {
         'route_coordinates': setRoute
@@ -422,11 +425,15 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
 
   // initializes the points on the map
   void addPoints() {
+    // remove the coordinate circles within the map
     for (var circle in circles) {
       _mapController.removeCircle(circle);
     }
+
+    // clear the array containing the coordinate circles
     circles.clear();
 
+    // for each route coordinate, add a circle coordinate and add it in the circle coordinates array
     for (int i = 0; i < setRoute.length; i++) {
       _mapController
           .addCircle(CircleOptions(
@@ -744,8 +751,12 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                                       mapStartZoom));
                             },
                             coordConfig: (int coordConfig) {
+                              // we save what is the previous mode
                               int prev = _configRoute;
 
+                              // update _configRoute to trigger state change
+                              // note that coordConfig is the variable modified in route_settings
+                              // and _configRoute manages mode changes in the map
                               setState(() {
                                 _configRoute = coordConfig;
                               });
@@ -754,52 +765,74 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                               if (_configRoute < 0) {
                                 // Coming from moving points, we save the new coordinates.
                                 if (prev == 0) {
+                                  // clear the array containing route coordinates
                                   setRoute.clear();
+
+                                  // repopulate the array with the new coordinates
                                   for (var circle in circles) {
                                     setRoute.add(circle.options.geometry!);
                                   }
 
+                                  // remove the coordinate circles in the map
                                   for (var circle in circles) {
                                     _mapController.removeCircle(circle);
                                   }
+
+                                  // clear the array containing coordinate circles
                                   circles.clear();
+
+                                  // if the current mode is default, update Firestore
                                   if (_configRoute == -1) {
                                     update();
                                   }
+                                  // re-initialize the route lines
                                   addLine();
+
+                                  // if the mode is previously add/delete state
                                 } else if (prev == 1) {
+                                  // remove onTap listeners to ensure that tapping on the map would no longer add/delete points
                                   _mapController.onCircleTapped
                                       .remove(onCircleTapped);
                                   _mapController.onLineTapped
                                       .remove(onLineTapped);
 
+                                  // remove the coordinate circles in the map
                                   for (var circle in circles) {
                                     _mapController.removeCircle(circle);
                                   }
+                                  // clear the array containing coordinate circles
                                   circles.clear();
 
+                                  // if the current mode is default, update Firestore
                                   if (_configRoute == -1) {
                                     update();
                                   }
                                 }
+
+                                // if not at default mode
                               } else {
+                                // update the array containing the route coordinates to the route coordinates from Firestore
                                 setRoute = widget.route!.routeCoordinates;
 
-                                // Move points
+                                // Move points mode
                                 if (_configRoute == 0) {
                                   _mapController.clearLines();
+                                  // re-initialize the coordinates in the map
                                   addPoints();
                                 }
 
                                 // Add or Remove Points
                                 else if (_configRoute == 1) {
+                                  // add the on tap listeners
                                   _mapController.onLineTapped.add(onLineTapped);
                                   _mapController.onCircleTapped
                                       .add(onCircleTapped);
+                                  // re-initialize the coordinates in the map
                                   addPoints();
                                 }
                               }
 
+                              // if the route manager did not save changes, just return to default mode
                               if (_configRoute == -2) {
                                 _configRoute = -1;
                               }
