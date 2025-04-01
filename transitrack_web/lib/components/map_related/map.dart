@@ -360,7 +360,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
   }
 
   // update route
-  void update() async {
+  void update(String collectionName, List<LatLng> coordinates) async {
     // show loading circle
     showDialog(
         context: context,
@@ -371,7 +371,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
     // updates route coordinates
     try {
       Map<String, dynamic> newAccountSettings = {
-        'route_coordinates': setRoute
+        collectionName: coordinates
             .map((latLng) => GeoPoint(latLng.latitude, latLng.longitude))
             .toList()
       };
@@ -427,28 +427,28 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
   }
 
   // initializes the points on the map
-  void addPoints() {
+  void addPoints(List<Circle> circlePoints, List<LatLng> coords, int config) {
     // make circles and coord array parameters
     // remove the coordinate circles within the map
-    for (var circle in circles) {
+    for (var circle in circlePoints) {
       _mapController.removeCircle(circle);
     }
 
     // clear the array containing the coordinate circles
-    circles.clear();
+    circlePoints.clear();
 
     // for each route coordinate, add a circle coordinate and add it in the circle coordinates array
-    for (int i = 0; i < setRoute.length; i++) {
+    for (int i = 0; i < coords.length; i++) {
       _mapController
           .addCircle(CircleOptions(
               circleRadius: 8.0,
               circleStrokeWidth: 2.0,
               circleStrokeOpacity: 1,
               circleColor: intToHexColor(widget.route!.routeColor),
-              geometry: setRoute[i],
+              geometry: coords[i],
               circleStrokeColor: '#FFFFFF',
-              draggable: _configRoute == 0 ? true : false))
-          .then((circle) => circles.add(circle));
+              draggable: config == 0 ? true : false))
+          .then((circle) => circlePoints.add(circle));
     }
   }
 
@@ -471,7 +471,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
       _mapController.removeCircle(circle);
     }
     circles.clear();
-    addPoints();
+    addPoints(circles, setRoute, _configRoute);
     _mapController
         .clearLines()
         .then((value) => lines.clear())
@@ -487,8 +487,37 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
 
     if (index != -1) {
       setRoute.removeAt(index);
-      addPoints();
+      addPoints(circles, setRoute, _configRoute);
       addLine();
+    }
+  }
+
+  // add stop points within the map
+  void onStopLocationTapped(LatLng tappedLocation) {
+    // Add the tapped location to the stops list
+    setStops.add(tappedLocation);
+
+    // Remove existing stop circles from the map
+    for (var circle in stopsCircles) {
+      _mapController.removeCircle(circle);
+    }
+    stopsCircles.clear();
+
+    // Reinitialize the stop circles on the map
+    addPoints(stopsCircles, setStops, _configStops);
+  }
+
+  void onStopLocationCircleTapped(Circle pressedCircle) {
+    // Find the index of the tapped stop circle
+    int index = stopsCircles.indexWhere((circle) => pressedCircle == circle);
+
+    // If the circle exists in the stopsCircles list
+    if (index != -1) {
+      // Remove the stop location from the setStops list
+      setStops.removeAt(index);
+
+      // Reinitialize the stop circles on the map
+      addPoints(stopsCircles, setStops, _configStops);
     }
   }
 
@@ -591,8 +620,12 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                   if (_configRoute == 1) {
                     setRoute.add(latLng);
 
-                    addPoints();
+                    addPoints(circles, setRoute, _configRoute);
                     addLine();
+                  }
+                  if (_configStops == 1) {
+                    // Add a new stop location
+                    onStopLocationTapped(latLng);
                   }
                 },
               ),
@@ -788,7 +821,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                                     // re-initialize the route lines
                                     addLine();
                                     // Update Firestore
-                                    update();
+                                    update('route_coordinates', setRoute);
                                   } else if (_configRoute == -2) {
                                     // remove the coordinate circles in the map
                                     for (var circle in circles) {
@@ -815,7 +848,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                                     }
                                     // clear the array containing coordinate circles
                                     circles.clear();
-                                    update();
+                                    update('route_coordinates', setRoute);
                                   } else if (_configRoute == -2) {
                                     _mapController.onCircleTapped
                                         .remove(onCircleTapped);
@@ -850,7 +883,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                                 if (_configRoute == 0) {
                                   _mapController.clearLines();
                                   // re-initialize the coordinates in the map
-                                  addPoints();
+                                  addPoints(circles, setRoute, _configRoute);
                                 }
 
                                 // Add or Remove Points
@@ -860,14 +893,9 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                                   _mapController.onCircleTapped
                                       .add(onCircleTapped);
                                   // re-initialize the coordinates in the map
-                                  addPoints();
+                                  addPoints(circles, setRoute, _configRoute);
                                 }
                               }
-
-                              // if the route manager did not save changes, just return to default mode
-                              // if (_configRoute == -2) {
-                              //   _configRoute = -1;
-                              // }
                             },
                             stopsConfig: (int stopsConfig) {
                               // we save what is the previous mode
@@ -882,31 +910,99 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
 
                               // if at default mode
                               if (_configStops < 0) {
-                                // if changes from moving points are saved
+                                // if from moving points mode
                                 if (prev == 0) {
+                                  // if changes are saved
                                   if (_configStops == -1) {
-                                    print("stopsConfig mode: $stopsConfig");
+                                    // clear the array containing route coordinates
+                                    setStops.clear();
+
+                                    // repopulate the array with the new coordinates
+                                    for (var circle in stopsCircles) {
+                                      setStops.add(circle.options.geometry!);
+                                    }
+                                    // remove the coordinate circles in the map
+                                    for (var circle in stopsCircles) {
+                                      _mapController.removeCircle(circle);
+                                    }
+
+                                    // clear the array containing coordinate circles
+                                    stopsCircles.clear();
+                                    // re-initialize the route lines
+                                    addLine();
+                                    // Update Firestore
+                                    update('stops_coordinates', setStops);
+                                    // if changes are not saved
+                                  } else if (_configStops == -2) {
+                                    // remove the coordinate circles in the map
+                                    for (var circle in stopsCircles) {
+                                      _mapController.removeCircle(circle);
+                                    }
+
+                                    // clear the array containing coordinate circles
+                                    stopsCircles.clear();
+                                    // re-initialize the route lines
+                                    addLine();
                                   }
 
-                                  // if changes from adding/deleting points are saved
+                                  // if from adding/deleting points mode
                                 } else if (prev == 1) {
+                                  // if changes are saved
                                   if (_configStops == -1) {
-                                    print("stopsConfig mode: $stopsConfig");
+                                    // remove onTap listeners to ensure that tapping on the map would no longer add/delete points
+                                    _mapController.onCircleTapped
+                                        .add((Circle pressedCircle) {
+                                      onStopLocationCircleTapped(pressedCircle);
+                                    });
+                                    // remove the coordinate circles in the map
+                                    for (var circle in stopsCircles) {
+                                      _mapController.removeCircle(circle);
+                                    }
+                                    // clear the array containing coordinate circles
+                                    stopsCircles.clear();
+                                    update('stops_coordinates', setStops);
+                                    // if changes are not saved
+                                  } else if (_configStops == -2) {
+                                    _mapController.onCircleTapped
+                                        .add((Circle pressedCircle) {
+                                      onStopLocationCircleTapped(pressedCircle);
+                                    });
+
+                                    // Revert to the original route coordinates from the database
+                                    setStops.clear();
+                                    setStops = List<LatLng>.from(widget
+                                        .route!.stopsCoordinates); // Deep copy
+
+                                    // Remove the coordinate circles in the map
+                                    for (var circle in stopsCircles) {
+                                      _mapController.removeCircle(circle);
+                                    }
+
+                                    // Clear the array containing coordinate circles
+                                    stopsCircles.clear();
+
+                                    // Re-initialize the route lines
+                                    addLine();
                                   }
                                 }
                               } else {
+                                // create a deep copy, otherwise the routeCoordinates would also be modified
+                                setStops = List<LatLng>.from(
+                                    widget.route!.stopsCoordinates);
                                 // if at adding/deleting points mode
-                                if (_configStops == 1) {
-                                  print("stopsConfig mode: $stopsConfig");
-                                  // if at moving points mode
-                                } else if (_configStops == 0) {
-                                  print("stopsConfig mode: $stopsConfig");
-                                }
-                              }
+                                if (_configStops == 0) {
+                                  addPoints(
+                                      stopsCircles, setStops, _configStops);
 
-                              // if changes is not saved
-                              if (_configStops == -2) {
-                                _configStops = -1;
+                                  // if at moving points mode
+                                } else if (_configStops == 1) {
+                                  _mapController.onCircleTapped
+                                      .add((Circle pressedCircle) {
+                                    onStopLocationCircleTapped(pressedCircle);
+                                  });
+                                  addPoints(
+                                      stopsCircles, setStops, _configStops);
+                                }
                               }
                             },
                           ))
