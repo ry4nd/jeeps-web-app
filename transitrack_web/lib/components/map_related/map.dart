@@ -66,8 +66,10 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
 
   // for route points, lines, and jeepneys
   late List<LatLng> setRoute;
+  late List<LatLng> setRouteCopy;
   late List<LatLng> setStops;
   List<Circle> circles = [];
+  List<Circle> stopsCircles = [];
   List<Line> lines = [];
   List<JeepEntity> jeepEntities = [];
 
@@ -89,6 +91,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
       _value = widget.route;
       jeeps = widget.jeeps;
       _configRoute = -1;
+      _configStops = -1;
       myLocation = null;
       deviceCircle = null;
     });
@@ -425,6 +428,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
 
   // initializes the points on the map
   void addPoints() {
+    // make circles and coord array parameters
     // remove the coordinate circles within the map
     for (var circle in circles) {
       _mapController.removeCircle(circle);
@@ -451,6 +455,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
   // when line on the map is tapped it adds another coordinate
   // it clears the coordinates and reinitialize them again along with the lines
   void onLineTapped(Line pressedLine) {
+    // add bool to reuse this funct and use circles and coord array a parameter to reuse
     int index = lines.indexWhere((line) => pressedLine == line);
 
     double x = (pressedLine.options.geometry![0].latitude +
@@ -477,6 +482,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
   // it will call add points to reinitialize all points again
   // it will call add line to reinitilize all lines again
   void onCircleTapped(Circle pressedCircle) {
+    // make circles and coord array a paramter
     int index = circles.indexWhere((circle) => pressedCircle == circle);
 
     if (index != -1) {
@@ -754,65 +760,91 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                               // we save what is the previous mode
                               int prev = _configRoute;
 
-                              // update _configRoute to trigger state change
-                              // note that coordConfig is the variable modified in route_settings
-                              // and _configRoute manages mode changes in the map
                               setState(() {
                                 _configRoute = coordConfig;
                               });
 
                               // unselected any of the choices
                               if (_configRoute < 0) {
+                                print("prev mode: $prev");
+                                print("configRoute mode: $_configRoute");
                                 // Coming from moving points, we save the new coordinates.
                                 if (prev == 0) {
-                                  // clear the array containing route coordinates
-                                  setRoute.clear();
-
-                                  // repopulate the array with the new coordinates
-                                  for (var circle in circles) {
-                                    setRoute.add(circle.options.geometry!);
-                                  }
-
-                                  // remove the coordinate circles in the map
-                                  for (var circle in circles) {
-                                    _mapController.removeCircle(circle);
-                                  }
-
-                                  // clear the array containing coordinate circles
-                                  circles.clear();
-
-                                  // if the current mode is default, update Firestore
                                   if (_configRoute == -1) {
+                                    // clear the array containing route coordinates
+                                    setRoute.clear();
+
+                                    // repopulate the array with the new coordinates
+                                    for (var circle in circles) {
+                                      setRoute.add(circle.options.geometry!);
+                                    }
+                                    // remove the coordinate circles in the map
+                                    for (var circle in circles) {
+                                      _mapController.removeCircle(circle);
+                                    }
+
+                                    // clear the array containing coordinate circles
+                                    circles.clear();
+                                    // re-initialize the route lines
+                                    addLine();
+                                    // Update Firestore
                                     update();
+                                  } else if (_configRoute == -2) {
+                                    // remove the coordinate circles in the map
+                                    for (var circle in circles) {
+                                      _mapController.removeCircle(circle);
+                                    }
+
+                                    // clear the array containing coordinate circles
+                                    circles.clear();
+                                    // re-initialize the route lines
+                                    addLine();
                                   }
-                                  // re-initialize the route lines
-                                  addLine();
 
                                   // if the mode is previously add/delete state
                                 } else if (prev == 1) {
-                                  // remove onTap listeners to ensure that tapping on the map would no longer add/delete points
-                                  _mapController.onCircleTapped
-                                      .remove(onCircleTapped);
-                                  _mapController.onLineTapped
-                                      .remove(onLineTapped);
-
-                                  // remove the coordinate circles in the map
-                                  for (var circle in circles) {
-                                    _mapController.removeCircle(circle);
-                                  }
-                                  // clear the array containing coordinate circles
-                                  circles.clear();
-
-                                  // if the current mode is default, update Firestore
                                   if (_configRoute == -1) {
+                                    // remove onTap listeners to ensure that tapping on the map would no longer add/delete points
+                                    _mapController.onCircleTapped
+                                        .remove(onCircleTapped);
+                                    _mapController.onLineTapped
+                                        .remove(onLineTapped);
+                                    // remove the coordinate circles in the map
+                                    for (var circle in circles) {
+                                      _mapController.removeCircle(circle);
+                                    }
+                                    // clear the array containing coordinate circles
+                                    circles.clear();
                                     update();
+                                  } else if (_configRoute == -2) {
+                                    _mapController.onCircleTapped
+                                        .remove(onCircleTapped);
+                                    _mapController.onLineTapped
+                                        .remove(onLineTapped);
+
+                                    // Revert to the original route coordinates from the database
+                                    setRoute.clear();
+                                    setRoute = List<LatLng>.from(widget
+                                        .route!.routeCoordinates); // Deep copy
+
+                                    // Remove the coordinate circles in the map
+                                    for (var circle in circles) {
+                                      _mapController.removeCircle(circle);
+                                    }
+
+                                    // Clear the array containing coordinate circles
+                                    circles.clear();
+
+                                    // Re-initialize the route lines
+                                    addLine();
                                   }
                                 }
 
                                 // if not at default mode
                               } else {
-                                // update the array containing the route coordinates to the route coordinates from Firestore
-                                setRoute = widget.route!.routeCoordinates;
+                                // create a deep copy, otherwise the routeCoordinates would also be modified
+                                setRoute = List<LatLng>.from(
+                                    widget.route!.routeCoordinates);
 
                                 // Move points mode
                                 if (_configRoute == 0) {
@@ -833,14 +865,49 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                               }
 
                               // if the route manager did not save changes, just return to default mode
-                              if (_configRoute == -2) {
-                                _configRoute = -1;
-                              }
+                              // if (_configRoute == -2) {
+                              //   _configRoute = -1;
+                              // }
                             },
                             stopsConfig: (int stopsConfig) {
-                              // Dummy implementation for stopsConfig
-                              print(
-                                  "stopsConfig called with value: $stopsConfig");
+                              // we save what is the previous mode
+                              int prev = _configStops;
+
+                              // update _configStops to trigger state change
+                              // note that coordConfig is the variable modified in route_settings
+                              // and _configStops manages mode changes in the map
+                              setState(() {
+                                _configStops = stopsConfig;
+                              });
+
+                              // if at default mode
+                              if (_configStops < 0) {
+                                // if changes from moving points are saved
+                                if (prev == 0) {
+                                  if (_configStops == -1) {
+                                    print("stopsConfig mode: $stopsConfig");
+                                  }
+
+                                  // if changes from adding/deleting points are saved
+                                } else if (prev == 1) {
+                                  if (_configStops == -1) {
+                                    print("stopsConfig mode: $stopsConfig");
+                                  }
+                                }
+                              } else {
+                                // if at adding/deleting points mode
+                                if (_configStops == 1) {
+                                  print("stopsConfig mode: $stopsConfig");
+                                  // if at moving points mode
+                                } else if (_configStops == 0) {
+                                  print("stopsConfig mode: $stopsConfig");
+                                }
+                              }
+
+                              // if changes is not saved
+                              if (_configStops == -2) {
+                                _configStops = -1;
+                              }
                             },
                           ))
                   ],
