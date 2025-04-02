@@ -43,7 +43,14 @@ class _LoginFormState extends State<LoginForm> {
     } on FirebaseAuthException catch (e) {
       // pop loading circle
       Navigator.pop(context);
-      errorMessage(e.code);
+
+      // check if the error is due to a disabled user
+      if (e.code == 'user-disabled') {
+        errorMessage(
+            "Your account has been banned. Please contact rpdecena@up.edu.ph.");
+      } else {
+        errorMessage(e.code);
+      }
     }
   }
 
