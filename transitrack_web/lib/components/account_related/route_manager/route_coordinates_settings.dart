@@ -31,8 +31,7 @@ class _CoordinatesSettingsState extends State<CoordinatesSettings> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         // For route coordinates
-        buildHeader('Coordinates', routeCoordSettingsMode, widget.coordConfig,
-            withBackButton: true),
+        buildHeader('Coordinates', withBackButton: true),
         const SizedBox(height: Constants.defaultPadding),
         buildModeButtons(routeCoordSettingsMode, updateRouteCoordSettingsMode,
             updateRouteCoordCancelMode,
@@ -41,7 +40,7 @@ class _CoordinatesSettingsState extends State<CoordinatesSettings> {
 
         // For stops coordinates
         const SizedBox(height: Constants.defaultPadding),
-        buildHeader('Usual Stops', stopsCoordSettingsMode, widget.stopsConfig),
+        buildHeader('Usual Stops'),
         const SizedBox(height: Constants.defaultPadding),
         buildModeButtons(stopsCoordSettingsMode, updateStopsCoordSettingsMode,
             updateStopsCoordCancelMode,
@@ -51,8 +50,7 @@ class _CoordinatesSettingsState extends State<CoordinatesSettings> {
     );
   }
 
-  Widget buildHeader(String title, int mode, ValueChanged<int> config,
-      {bool withBackButton = false}) {
+  Widget buildHeader(String title, {bool withBackButton = false}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -60,10 +58,12 @@ class _CoordinatesSettingsState extends State<CoordinatesSettings> {
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
             maxLines: 1,
             overflow: TextOverflow.ellipsis),
-        if (mode == -1 && withBackButton)
+        if (routeCoordSettingsMode == -1 &&
+            stopsCoordSettingsMode == -1 &&
+            withBackButton)
           GestureDetector(
             onTap: () {
-              config(mode); // Notify parent: No mode selected
+              widget.coordConfig(-1); // Notify parent: No mode selected
             },
             child: const Icon(Icons.keyboard_backspace_outlined),
           ),
