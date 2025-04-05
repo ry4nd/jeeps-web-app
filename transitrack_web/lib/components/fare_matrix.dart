@@ -48,7 +48,8 @@ class FareMatrixState extends State<FareMatrix> {
     Map<LatLng, String> updatedLocations = {};
 
     for (LatLng stop in stops) {
-      String address = await findAddress(LatLng(stop.latitude, stop.longitude));
+      String address =
+          await findAddress(LatLng(stop.latitude, stop.longitude), true);
       updatedLocations[stop] = address;
     }
 
