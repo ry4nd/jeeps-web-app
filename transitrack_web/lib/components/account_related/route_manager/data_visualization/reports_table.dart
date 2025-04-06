@@ -297,6 +297,7 @@ class _ReportsTableState extends State<ReportsTable> {
                         child: ReportContents(
                             reportData: selectedReport!,
                             viewImg: viewImg,
+                            loadReports: loadReports,
                             acknowledgeReport: (report) => acknowledgeReport(
                                 context,
                                 report,
@@ -344,12 +345,31 @@ class Legends extends StatelessWidget {
 class ReportContents extends StatelessWidget {
   final ReportData reportData;
   final Function(String) viewImg;
+  final Function loadReports;
   final Function(ReportData) acknowledgeReport;
   const ReportContents(
       {super.key,
       required this.reportData,
       required this.viewImg,
+      required this.loadReports,
       required this.acknowledgeReport});
+
+  Future<void> deleteReport(String senderEmail, Timestamp timestamp) async {
+    try {
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('reports')
+          .where('report_sender', isEqualTo: senderEmail)
+          .where('timestamp', isEqualTo: timestamp)
+          .limit(1)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        await querySnapshot.docs.first.reference.delete();
+      }
+    } catch (error) {
+      debugPrint("Error deleting report: $error");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -382,30 +402,78 @@ class ReportContents extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(ReportData
-                      .reportDetails[reportData.report_type].reportType),
-                  const SizedBox(width: Constants.defaultPadding),
-                  Text(DateFormat('MMM d, y')
-                      .format(reportData.timestamp.toDate())),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(DateFormat('MMM d, y')
+                          .format(reportData.timestamp.toDate())),
+                      Text(
+                          DateFormat('hh:mm a')
+                              .format(reportData.timestamp.toDate()),
+                          style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.white.withValues(alpha: 0.5))),
+                    ],
+                  ),
+                  TextButton.icon(
+                    onPressed: () {
+                      AwesomeDialog(
+                        context: context,
+                        width: 400,
+                        dialogType: DialogType.warning,
+                        padding: const EdgeInsets.all(Constants.defaultPadding),
+                        desc:
+                            "You are about to delete this report. This action cannot be undone.",
+                        btnOkText: "Delete",
+                        btnOkColor: Colors.red[600],
+                        btnCancelText: "Cancel",
+                        btnCancelColor: Constants.bgColor,
+                        btnCancelOnPress: () {},
+                        btnOkOnPress: () async {
+                          await deleteReport(
+                              reportData.report_sender, reportData.timestamp);
+
+                          await AwesomeDialog(
+                                  context: context,
+                                  width: 150,
+                                  padding: const EdgeInsets.only(
+                                      bottom: Constants.defaultPadding),
+                                  dialogType: DialogType.noHeader,
+                                  body: CircularProgressIndicator(
+                                      color: Colors.white),
+                                  dismissOnBackKeyPress: false,
+                                  dismissOnTouchOutside: false,
+                                  autoHide: const Duration(milliseconds: 1000))
+                              .show();
+                          loadReports();
+                        },
+                      ).show();
+                    },
+                    icon: Icon(Icons.delete, color: Colors.red[600]),
+                    label: Text("Delete",
+                        style: TextStyle(color: Colors.red[600])),
+                  )
                 ],
               ),
+              const SizedBox(height: Constants.defaultPadding / 2),
+              const Divider(color: Colors.white),
+              const SizedBox(height: Constants.defaultPadding / 2),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  Expanded(
+                    child: Text(ReportData
+                        .reportDetails[reportData.report_type].reportType),
+                  ),
                   if (reportData.report_type > 0 && reportData.report_type < 4)
-                    Text(usersAdditionalInfo.locationData!,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                            fontSize: 13,
-                            color: Colors.white.withValues(alpha: 0.5))),
-                  const SizedBox(width: Constants.defaultPadding),
-                  Text(
-                      DateFormat('hh:mm a')
-                          .format(reportData.timestamp.toDate()),
-                      style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.white.withValues(alpha: 0.5))),
+                    Expanded(
+                      child: Text(usersAdditionalInfo.locationData!,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.white.withValues(alpha: 0.5))),
+                    ),
                 ],
               ),
               const SizedBox(height: Constants.defaultPadding / 2),

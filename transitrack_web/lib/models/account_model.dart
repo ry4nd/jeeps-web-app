@@ -13,6 +13,8 @@ class AccountData {
   String account_name; // username
   int account_type; // 0 for commuters, 1 for drivers, and 2 for route managers
   String account_id; // Generated Document ID by firestore.
+  bool
+      account_banned; // used to check if the account is banned or not for commuters
   bool is_verified; // Only used for Driver and Route Manager Accounts.
   int route_id;
   String?
@@ -27,6 +29,7 @@ class AccountData {
       required this.is_verified,
       required this.route_id,
       required this.account_id,
+      required this.account_banned,
       this.jeep_driving,
       required this.show_discounted});
 
@@ -42,6 +45,7 @@ class AccountData {
     String? jeepDriving = data['jeep_driving'];
     bool showDiscounted = data['show_discounted'] ?? false;
     String accountId = snapshot.id;
+    bool accountBanned = data['account_banned'];
 
     if (accountType == 0) {
       isVerified = isCommuterVerified;
@@ -55,7 +59,8 @@ class AccountData {
         route_id: routeId,
         jeep_driving: jeepDriving,
         show_discounted: showDiscounted,
-        account_id: accountId);
+        account_id: accountId,
+        account_banned: accountBanned);
   }
 
   static Future<AccountData?> getAccountByEmail(String email) async {

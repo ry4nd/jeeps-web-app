@@ -3,42 +3,41 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'package:transitrack_web/components/account_related/route_manager/data_visualization/filters.dart';
-import 'package:transitrack_web/components/account_related/route_manager/data_visualization/selected_driver_details.dart';
+import 'package:transitrack_web/components/account_related/route_manager/data_visualization/selected_commuter_details.dart';
 import 'package:transitrack_web/components/left_drawer/logo.dart';
 import 'package:transitrack_web/models/account_model.dart';
 import 'package:transitrack_web/models/feedback_model.dart';
 import 'package:transitrack_web/models/filter_model.dart';
-import 'package:transitrack_web/models/jeep_model.dart';
+import 'package:transitrack_web/models/report_model.dart';
 import 'package:transitrack_web/models/route_model.dart';
 import 'package:transitrack_web/style/constants.dart';
 
-// This is the Manage Driver tab of the data visualization panel of the route manager.
-
-class ManageDriversTable extends StatefulWidget {
+class ManageCommutersTable extends StatefulWidget {
   final RouteData route;
-  const ManageDriversTable({super.key, required this.route});
+  const ManageCommutersTable({super.key, required this.route});
 
   @override
-  State<ManageDriversTable> createState() => _ManageDriversTableState();
+  State<ManageCommutersTable> createState() => _ManageCommutersTableState();
 }
 
-class JeepDataRatingAndAddress {
-  List<FeedbackData>? rating;
-  JeepData? jeepData;
-  String? address;
+class CommuterFeedbackAndReport {
+  List<FeedbackData>? feedback;
+  List<ReportData>? report;
 
-  JeepDataRatingAndAddress(
-      {required this.rating, required this.jeepData, required this.address});
+  CommuterFeedbackAndReport({
+    required this.feedback,
+    required this.report,
+  });
 }
 
-class _ManageDriversTableState extends State<ManageDriversTable> {
+class _ManageCommutersTableState extends State<ManageCommutersTable> {
   TextEditingController searchController = TextEditingController();
 
   int selected = -1;
-  late AccountData? selectedDriver;
+  AccountData? selectedCommuter;
   List<RouteData> routes = [];
 
-  List<AccountData>? drivers;
+  List<AccountData>? commuters;
 
   String searchString = "";
 
@@ -50,13 +49,12 @@ class _ManageDriversTableState extends State<ManageDriversTable> {
     super.initState();
 
     loadRoutes();
-    loadDrivers();
   }
 
   void select(int index, AccountData? account) {
     setState(() {
       selected = index;
-      selectedDriver = account;
+      selectedCommuter = account;
     });
   }
 
@@ -75,16 +73,16 @@ class _ManageDriversTableState extends State<ManageDriversTable> {
     });
   }
 
-  Future<void> loadDrivers() async {
+  Future<void> loadCommuters() async {
     setState(() {
-      drivers = null;
+      commuters = null;
     });
     select(-1, null);
 
     Query<Map<String, dynamic>> query = FirebaseFirestore.instance
         .collection('accounts')
-        .where('account_type', isEqualTo: 1)
-        .where('route_id', isEqualTo: widget.route.routeId);
+        // filter to only include commuter accounts
+        .where('account_type', isEqualTo: 0);
 
     query = query.orderBy(orderBy.filterSearch,
         descending: orderBy.filterDescending);
@@ -92,10 +90,29 @@ class _ManageDriversTableState extends State<ManageDriversTable> {
     QuerySnapshot querySnapshot = await query.get();
 
     setState(() {
-      drivers = querySnapshot.docs.map((DocumentSnapshot document) {
+      commuters = querySnapshot.docs.map((DocumentSnapshot document) {
         return AccountData.fromSnapshot(document);
       }).toList();
     });
+  }
+
+  void onSearchChanged(String value) {
+    setState(() {
+      searchString = value;
+    });
+
+    if (value.isNotEmpty) {
+      if (commuters == null) {
+        loadCommuters();
+      }
+    } else {
+      // Clear the list when search is empty
+      setState(() {
+        commuters = null;
+      });
+    }
+
+    select(-1, null);
   }
 
   @override
@@ -114,12 +131,7 @@ class _ManageDriversTableState extends State<ManageDriversTable> {
                     overlayColor: WidgetStateProperty.all(
                         Colors.white.withValues(alpha: 0.2)),
                     elevation: WidgetStateProperty.all(0.0),
-                    onChanged: (String value) {
-                      setState(() {
-                        searchString = value;
-                      });
-                      select(-1, null);
-                    },
+                    onChanged: onSearchChanged,
                     hintText: 'Search Account Name',
                     hintStyle: WidgetStateProperty.all(
                         TextStyle(color: Color(widget.route.routeColor))),
@@ -133,10 +145,15 @@ class _ManageDriversTableState extends State<ManageDriversTable> {
                         children: [
                           IconButton(
                             onPressed: () {
-                              setState(() {
-                                drivers = null;
-                              });
-                              loadDrivers();
+                              if (searchString.isNotEmpty) {
+                                // Reload commuters based on the current search string
+                                loadCommuters();
+                              } else {
+                                // Clear commuters when search bar is empty
+                                setState(() {
+                                  commuters = null;
+                                });
+                              }
                             },
                             icon: const Icon(Icons.refresh),
                           ),
@@ -148,13 +165,13 @@ class _ManageDriversTableState extends State<ManageDriversTable> {
                               body: PointerInterceptor(
                                   child: Filters(
                                 route: widget.route,
-                                dropdownList: FilterParameters.driversOrderBy,
+                                dropdownList: FilterParameters.commutersOrderBy,
                                 oldFilter: orderBy,
                                 newFilter: (FilterParameters newFilter) {
                                   setState(() {
                                     orderBy = newFilter;
                                   });
-                                  loadDrivers();
+                                  loadCommuters();
                                 },
                               )),
                             ).show(),
@@ -164,7 +181,7 @@ class _ManageDriversTableState extends State<ManageDriversTable> {
                       )
                     ],
                   ),
-                  if (drivers != null)
+                  if (commuters != null)
                     const Padding(
                       padding: EdgeInsets.fromLTRB(
                           Constants.defaultPadding,
@@ -173,93 +190,62 @@ class _ManageDriversTableState extends State<ManageDriversTable> {
                           0.0),
                       child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                Text("Verified"),
-                                SizedBox(width: Constants.defaultPadding * 1.5),
-                                Text("Name")
-                              ],
-                            ),
-                            Text("PUV Operating")
-                          ]),
+                          children: [Text("Name"), Text("Status")]),
                     ),
-                  if (drivers == null)
-                    SizedBox(
-                        height: 500,
-                        child: Center(
-                            child: CircularProgressIndicator(
-                          color: Color(widget.route.routeColor),
-                        ))),
-                  if (drivers != null)
+                  if (commuters != null)
                     Expanded(
                       child: SingleChildScrollView(
                         physics: const AlwaysScrollableScrollPhysics(),
                         child: ListView.builder(
                           shrinkWrap: true,
-                          itemCount: drivers!.length,
+                          itemCount: commuters!.length,
                           itemBuilder: (context, index) {
-                            AccountData driver = drivers![index];
+                            AccountData commuter = commuters![index];
 
                             if (searchString.isNotEmpty &&
-                                !driver.account_name
+                                !commuter.account_name
                                     .toLowerCase()
                                     .contains(searchString.toLowerCase())) {
                               return const SizedBox();
                             }
 
                             return ListTile(
-                                onTap: () async {
-                                  if (selected == index) {
-                                    select(-1, null);
-                                  } else {
-                                    select(index, driver);
-                                  }
-                                },
-                                selected: index == selected,
-                                selectedColor: Colors.white,
-                                selectedTileColor:
-                                    Color(widget.route.routeColor)
-                                        .withValues(alpha: 0.1),
-                                hoverColor: Colors.white.withValues(alpha: 0.2),
-                                subtitleTextStyle: TextStyle(
-                                    color: Colors.grey.withValues(alpha: 0.75),
-                                    fontStyle: FontStyle.italic,
-                                    fontSize: 12),
-                                leading: Padding(
-                                  padding: const EdgeInsets.only(
-                                      left: Constants.defaultPadding + 5),
-                                  child: Icon(
-                                    driver.is_verified
-                                        ? Icons.verified_user
-                                        : Icons.remove_moderator,
-                                    color: driver.is_verified
-                                        ? Colors.blue
-                                        : Colors.grey,
-                                    size: 15,
-                                  ),
-                                ),
-                                title: Padding(
-                                  padding: const EdgeInsets.only(
-                                      left: Constants.defaultPadding * 2),
-                                  child: Text(
-                                    driver.account_name,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                subtitle: Padding(
-                                  padding: const EdgeInsets.only(
-                                      left: Constants.defaultPadding * 2),
-                                  child: Text(
-                                    "<${driver.account_email}>",
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                trailing: Text(driver.jeep_driving != ""
-                                    ? driver.jeep_driving!
-                                    : "NA"));
+                              onTap: () async {
+                                if (selected == index) {
+                                  select(-1, null);
+                                } else {
+                                  select(index, commuter);
+                                }
+                              },
+                              selected: index == selected,
+                              selectedColor: Colors.white,
+                              selectedTileColor: Color(widget.route.routeColor)
+                                  .withValues(alpha: 0.1),
+                              hoverColor: Colors.white.withValues(alpha: 0.2),
+                              subtitleTextStyle: TextStyle(
+                                  color: Colors.grey.withValues(alpha: 0.75),
+                                  fontStyle: FontStyle.italic,
+                                  fontSize: 12),
+                              title: Text(
+                                commuter.account_name,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              subtitle: Text(
+                                "<${commuter.account_email}>",
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              trailing: Icon(
+                                commuter.account_banned
+                                    ? Icons.no_accounts_outlined
+                                    : Icons.account_circle_outlined,
+                                color: commuter.account_banned
+                                    ? Colors.red[600]
+                                    : Colors.blue,
+                                size: 20,
+                              ),
+                            );
                           },
                         ),
                       ),
@@ -270,12 +256,12 @@ class _ManageDriversTableState extends State<ManageDriversTable> {
             const SizedBox(width: Constants.defaultPadding),
             Expanded(
               child: Center(
-                child: selectedDriver != null
-                    ? SelectedDriverDetails(
-                        driver: selectedDriver!,
+                child: selectedCommuter != null
+                    ? SelectedCommuterDetails(
+                        commuter: selectedCommuter!,
                         routes: routes,
                         route: widget.route,
-                        loadDrivers: () => loadDrivers(),
+                        loadCommuters: () => loadCommuters(),
                       )
                     : const Logo(),
               ),
