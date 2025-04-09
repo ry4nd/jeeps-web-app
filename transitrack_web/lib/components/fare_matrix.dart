@@ -60,6 +60,7 @@ class FareMatrixState extends State<FareMatrix> {
       if (locations.isNotEmpty) {
         selectedFrom = locations.values.first;
         selectedTo = locations.values.first;
+        computeDistance();
       }
     });
   }
