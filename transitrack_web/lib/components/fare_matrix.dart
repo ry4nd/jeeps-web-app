@@ -137,7 +137,9 @@ class FareMatrixState extends State<FareMatrix> {
     return DropdownMenu(
       label: Text(label),
       width: 350,
+      menuHeight: 250,
       enableFilter: true,
+      requestFocusOnTap: true,
       initialSelection: selectedValue,
       onSelected: (newValue) {
         if (newValue is String) {
