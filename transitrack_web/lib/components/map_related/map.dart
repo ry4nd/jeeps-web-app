@@ -68,6 +68,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
   late List<LatLng> setRoute;
   late List<LatLng> setRouteCopy;
   late List<LatLng> setStops;
+  LatLng? selectedStop; // To store the selected stop's coordinates
   List<Circle> circles = [];
   List<Circle> stopsCircles = [];
   List<Line> lines = [];
@@ -497,6 +498,10 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
     // Add the tapped location to the stops list
     setStops.add(tappedLocation);
 
+    // Update the selected stop
+    setState(() {
+      selectedStop = tappedLocation;
+    });
     // Remove existing stop circles from the map
     for (var circle in stopsCircles) {
       _mapController.removeCircle(circle);
@@ -513,11 +518,28 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
 
     // If the circle exists in the stopsCircles list
     if (index != -1) {
+      // Update the selected stop
+      setState(() {
+        selectedStop = stopsCircles[index].options.geometry;
+      });
       // Remove the stop location from the setStops list
       setStops.removeAt(index);
 
       // Reinitialize the stop circles on the map
       addPoints(stopsCircles, setStops, _configStops);
+    }
+  }
+
+  void onStopLocationCircleSelected(Circle pressedCircle) {
+    // Find the index of the tapped stop circle
+    int index = stopsCircles.indexWhere((circle) => pressedCircle == circle);
+
+    // If the circle exists in the stopsCircles list
+    if (index != -1) {
+      // Update the selected stop
+      setState(() {
+        selectedStop = stopsCircles[index].options.geometry;
+      });
     }
   }
 
@@ -910,6 +932,11 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
 
                               // if at default mode
                               if (_configStops < 0) {
+                                // Set selectedStop to null
+                                setState(() {
+                                  selectedStop = null;
+                                });
+
                                 // if from moving points mode
                                 if (prev == 0) {
                                   // if changes are saved
@@ -951,9 +978,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                                   if (_configStops == -1) {
                                     // remove onTap listeners to ensure that tapping on the map would no longer add/delete points
                                     _mapController.onCircleTapped
-                                        .add((Circle pressedCircle) {
-                                      onStopLocationCircleTapped(pressedCircle);
-                                    });
+                                        .remove(onStopLocationCircleTapped);
                                     // remove the coordinate circles in the map
                                     for (var circle in stopsCircles) {
                                       _mapController.removeCircle(circle);
@@ -964,9 +989,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                                     // if changes are not saved
                                   } else if (_configStops == -2) {
                                     _mapController.onCircleTapped
-                                        .add((Circle pressedCircle) {
-                                      onStopLocationCircleTapped(pressedCircle);
-                                    });
+                                        .remove(onStopLocationCircleTapped);
 
                                     // Revert to the original route coordinates from the database
                                     setStops.clear();
@@ -991,20 +1014,22 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                                     widget.route!.stopsCoordinates);
                                 // if at adding/deleting points mode
                                 if (_configStops == 0) {
+                                  // Add the onCircleTapped listener for selecting stops
+                                  _mapController.onCircleTapped
+                                      .add(onStopLocationCircleSelected);
                                   addPoints(
                                       stopsCircles, setStops, _configStops);
 
                                   // if at moving points mode
                                 } else if (_configStops == 1) {
                                   _mapController.onCircleTapped
-                                      .add((Circle pressedCircle) {
-                                    onStopLocationCircleTapped(pressedCircle);
-                                  });
+                                      .add(onStopLocationCircleTapped);
                                   addPoints(
                                       stopsCircles, setStops, _configStops);
                                 }
                               }
                             },
+                            selectedStop: selectedStop,
                           ))
                   ],
                 ))

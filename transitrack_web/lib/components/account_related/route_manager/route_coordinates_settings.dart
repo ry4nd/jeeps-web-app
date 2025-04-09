@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:mapbox_gl/mapbox_gl.dart';
+import 'package:transitrack_web/services/find_location.dart';
 
 import '../../../models/route_model.dart';
 import '../../../style/constants.dart';
@@ -10,11 +12,14 @@ class CoordinatesSettings extends StatefulWidget {
   // used to communicate changes in mode: -1 = no mode | 0 = edit | 1 = add/delete | -2 = close/ reset
   final ValueChanged<int> coordConfig;
   final ValueChanged<int> stopsConfig;
+  final LatLng? selectedStop; // Add selectedStop to display it
+
   const CoordinatesSettings(
       {super.key,
       required this.route,
       required this.coordConfig,
-      required this.stopsConfig});
+      required this.stopsConfig,
+      required this.selectedStop});
 
   @override
   State<CoordinatesSettings> createState() => _CoordinatesSettingsState();
@@ -24,28 +29,93 @@ class _CoordinatesSettingsState extends State<CoordinatesSettings> {
   // this tracks the mode: -1 = no mode selected | 0 = edit | 1 = add/remove
   int routeCoordSettingsMode = -1;
   int stopsCoordSettingsMode = -1;
+  String? address; // To store the fetched address
+
+  @override
+  void didUpdateWidget(covariant CoordinatesSettings oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // Check if the selectedStop has changed
+    if (widget.selectedStop != oldWidget.selectedStop) {
+      _fetchAddress(); // Fetch the address for the new selectedStop
+    }
+  }
+
+  Future<void> _fetchAddress() async {
+    if (widget.selectedStop != null) {
+      try {
+        // Call the asynchronous findAddress function
+        String fetchedAddress = await findAddress(widget.selectedStop!, true);
+
+        // Update the state with the fetched address
+        setState(() {
+          address = fetchedAddress;
+        });
+      } catch (e) {
+        // Handle errors (e.g., network issues)
+        setState(() {
+          address = "Unable to fetch address";
+        });
+      }
+    } else {
+      // If no stop is selected, clear the address
+      setState(() {
+        address = null;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment:
+          CrossAxisAlignment.start, // Align everything to the left
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        // For route coordinates
-        buildHeader('Coordinates', withBackButton: true),
-        const SizedBox(height: Constants.defaultPadding),
-        buildModeButtons(routeCoordSettingsMode, updateRouteCoordSettingsMode,
+        if (stopsCoordSettingsMode != 0 && stopsCoordSettingsMode != 1) ...[
+          // For route coordinates
+          buildHeader('Coordinates', withBackButton: true),
+          const SizedBox(height: Constants.defaultPadding),
+          buildModeButtons(
+            routeCoordSettingsMode,
+            updateRouteCoordSettingsMode,
             updateRouteCoordCancelMode,
-            enabled:
-                stopsCoordSettingsMode != 0 && stopsCoordSettingsMode != 1),
+            enabled: stopsCoordSettingsMode != 0 && stopsCoordSettingsMode != 1,
+          ),
+          const SizedBox(height: Constants.defaultPadding),
+        ],
 
         // For stops coordinates
-        const SizedBox(height: Constants.defaultPadding),
         buildHeader('Usual Stops'),
         const SizedBox(height: Constants.defaultPadding),
-        buildModeButtons(stopsCoordSettingsMode, updateStopsCoordSettingsMode,
-            updateStopsCoordCancelMode,
-            enabled:
-                routeCoordSettingsMode != 0 && routeCoordSettingsMode != 1),
+        buildModeButtons(
+          stopsCoordSettingsMode,
+          updateStopsCoordSettingsMode,
+          updateStopsCoordCancelMode,
+          enabled: routeCoordSettingsMode != 0 && routeCoordSettingsMode != 1,
+        ),
+
+        // Display the selected stop
+        if (widget.selectedStop != null) ...[
+          const SizedBox(height: Constants.defaultPadding),
+          Column(
+            crossAxisAlignment:
+                CrossAxisAlignment.start, // Align content to the left
+            children: [
+              Text(
+                "Selected Stop", // Display the fetched address
+                style:
+                    const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+                textAlign: TextAlign.start,
+              ),
+              Text(
+                address ?? "Fetching...", // Display the fetched address
+                style: const TextStyle(fontSize: 14),
+                textAlign: TextAlign.start,
+              ),
+            ],
+          ),
+        ],
       ],
     );
   }

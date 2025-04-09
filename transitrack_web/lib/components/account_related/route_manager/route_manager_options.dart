@@ -8,6 +8,7 @@ import '../../../models/route_model.dart';
 import '../../../style/constants.dart';
 import '../../account_related/route_manager/route_vehicles_settings.dart';
 import '../../../models/jeep_model.dart';
+import 'package:mapbox_gl/mapbox_gl.dart';
 
 // This widget allows the route manager to modify the route's properties, coordinates, and PUVs
 
@@ -16,6 +17,7 @@ class RouteManagerOptions extends StatefulWidget {
   final List<JeepsAndDrivers> jeeps;
   final ValueChanged<int> coordConfig;
   final ValueChanged<int> stopsConfig;
+  final LatLng? selectedStop;
   final ValueChanged<JeepsAndDrivers> pressedJeep;
   const RouteManagerOptions(
       {super.key,
@@ -23,7 +25,8 @@ class RouteManagerOptions extends StatefulWidget {
       required this.jeeps,
       required this.pressedJeep,
       required this.coordConfig,
-      required this.stopsConfig});
+      required this.stopsConfig,
+      required this.selectedStop});
 
   @override
   State<RouteManagerOptions> createState() => _RouteManagerOptionsState();
@@ -213,6 +216,8 @@ class _RouteManagerOptionsState extends State<RouteManagerOptions> {
                     }
                     widget.stopsConfig(stopsConfig);
                   },
+                  selectedStop:
+                      widget.selectedStop, // Pass the actual LatLng? object
                 ),
               ],
             ),
