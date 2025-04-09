@@ -102,7 +102,6 @@ class _ReportsTableState extends State<ReportsTable> {
     AwesomeDialog(
       context: context,
       dialogType: DialogType.noHeader,
-      title: 'Send Email',
       width: 1000,
       body: PointerInterceptor(
         child: Column(
@@ -112,6 +111,13 @@ class _ReportsTableState extends State<ReportsTable> {
               child: Image.network(
                 imgUrl,
                 fit: BoxFit.contain,
+                loadingBuilder: (BuildContext context, Widget child,
+                    ImageChunkEvent? loadingProgress) {
+                  if (loadingProgress == null) {
+                    return child;
+                  }
+                  return Center(child: CircularProgressIndicator());
+                },
                 errorBuilder: (BuildContext context, Object error,
                     StackTrace? stackTrace) {
                   return const Text(
