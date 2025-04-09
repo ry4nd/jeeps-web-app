@@ -256,7 +256,7 @@ class CommuterReportTab extends StatelessWidget {
 
   Future<String?> getAddressFromCoordinates(
       double latitude, double longitude) async {
-    return await findAddress(LatLng(latitude, longitude));
+    return await findAddress(LatLng(latitude, longitude), false);
   }
 
   @override
