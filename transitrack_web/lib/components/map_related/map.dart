@@ -948,6 +948,12 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                                     for (var circle in stopsCircles) {
                                       setStops.add(circle.options.geometry!);
                                     }
+
+                                    // Update the route's stopsCoordinates
+                                    setState(() {
+                                      widget.route!.stopsCoordinates = setStops;
+                                    });
+
                                     // remove the coordinate circles in the map
                                     for (var circle in stopsCircles) {
                                       _mapController.removeCircle(circle);
@@ -985,6 +991,10 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
                                     }
                                     // clear the array containing coordinate circles
                                     stopsCircles.clear();
+                                    // Update the route's stopsCoordinates
+                                    setState(() {
+                                      widget.route!.stopsCoordinates = setStops;
+                                    });
                                     update('stops_coordinates', setStops);
                                     // if changes are not saved
                                   } else if (_configStops == -2) {

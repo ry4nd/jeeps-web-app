@@ -38,6 +38,19 @@ class FareMatrixState extends State<FareMatrix> {
     convertCoordinates();
   }
 
+  @override
+  void didUpdateWidget(covariant FareMatrix oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // Check if stopsCoordinates has changed
+    if (widget.route.stopsCoordinates != oldWidget.route.stopsCoordinates) {
+      setState(() {
+        stops = widget.route.stopsCoordinates; // Update the stops list
+      });
+      convertCoordinates(); // Refresh the dropdown options
+    }
+  }
+
   bool isLoading = true;
 
   void convertCoordinates() async {
