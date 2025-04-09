@@ -5,7 +5,7 @@ import 'package:transitrack_web/config/keys.dart';
 import '../services/calculate_distance.dart';
 
 // API Call Function for extracting the coordinate name using the Search Box API
-Future<String> findAddress(LatLng latLng, bool isDropdown) async {
+Future<String> findAddress(LatLng latLng, bool isSpecific) async {
   // Truncate latitude and longitude to 4 decimal places
   String truncatedLat = latLng.latitude.toStringAsFixed(4);
   String truncatedLon = latLng.longitude.toStringAsFixed(4);
@@ -23,7 +23,7 @@ Future<String> findAddress(LatLng latLng, bool isDropdown) async {
     if (features.isNotEmpty) {
       // Extract the name and address of the closest feature
       final firstFeature = features[0];
-      if (!isDropdown) {
+      if (!isSpecific) {
         String name = firstFeature['properties']['name'] ?? 'Unknown Name';
         return name;
       } else {
