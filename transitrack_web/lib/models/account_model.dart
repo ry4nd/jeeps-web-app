@@ -156,8 +156,8 @@ class AccountData {
     String? address;
 
     if (location != null) {
-      address =
-          await findAddress(LatLng(location.latitude, location.longitude));
+      address = await findAddress(
+          LatLng(location.latitude, location.longitude), false);
     }
 
     return UsersAdditionalInfo(

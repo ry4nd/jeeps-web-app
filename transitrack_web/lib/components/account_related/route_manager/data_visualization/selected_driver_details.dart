@@ -46,7 +46,7 @@ class _SelectedDriverDetailsState extends State<SelectedDriverDetails> {
     JeepData jeepData = JeepData.fromSnapshot(querySnapshot.docs.first);
 
     String address = await findAddress(
-        LatLng(jeepData.location.latitude, jeepData.location.longitude));
+        LatLng(jeepData.location.latitude, jeepData.location.longitude), false);
 
     return JeepDataRatingAndAddress(
         jeepData: jeepData, address: address, rating: ratings);

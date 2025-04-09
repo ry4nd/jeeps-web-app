@@ -8,6 +8,7 @@ import '../../../models/route_model.dart';
 import '../../../style/constants.dart';
 import '../../account_related/route_manager/route_vehicles_settings.dart';
 import '../../../models/jeep_model.dart';
+import 'package:mapbox_gl/mapbox_gl.dart';
 
 // This widget allows the route manager to modify the route's properties, coordinates, and PUVs
 
@@ -15,13 +16,17 @@ class RouteManagerOptions extends StatefulWidget {
   final RouteData route;
   final List<JeepsAndDrivers> jeeps;
   final ValueChanged<int> coordConfig;
+  final ValueChanged<int> stopsConfig;
+  final LatLng? selectedStop;
   final ValueChanged<JeepsAndDrivers> pressedJeep;
   const RouteManagerOptions(
       {super.key,
       required this.route,
       required this.jeeps,
       required this.pressedJeep,
-      required this.coordConfig});
+      required this.coordConfig,
+      required this.stopsConfig,
+      required this.selectedStop});
 
   @override
   State<RouteManagerOptions> createState() => _RouteManagerOptionsState();
@@ -55,7 +60,9 @@ class _RouteManagerOptionsState extends State<RouteManagerOptions> {
                           selected = -1;
                           optionTitle = "Route Management";
                         });
+                        // No mode selected for route coordinates settings
                         widget.coordConfig(-2);
+                        widget.stopsConfig(-2);
                       },
                       child: const Icon(
                         Icons.keyboard_backspace_outlined,
@@ -187,17 +194,33 @@ class _RouteManagerOptionsState extends State<RouteManagerOptions> {
                 child: PropertiesSettings(route: widget.route),
               ),
             ),
+          // if the modify coordinates is selected
           if (selected == 1)
-            CoordinatesSettings(
-                route: widget.route,
-                coordConfig: (int coordConfig) {
-                  if (coordConfig == -1) {
-                    setState(() {
-                      selected = -1;
-                    });
-                  }
-                  widget.coordConfig(coordConfig);
-                }),
+            Column(
+              children: [
+                CoordinatesSettings(
+                  route: widget.route,
+                  coordConfig: (int coordConfig) {
+                    if (coordConfig == -1) {
+                      setState(() {
+                        selected = -1;
+                      });
+                    }
+                    widget.coordConfig(coordConfig);
+                  },
+                  stopsConfig: (int stopsConfig) {
+                    if (stopsConfig == -1) {
+                      setState(() {
+                        selected = -1;
+                      });
+                    }
+                    widget.stopsConfig(stopsConfig);
+                  },
+                  selectedStop:
+                      widget.selectedStop, // Pass the actual LatLng? object
+                ),
+              ],
+            ),
           if (selected == 2)
             SizedBox(
               height: 250,
