@@ -81,84 +81,91 @@ class _SignupFormState extends State<SignupForm> {
 
   // sign user in method
   void signUserUp() async {
-    // show loading circle
+    // Show loading circle
     showDialog(
         context: context,
         builder: (context) {
           return const Center(child: CircularProgressIndicator());
         });
 
-    // try sign up
+    // Try sign up
     try {
-      if (nameController.text.isNotEmpty && nameController.text.length >= 3) {
-        // check if password is confirmed
-        if (passwordController.text == confirmPasswordController.text) {
-          if (routes != null && chosenRoute != null) {
-            await FirebaseAuth.instance
-                .createUserWithEmailAndPassword(
-                    email: emailController.text,
-                    password: passwordController.text)
-                .then((value) async {
-              String uid = value.user!.uid;
-
-              await FirebaseFirestore.instance.collection('accounts').add({
-                'account_name': nameController.text,
-                'account_email': emailController.text,
-                'account_uid': uid,
-                'account_type': AccountData.accountTypeMap[accountType],
-                'jeep_driving': "",
-                'is_verified': false,
-                'route_id': routes!
-                    .firstWhere((element) => element.routeName == chosenRoute!)
-                    .routeId,
-                'show_discounted': false,
-                'account_banned': false,
-              });
-
-              if (AccountData.accountTypeMap[accountType] == 0) {
-                value.user!.sendEmailVerification();
-              }
-
-              // pop loading circle
-              Navigator.pop(context);
-            });
-
-            AwesomeDialog(
-                context: context,
-                dialogType: DialogType.info,
-                padding: const EdgeInsets.only(
-                    left: Constants.defaultPadding,
-                    right: Constants.defaultPadding,
-                    bottom: Constants.defaultPadding),
-                width: 400,
-                onDismissCallback: (_) => Navigator.pop(context),
-                body: PointerInterceptor(
-                  child: Text(
-                    registerPrompts[AccountData.accountTypeMap[accountType]!],
-                    textAlign: TextAlign.center,
-                  ),
-                )).show();
-          } else {
-            Navigator.pop(context);
-            // password dont match
-            errorMessage("Select a route you wish to associate to.");
-          }
-        } else {
-          // pop loading circle
-          Navigator.pop(context);
-
-          // password dont match
-          errorMessage("Passwords don't match!");
-        }
-      } else {
-        // pop loading circle
-        Navigator.pop(context);
-
-        // password dont match
-        errorMessage("Name should be at least 3 characters");
+      // Validate email first
+      if (emailController.text.isEmpty ||
+          validateEmail(emailController.text) != null) {
+        Navigator.pop(context); // Pop loading circle
+        errorMessage("Enter a valid email address");
+        return;
       }
+
+      // Validate name
+      if (nameController.text.isEmpty || nameController.text.length < 3) {
+        Navigator.pop(context); // Pop loading circle
+        errorMessage("Name should be at least 3 characters");
+        return;
+      }
+
+      // Check if password is confirmed
+      if (passwordController.text != confirmPasswordController.text) {
+        Navigator.pop(context); // Pop loading circle
+        errorMessage("Passwords don't match!");
+        return;
+      }
+
+      // Check if a route is selected
+      if (routes == null || chosenRoute == null) {
+        Navigator.pop(context); // Pop loading circle
+        errorMessage("Select a route you wish to associate to.");
+        return;
+      }
+
+      // Proceed with Firebase sign-up
+      await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
+              email: emailController.text, password: passwordController.text)
+          .then((value) async {
+        String uid = value.user!.uid;
+
+        await FirebaseFirestore.instance.collection('accounts').add({
+          'account_name': nameController.text,
+          'account_email': emailController.text,
+          'account_uid': uid,
+          'account_type': AccountData.accountTypeMap[accountType],
+          'jeep_driving': "",
+          'is_verified': false,
+          'route_id': routes!
+              .firstWhere((element) => element.routeName == chosenRoute!)
+              .routeId,
+          'show_discounted': false,
+          'account_banned': false,
+        });
+
+        if (AccountData.accountTypeMap[accountType] == 0) {
+          value.user!.sendEmailVerification();
+        }
+
+        // Pop loading circle
+        Navigator.pop(context);
+      });
+
+      // Show success dialog
+      AwesomeDialog(
+          context: context,
+          dialogType: DialogType.info,
+          padding: const EdgeInsets.only(
+              left: Constants.defaultPadding,
+              right: Constants.defaultPadding,
+              bottom: Constants.defaultPadding),
+          width: 400,
+          onDismissCallback: (_) => Navigator.pop(context),
+          body: PointerInterceptor(
+            child: Text(
+              registerPrompts[AccountData.accountTypeMap[accountType]!],
+              textAlign: TextAlign.center,
+            ),
+          )).show();
     } on FirebaseAuthException catch (e) {
-      // pop loading circle
+      // Pop loading circle
       Navigator.pop(context);
       errorMessage(e.code);
     }
