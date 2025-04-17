@@ -84,13 +84,23 @@ class _DataVisualizationTabState extends State<DataVisualizationTab> {
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Row(
+            mainAxisAlignment:
+                MainAxisAlignment.spaceBetween, // Space between text and button
             children: [
               PrimaryText(
                 text: widget.route.routeName,
                 color: Colors.white,
                 size: 40,
                 fontWeight: FontWeight.w700,
-              )
+              ),
+              IconButton(
+                icon:
+                    const Icon(Icons.close, color: Colors.white), // Close icon
+                onPressed: () {
+                  Navigator.pop(context); // Close the current screen
+                },
+                tooltip: "Close", // Tooltip for accessibility
+              ),
             ],
           ),
           const Divider(color: Colors.white),
@@ -127,7 +137,7 @@ class _DataVisualizationTabState extends State<DataVisualizationTab> {
               Expanded(
                 child: selected == -1
                     ? const SizedBox(
-                        height: 700,
+                        height: 500,
                         child: Center(
                           child: Logo(),
                         ))
