@@ -14,6 +14,8 @@ import '../../config/responsive.dart';
 import '../../style/constants.dart';
 import 'feedback_form.dart';
 
+import 'package:flutter/services.dart';
+
 // This widget displays relevant information of the PUV
 
 class SelectedJeepInfo extends StatefulWidget {
@@ -187,6 +189,59 @@ class SelectedJeepInfoBox extends StatefulWidget {
 }
 
 class _SelectedJeepInfoBoxState extends State<SelectedJeepInfoBox> {
+  bool isSharing = false;
+  String? currentShareDocId;
+
+  void _toggleSharing(bool value) async {
+    setState(() => isSharing = value);
+
+    final firestore = FirebaseFirestore.instance;
+
+    if (value) {
+      // Create a new share doc
+      final docRef = await firestore.collection('live_shares').add({
+        'route_id': widget.route.routeId,
+        'device_id': widget.jeep.device_id,
+        'is_sharing': true,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+
+      final shareUrl = '${Uri.base.origin}/share?share_id=${docRef.id}';
+      currentShareDocId = docRef.id;
+
+      await Clipboard.setData(ClipboardData(text: shareUrl));
+
+      if (context.mounted) {
+        message('Copied Live Location Link');
+      }
+    } else {
+      // Stop sharing by updating Firestore
+      if (currentShareDocId != null) {
+        await firestore
+            .collection('live_shares')
+            .doc(currentShareDocId)
+            .update({'is_sharing': false});
+      }
+
+      currentShareDocId = null;
+      message('Stopped Sharing Live Location');
+    }
+  }
+
+  void message(String message) {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+              backgroundColor: Constants.bgColor,
+              title: Center(
+                  child: Text(
+                message,
+                style: const TextStyle(color: Colors.white),
+              )));
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -326,10 +381,29 @@ class _SelectedJeepInfoBoxState extends State<SelectedJeepInfoBox> {
             ),
             right: Text(widget.driver!.account_name,
                 maxLines: 1, overflow: TextOverflow.ellipsis)),
-        if (widget.user != null &&
-            widget.user!.is_verified &&
-            widget.driver != null)
-          const Divider(color: Colors.white),
+        const Divider(color: Colors.white),
+        SelectedJeepInfoRow(
+          left: Text("Share Live Location"),
+          right: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              IconButton(
+                onPressed: () => _toggleSharing(!isSharing),
+                icon: Icon(
+                  isSharing ? Icons.stop_circle_rounded : Icons.share,
+                  color: isSharing
+                      ? Colors.red[600]
+                      : Color(widget.route.routeColor),
+                  size: 16,
+                ),
+                tooltip: isSharing ? 'Stop Sharing' : 'Share Location',
+                padding: EdgeInsets.zero,
+                constraints: BoxConstraints(),
+              ),
+            ],
+          ),
+        ),
+        const Divider(color: Colors.white),
         if (widget.user != null &&
             widget.user!.is_verified &&
             widget.driver != null)
