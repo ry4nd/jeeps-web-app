@@ -15,17 +15,20 @@ import '../components/account_related/account_stream.dart';
 import '../components/header.dart';
 import '../components/left_drawer/logo.dart';
 import '../components/map_related/map.dart';
-import '../components/left_drawer/route_list.dart';
+import '../components/share_live_loc/share_route_list.dart';
 import '../config/responsive.dart';
 import '../models/account_model.dart';
 import '../models/jeep_model.dart';
 import '../models/route_model.dart';
 import '../style/constants.dart';
+import 'package:go_router/go_router.dart' as go;
 
 // The one and only page of the app. This .dart file includes stream set up for the user account, routes, and puvs.
 
 class SharePage extends StatefulWidget {
-  const SharePage({super.key});
+  final String? shareId;
+
+  const SharePage({super.key, this.shareId});
 
   @override
   State<SharePage> createState() => _SharePageState();
@@ -53,9 +56,9 @@ class _SharePageState extends State<SharePage> {
   // Stream Listeners
   late StreamSubscription<User?> userAuthStream;
   late StreamSubscription userFirestoreStream;
-  late StreamSubscription routesFirestoreStream;
-  late StreamSubscription jeepsFirestoreStream;
-  late StreamSubscription driversFirestoreStream;
+  // late StreamSubscription routesFirestoreStream;
+  // late StreamSubscription jeepsFirestoreStream;
+  // late StreamSubscription driversFirestoreStream;
 
   // Route Selection (unselected = -1)
   int routeChoice = -1;
@@ -76,7 +79,69 @@ class _SharePageState extends State<SharePage> {
     super.initState();
     currentUserAuth = FirebaseAuth.instance.currentUser;
     listenToUserAuth();
-    listenToRoutesFirestore();
+    // listenToRoutesFirestore();
+    loadSharedRouteFromUrl();
+  }
+
+  Future<void> loadSharedRouteFromUrl() async {
+    final uid = widget.shareId;
+
+    try {
+      final sharedDoc = await FirebaseFirestore.instance
+          .collection('live_shares')
+          .doc(uid)
+          .get();
+
+      if (!sharedDoc.exists) return;
+
+      final data = sharedDoc.data()!;
+      final int routeId = data['route_id'];
+      final String deviceId = data['device_id'];
+      // final String driverName = data['driver'];
+
+      // Fetch the route
+      final routeDoc = await FirebaseFirestore.instance
+          .collection('routes')
+          .where('route_id', isEqualTo: routeId)
+          .limit(1)
+          .get();
+      if (routeDoc.docs.isEmpty) return;
+      final RouteData sharedRoute =
+          RouteData.fromFirestore(routeDoc.docs.first);
+
+      // Fetch the jeep
+      final jeepDoc = await FirebaseFirestore.instance
+          .collection('jeeps_realtime')
+          .where('device_id', isEqualTo: deviceId)
+          .limit(1)
+          .get();
+      if (jeepDoc.docs.isEmpty) return;
+      final JeepData sharedJeep = JeepData.fromSnapshot(jeepDoc.docs.first);
+
+      // Fetch the driver
+      final driverDoc = await FirebaseFirestore.instance
+          .collection('accounts')
+          .where('jeepney_driving', isEqualTo: deviceId)
+          .limit(1)
+          .get();
+      final AccountData? driver = driverDoc.docs.isNotEmpty
+          ? AccountData.fromSnapshot(driverDoc.docs.first)
+          : null;
+
+      final JeepsAndDrivers sharedJeepAndDriver = JeepsAndDrivers(
+        driver: driver,
+        jeep: sharedJeep,
+      );
+
+      setState(() {
+        _routes = [sharedRoute]; // Set only the fetched route
+        jeeps = [sharedJeepAndDriver]; // Set only the fetched jeep
+        drivers = driver != null ? [driver] : []; // Set only the fetched driver
+        routeChoice = 0;
+      });
+    } catch (e) {
+      debugPrint("Error loading shared route: $e");
+    }
   }
 
   void hovering() {
@@ -85,59 +150,59 @@ class _SharePageState extends State<SharePage> {
     });
   }
 
-  void switchRoute(int choice) {
-    if (routeChoice != -1) {
-      jeepsFirestoreStream.cancel();
-      driversFirestoreStream.cancel();
-    }
+  // void switchRoute(int choice) {
+  //   if (routeChoice != -1) {
+  //     jeepsFirestoreStream.cancel();
+  //     driversFirestoreStream.cancel();
+  //   }
 
-    setState(() {
-      routeChoice = choice;
-    });
+  //   setState(() {
+  //     routeChoice = choice;
+  //   });
 
-    if (routeChoice != -1) {
-      drivers.clear();
-      jeeps.clear();
-      listenToDriversFirestore();
-      listenToJeepsFirestore();
-    } else {
-      jeepsFirestoreStream.cancel();
-      driversFirestoreStream.cancel();
-    }
-  }
+  //   if (routeChoice != -1) {
+  //     drivers.clear();
+  //     jeeps.clear();
+  //     listenToDriversFirestore();
+  //     listenToJeepsFirestore();
+  //   } else {
+  //     jeepsFirestoreStream.cancel();
+  //     driversFirestoreStream.cancel();
+  //   }
+  // }
 
-  void listenToDriversFirestore() {
-    driversFirestoreStream = FirebaseFirestore.instance
-        .collection('accounts')
-        .where('account_type', isEqualTo: 1)
-        .orderBy('account_email')
-        .snapshots()
-        .listen((QuerySnapshot snapshot) {
-      if (snapshot.docs.isNotEmpty) {
-        setState(() {
-          drivers = snapshot.docs
-              .map((doc) => AccountData.fromSnapshot(doc))
-              .toList();
-        });
+  // void listenToDriversFirestore() {
+  //   driversFirestoreStream = FirebaseFirestore.instance
+  //       .collection('accounts')
+  //       .where('account_type', isEqualTo: 1)
+  //       .orderBy('account_email')
+  //       .snapshots()
+  //       .listen((QuerySnapshot snapshot) {
+  //     if (snapshot.docs.isNotEmpty) {
+  //       setState(() {
+  //         drivers = snapshot.docs
+  //             .map((doc) => AccountData.fromSnapshot(doc))
+  //             .toList();
+  //       });
 
-        List<JeepsAndDrivers> collected = [];
+  //       List<JeepsAndDrivers> collected = [];
 
-        for (JeepsAndDrivers jeep in jeeps) {
-          bool found = drivers
-              .any((driver) => driver!.jeep_driving == jeep.jeep.device_id);
-          collected.add(JeepsAndDrivers(
-              driver: found
-                  ? drivers.firstWhere(
-                      (driver) => driver!.jeep_driving == jeep.jeep.device_id)
-                  : null,
-              jeep: jeep.jeep));
-        }
-        setState(() {
-          jeeps = collected;
-        });
-      }
-    });
-  }
+  //       for (JeepsAndDrivers jeep in jeeps) {
+  //         bool found = drivers
+  //             .any((driver) => driver!.jeep_driving == jeep.jeep.device_id);
+  //         collected.add(JeepsAndDrivers(
+  //             driver: found
+  //                 ? drivers.firstWhere(
+  //                     (driver) => driver!.jeep_driving == jeep.jeep.device_id)
+  //                 : null,
+  //             jeep: jeep.jeep));
+  //       }
+  //       setState(() {
+  //         jeeps = collected;
+  //       });
+  //     }
+  //   });
+  // }
 
   void listenToUserAuth() async {
     userAuthStream = FirebaseAuth.instance.authStateChanges().listen(
@@ -155,7 +220,8 @@ class _SharePageState extends State<SharePage> {
         }
 
         if (routeChoice != -1) {
-          switchRoute(-1);
+          // switchRoute(-1);
+          routeChoice = -1;
         }
       },
     );
@@ -176,59 +242,59 @@ class _SharePageState extends State<SharePage> {
     });
   }
 
-  void listenToRoutesFirestore() {
-    routesFirestoreStream = FirebaseFirestore.instance
-        .collection('routes')
-        .orderBy('route_id')
-        .snapshots()
-        .listen((QuerySnapshot snapshot) {
-      if (snapshot.docs.isNotEmpty) {
-        setState(() {
-          _routes =
-              snapshot.docs.map((doc) => RouteData.fromFirestore(doc)).toList();
-        });
-      }
-    });
-  }
+  // void listenToRoutesFirestore() {
+  //   routesFirestoreStream = FirebaseFirestore.instance
+  //       .collection('routes')
+  //       .orderBy('route_id')
+  //       .snapshots()
+  //       .listen((QuerySnapshot snapshot) {
+  //     if (snapshot.docs.isNotEmpty) {
+  //       setState(() {
+  //         _routes =
+  //             snapshot.docs.map((doc) => RouteData.fromFirestore(doc)).toList();
+  //       });
+  //     }
+  //   });
+  // }
 
-  void listenToJeepsFirestore() {
-    jeepsFirestoreStream = FirebaseFirestore.instance
-        .collection('jeeps_realtime')
-        .where('route_id', isEqualTo: routeChoice)
-        .orderBy('device_id')
-        .snapshots()
-        .listen((QuerySnapshot snapshot) {
-      if (snapshot.docs.isNotEmpty) {
-        List<JeepsAndDrivers> collected = [];
-        List<JeepData> _jeeps = [];
-        setState(() {
-          _jeeps =
-              snapshot.docs.map((doc) => JeepData.fromSnapshot(doc)).toList();
-        });
-        for (JeepData _jeep in _jeeps) {
-          bool found =
-              drivers.any((driver) => driver!.jeep_driving == _jeep.device_id);
-          collected.add(JeepsAndDrivers(
-              driver: found
-                  ? drivers.firstWhere(
-                      (driver) => driver!.jeep_driving == _jeep.device_id)
-                  : null,
-              jeep: _jeep));
-        }
-        setState(() {
-          jeeps = collected;
-        });
-      }
-    });
-  }
+  // void listenToJeepsFirestore() {
+  //   jeepsFirestoreStream = FirebaseFirestore.instance
+  //       .collection('jeeps_realtime')
+  //       .where('route_id', isEqualTo: routeChoice)
+  //       .orderBy('device_id')
+  //       .snapshots()
+  //       .listen((QuerySnapshot snapshot) {
+  //     if (snapshot.docs.isNotEmpty) {
+  //       List<JeepsAndDrivers> collected = [];
+  //       List<JeepData> _jeeps = [];
+  //       setState(() {
+  //         _jeeps =
+  //             snapshot.docs.map((doc) => JeepData.fromSnapshot(doc)).toList();
+  //       });
+  //       for (JeepData _jeep in _jeeps) {
+  //         bool found =
+  //             drivers.any((driver) => driver!.jeep_driving == _jeep.device_id);
+  //         collected.add(JeepsAndDrivers(
+  //             driver: found
+  //                 ? drivers.firstWhere(
+  //                     (driver) => driver!.jeep_driving == _jeep.device_id)
+  //                 : null,
+  //             jeep: _jeep));
+  //       }
+  //       setState(() {
+  //         jeeps = collected;
+  //       });
+  //     }
+  //   });
+  // }
 
   @override
   void dispose() {
     userAuthStream.cancel();
     userFirestoreStream.cancel();
-    routesFirestoreStream.cancel();
-    jeepsFirestoreStream.cancel();
-    driversFirestoreStream.cancel();
+    // routesFirestoreStream.cancel();
+    // jeepsFirestoreStream.cancel();
+    // driversFirestoreStream.cancel();
     super.dispose();
   }
 
@@ -258,17 +324,17 @@ class _SharePageState extends State<SharePage> {
                       ),
                     ),
                   if (mapLoaded && _routes.isNotEmpty)
-                    RouteList(
+                    ShareRouteList(
                         routeChoice: routeChoice,
                         routes: _routes,
                         user: currentUserFirestore,
-                        newRouteChoice: (int choice) {
-                          if (routeChoice == choice) {
-                            switchRoute(-1);
-                          } else {
-                            switchRoute(choice);
-                          }
-                        },
+                        // newRouteChoice: (int choice) {
+                        //   if (routeChoice == choice) {
+                        //     switchRoute(-1);
+                        //   } else {
+                        //     switchRoute(choice);
+                        //   }
+                        // },
                         hoverToggle: hovering),
                   Container(
                       padding: const EdgeInsets.symmetric(
@@ -309,9 +375,9 @@ class _SharePageState extends State<SharePage> {
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
-                        // const DrawerHeader(
-                        //   child: Logo(),
-                        // ),
+                        const DrawerHeader(
+                          child: Logo(),
+                        ),
                         if (!mapLoaded || _routes.isEmpty)
                           const Padding(
                             padding: EdgeInsets.symmetric(
@@ -321,17 +387,17 @@ class _SharePageState extends State<SharePage> {
                             ),
                           ),
                         if (mapLoaded && _routes.isNotEmpty)
-                          RouteList(
+                          ShareRouteList(
                               routeChoice: routeChoice,
                               routes: _routes,
                               user: currentUserFirestore,
-                              newRouteChoice: (int choice) {
-                                if (routeChoice == choice) {
-                                  switchRoute(-1);
-                                } else {
-                                  switchRoute(choice);
-                                }
-                              },
+                              // newRouteChoice: (int choice) {
+                              //   if (routeChoice == choice) {
+                              //     switchRoute(-1);
+                              //   } else {
+                              //     switchRoute(choice);
+                              //   }
+                              // },
                               hoverToggle: hovering),
                         Container(
                             padding: const EdgeInsets.symmetric(
