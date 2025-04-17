@@ -18,6 +18,8 @@ class Constants {
   static const secondaryColor = Color(0xFF2A2D3E);
   static const bgColor = Color(0xFF212332);
 
+  static const formError = Color.fromARGB(255, 196, 79, 71);
+
   static const defaultPadding = 16.0;
 
   static const ikotColor = Color(0xFFFFC107);

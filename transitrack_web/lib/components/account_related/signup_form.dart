@@ -4,12 +4,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'package:transitrack_web/models/route_model.dart';
+import 'package:transitrack_web/models/signup_form_field.dart';
 
 import '../../models/account_model.dart';
 import '../../style/constants.dart';
 import '../../style/style.dart';
 import '../button.dart';
-import '../text_field.dart';
 
 // Register Page
 
@@ -22,6 +22,9 @@ class SignupForm extends StatefulWidget {
 }
 
 class _SignupFormState extends State<SignupForm> {
+  final _formKey = GlobalKey<FormState>(); // Key to manage the form state
+  bool isFormValid = false;
+
   List<String> registerPrompts = [
     "Congratulations on registering your commuter account!\n\nTo access the commuter features, please verify your account by clicking the link we've sent to your email\ninbox/spam folder.",
     "Congratulations on registering your driver account!\n\nTo access the driver features, contact your route manager for verification and install the JeePS Driver App.",
@@ -38,11 +41,32 @@ class _SignupFormState extends State<SignupForm> {
   final confirmPasswordController = TextEditingController();
   String accountType = "Commuter";
 
+  // focus node for forms
+  final nameFocusNode = FocusNode();
+  final emailFocusNode = FocusNode();
+  final passwordFocusNode = FocusNode();
+  final confirmPasswordFocusNode = FocusNode();
+
   @override
   void initState() {
     super.initState();
 
     fetchRoutes();
+  }
+
+  @override
+  // to avoid memory leakage
+  void dispose() {
+    // Dispose controllers and focus nodes
+    emailController.dispose();
+    emailFocusNode.dispose();
+    nameController.dispose();
+    nameFocusNode.dispose();
+    passwordController.dispose();
+    passwordFocusNode.dispose();
+    confirmPasswordController.dispose();
+    confirmPasswordFocusNode.dispose();
+    super.dispose();
   }
 
   void fetchRoutes() async {
@@ -66,7 +90,7 @@ class _SignupFormState extends State<SignupForm> {
 
     // try sign up
     try {
-      if (nameController.text.isNotEmpty) {
+      if (nameController.text.isNotEmpty && nameController.text.length >= 3) {
         // check if password is confirmed
         if (passwordController.text == confirmPasswordController.text) {
           if (routes != null && chosenRoute != null) {
@@ -131,7 +155,7 @@ class _SignupFormState extends State<SignupForm> {
         Navigator.pop(context);
 
         // password dont match
-        errorMessage("Name is required!");
+        errorMessage("Name should be at least 3 characters");
       }
     } on FirebaseAuthException catch (e) {
       // pop loading circle
@@ -154,6 +178,51 @@ class _SignupFormState extends State<SignupForm> {
         });
   }
 
+  // Validator for name
+  String? validateName(String? name) {
+    if (name == null) {
+      return null;
+    }
+    if (name.length < 3 && name.isNotEmpty) {
+      return 'Name should be at least 3 characters';
+    }
+    return null; // Valid input
+  }
+
+  // Validator for email
+  String? validateEmail(String? email) {
+    if (email == null) {
+      return null;
+    }
+    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(email) && email.isNotEmpty) {
+      return 'Enter a valid email address';
+    }
+    return null; // Valid input
+  }
+
+  // Validator for password
+  String? validatePassword(String? password) {
+    if (password == null) {
+      return null;
+    }
+    if (password.length < 6 && password.isNotEmpty) {
+      return 'Password must be at least 6 characters long';
+    }
+    return null; // Valid input
+  }
+
+  // Validator for confirm password
+  String? validateConfirmPassword(String? confirmPassword) {
+    if (confirmPassword == null) {
+      return null;
+    }
+    if (confirmPassword != passwordController.text &&
+        confirmPassword.isNotEmpty) {
+      return 'Passwords do not match';
+    }
+    return null; // Valid input
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -161,85 +230,54 @@ class _SignupFormState extends State<SignupForm> {
           left: Constants.defaultPadding,
           right: Constants.defaultPadding,
           bottom: Constants.defaultPadding),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Row(
-            children: [
-              PrimaryText(
-                text: "Sign Up",
-                color: Colors.white,
-                size: 40,
-                fontWeight: FontWeight.w700,
-              )
-            ],
-          ),
-          const SizedBox(height: Constants.defaultPadding),
-          InputTextField(
+      child: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Row(
+              children: [
+                PrimaryText(
+                  text: "Sign Up",
+                  color: Colors.white,
+                  size: 40,
+                  fontWeight: FontWeight.w700,
+                )
+              ],
+            ),
+            const SizedBox(height: Constants.defaultPadding),
+            SignupFormField(
               controller: emailController,
               hintText: "Email",
-              obscureText: false),
-          const SizedBox(height: Constants.defaultPadding),
-          InputTextField(
-              controller: nameController, hintText: "Name", obscureText: false),
-          const SizedBox(height: Constants.defaultPadding),
-          InputTextField(
+              obscureText: false,
+              focusNode: emailFocusNode,
+              validator: validateEmail,
+            ),
+            const SizedBox(height: Constants.defaultPadding),
+            SignupFormField(
+              controller: nameController,
+              hintText: "Name",
+              obscureText: false,
+              focusNode: nameFocusNode,
+              validator: validateName,
+            ),
+            const SizedBox(height: Constants.defaultPadding),
+            SignupFormField(
               controller: passwordController,
               hintText: "Password",
-              obscureText: true),
-          const SizedBox(height: Constants.defaultPadding),
-          InputTextField(
+              obscureText: true,
+              focusNode: passwordFocusNode,
+              validator: validatePassword,
+            ),
+            const SizedBox(height: Constants.defaultPadding),
+            SignupFormField(
               controller: confirmPasswordController,
               hintText: "Confirm Password",
-              obscureText: true),
-          const SizedBox(height: Constants.defaultPadding),
-          Container(
-            width: double.maxFinite,
-            padding: const EdgeInsets.symmetric(
-                horizontal: Constants.defaultPadding / 2, vertical: 4),
-            decoration: BoxDecoration(
-              color: Constants.secondaryColor,
-              borderRadius: BorderRadius.circular(3),
-              border: Border.all(
-                color: Colors.white, // Set border color here
-                width: 1, // Set border width here
-              ),
+              obscureText: true,
+              focusNode: confirmPasswordFocusNode,
+              validator: validateConfirmPassword,
             ),
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<String>(
-                value: accountType, // Initial value
-                onChanged: null,
-                items: AccountData.accountTypeMap.keys
-                    .map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-              ),
-            ),
-          ),
-          const SizedBox(height: Constants.defaultPadding),
-          if (accountType != 'Commuter' && names == null)
-            Container(
-              width: double.maxFinite,
-              padding: const EdgeInsets.symmetric(
-                  horizontal: Constants.defaultPadding / 2,
-                  vertical: Constants.defaultPadding + 2.5),
-              decoration: BoxDecoration(
-                color: Constants.secondaryColor,
-                borderRadius: BorderRadius.circular(3),
-                border: Border.all(
-                  color: Colors.white, // Set border color here
-                  width: 1, // Set border width here
-                ),
-              ),
-              child: const Text(
-                "Loading Routes...",
-                style: TextStyle(fontSize: 15),
-              ),
-            ),
-          if (accountType != 'Commuter' && names != null)
+            const SizedBox(height: Constants.defaultPadding),
             Container(
               width: double.maxFinite,
               padding: const EdgeInsets.symmetric(
@@ -254,16 +292,10 @@ class _SignupFormState extends State<SignupForm> {
               ),
               child: DropdownButtonHideUnderline(
                 child: DropdownButton<String>(
-                  value: chosenRoute, // Initial value
-                  onChanged: (String? newValue) {
-                    // Handle dropdown value change
-                    if (newValue != null) {
-                      setState(() {
-                        chosenRoute = newValue;
-                      });
-                    }
-                  },
-                  items: names!.map<DropdownMenuItem<String>>((String value) {
+                  value: accountType, // Initial value
+                  onChanged: null,
+                  items: AccountData.accountTypeMap.keys
+                      .map<DropdownMenuItem<String>>((String value) {
                     return DropdownMenuItem<String>(
                       value: value,
                       child: Text(value),
@@ -272,32 +304,86 @@ class _SignupFormState extends State<SignupForm> {
                 ),
               ),
             ),
-          const SizedBox(height: Constants.defaultPadding * 2),
-          Button(
-            onTap: signUserUp,
-            text: "Sign Up",
-          ),
-          const SizedBox(height: Constants.defaultPadding * 2.5),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text(
-                'Already have an account?',
-                style: TextStyle(color: Colors.white),
-              ),
-              const SizedBox(width: 4),
-              GestureDetector(
-                onTap: widget.onTap,
-                child: const Text(
-                  'Login now',
-                  style: TextStyle(
-                      color: Constants.primaryColor,
-                      fontWeight: FontWeight.bold),
+            const SizedBox(height: Constants.defaultPadding),
+            if (accountType != 'Commuter' && names == null)
+              Container(
+                width: double.maxFinite,
+                padding: const EdgeInsets.symmetric(
+                    horizontal: Constants.defaultPadding / 2,
+                    vertical: Constants.defaultPadding + 2.5),
+                decoration: BoxDecoration(
+                  color: Constants.secondaryColor,
+                  borderRadius: BorderRadius.circular(3),
+                  border: Border.all(
+                    color: Colors.white, // Set border color here
+                    width: 1, // Set border width here
+                  ),
                 ),
-              )
-            ],
-          )
-        ],
+                child: const Text(
+                  "Loading Routes...",
+                  style: TextStyle(fontSize: 15),
+                ),
+              ),
+            if (accountType != 'Commuter' && names != null)
+              Container(
+                width: double.maxFinite,
+                padding: const EdgeInsets.symmetric(
+                    horizontal: Constants.defaultPadding / 2, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Constants.secondaryColor,
+                  borderRadius: BorderRadius.circular(3),
+                  border: Border.all(
+                    color: Colors.white, // Set border color here
+                    width: 1, // Set border width here
+                  ),
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value: chosenRoute, // Initial value
+                    onChanged: (String? newValue) {
+                      // Handle dropdown value change
+                      if (newValue != null) {
+                        setState(() {
+                          chosenRoute = newValue;
+                        });
+                      }
+                    },
+                    items: names!.map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ),
+            const SizedBox(height: Constants.defaultPadding * 2),
+            Button(
+              onTap: signUserUp,
+              text: "Sign Up",
+            ),
+            const SizedBox(height: Constants.defaultPadding * 2.5),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  'Already have an account?',
+                  style: TextStyle(color: Colors.white),
+                ),
+                const SizedBox(width: 4),
+                GestureDetector(
+                  onTap: widget.onTap,
+                  child: const Text(
+                    'Login now',
+                    style: TextStyle(
+                        color: Constants.primaryColor,
+                        fontWeight: FontWeight.bold),
+                  ),
+                )
+              ],
+            )
+          ],
+        ),
       ),
     );
   }
