@@ -3,16 +3,18 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+
 import 'package:transitrack_web/MenuController.dart';
 import 'package:transitrack_web/style/constants.dart';
 import 'package:transitrack_web/pages/dashboard_page.dart';
 import 'package:transitrack_web/pages/share_page.dart';
 import 'firebase_options.dart';
 
-// Start Here! Since JeePS is a single page app, main() calls the one and only page which is the dashboard.
-
+// Entry point of the Flutter web application.
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Firebase with platform-specific configuration.
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -20,8 +22,10 @@ void main() async {
   runApp(MyApp());
 }
 
+// Routing configuration using go_router
 final _router = GoRouter(
   routes: [
+    // Route for Dashboard Page
     GoRoute(
       path: '/',
       builder: (context, state) => MultiProvider(
@@ -31,6 +35,7 @@ final _router = GoRouter(
         child: const Dashboard(),
       ),
     ),
+    // Route for Share Page
     GoRoute(
       path: '/share',
       builder: (context, state) => MultiProvider(
@@ -43,6 +48,7 @@ final _router = GoRouter(
   ],
 );
 
+// Root widget of the application.
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -51,7 +57,11 @@ class MyApp extends StatelessWidget {
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       title: 'JeePS',
+
+      // Use go_router's configuration
       routerConfig: _router,
+
+      // Global theme settings for the app
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: Constants.secondaryColor,
         textTheme: GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme)
