@@ -14,14 +14,13 @@ import '../MenuController.dart';
 import '../components/account_related/account_stream.dart';
 import '../components/header.dart';
 import '../components/left_drawer/logo.dart';
-import '../components/map_related/map.dart';
+import '../components/share_live_loc/share_map.dart';
 import '../components/share_live_loc/share_route_list.dart';
 import '../config/responsive.dart';
 import '../models/account_model.dart';
 import '../models/jeep_model.dart';
 import '../models/route_model.dart';
 import '../style/constants.dart';
-import 'package:go_router/go_router.dart' as go;
 
 // The one and only page of the app. This .dart file includes stream set up for the user account, routes, and puvs.
 
@@ -427,7 +426,7 @@ class _SharePageState extends State<SharePage> {
             Expanded(
               flex: 5,
               child: Stack(children: [
-                MapWidget(
+                ShareMapWidget(
                   route: routeChoice == -1 ? null : _routes[routeChoice],
                   jeeps: routeChoice == -1 ? null : jeeps,
                   foundDeviceLocation: (LatLng newDeviceLocation) {
