@@ -68,7 +68,7 @@ class _JeepHistoricalPageState extends State<JeepHistoricalPage> {
   Widget build(BuildContext context) {
     return SizedBox(
         width: double.maxFinite,
-        height: 700,
+        height: 500,
         child: Stack(
           children: [
             JeepHistoricalMap(
