@@ -38,12 +38,15 @@ final _router = GoRouter(
     // Route for Share Page
     GoRoute(
       path: '/share',
-      builder: (context, state) => MultiProvider(
-        providers: [
-          ChangeNotifierProvider(create: (_) => MenuControllers()),
-        ],
-        child: const SharePage(),
-      ),
+      builder: (context, state) {
+        final shareId = state.uri.queryParameters['share_id'];
+        return MultiProvider(
+          providers: [
+            ChangeNotifierProvider(create: (_) => MenuControllers()),
+          ],
+          child: SharePage(shareId: shareId),
+        );
+      },
     ),
   ],
 );
