@@ -206,7 +206,7 @@ class _SelectedJeepInfoBoxState extends State<SelectedJeepInfoBox> {
         'timestamp': FieldValue.serverTimestamp(),
       });
 
-      final shareUrl = '${Uri.base.origin}/share?share_id=${docRef.id}';
+      final shareUrl = '${Uri.base.origin}/#/share?share_id=${docRef.id}';
       currentShareDocId = docRef.id;
 
       await Clipboard.setData(ClipboardData(text: shareUrl));
