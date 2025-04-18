@@ -120,7 +120,7 @@ class _SharePageState extends State<SharePage> {
       // Fetch the driver
       final driverDoc = await FirebaseFirestore.instance
           .collection('accounts')
-          .where('jeepney_driving', isEqualTo: deviceId)
+          .where('jeep_driving', isEqualTo: deviceId)
           .limit(1)
           .get();
       final AccountData? driver = driverDoc.docs.isNotEmpty
