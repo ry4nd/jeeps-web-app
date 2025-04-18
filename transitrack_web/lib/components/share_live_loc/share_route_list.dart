@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:transitrack_web/components/share_live_loc/share_route_list_tile.dart';
 import 'package:transitrack_web/models/account_model.dart';
-import 'package:transitrack_web/style/constants.dart';
+// import 'package:transitrack_web/style/constants.dart';
 import '../../models/route_model.dart';
 
 // Widget containing all active routes
@@ -42,17 +42,17 @@ class _ShareRouteListState extends State<ShareRouteList> {
     }
   }
 
-  @override
-  void didUpdateWidget(covariant ShareRouteList oldWidget) {
-    super.didUpdateWidget(oldWidget);
+  // @override
+  // void didUpdateWidget(covariant ShareRouteList oldWidget) {
+  //   super.didUpdateWidget(oldWidget);
 
-    if (widget.user != null &&
-        widget.user!.show_discounted != show_discounted) {
-      setState(() {
-        show_discounted = widget.user!.show_discounted;
-      });
-    }
-  }
+  //   if (widget.user != null &&
+  //       widget.user!.show_discounted != show_discounted) {
+  //     setState(() {
+  //       show_discounted = widget.user!.show_discounted;
+  //     });
+  //   }
+  // }
 
   void updateBooleanField(String documentId, bool newValue) async {
     // Get a reference to the Firestore collection
@@ -111,42 +111,42 @@ class _ShareRouteListState extends State<ShareRouteList> {
               }
             },
           ),
-        if (widget.routes == null)
-          const Center(child: CircularProgressIndicator()),
-        Padding(
-          padding:
-              const EdgeInsets.symmetric(horizontal: Constants.defaultPadding),
-          child:
-              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            const Row(
-              children: [
-                Text("Discounted fare"),
-                IconButton(
-                    visualDensity: VisualDensity.compact,
-                    onPressed: null,
-                    tooltip:
-                        "Discounted Fare includes Student, PWD, and Senior Citizens",
-                    iconSize: 15,
-                    icon: Icon(Icons.question_mark))
-              ],
-            ),
-            Switch(
-              activeColor: Colors.blue,
-              activeTrackColor: Colors.blue.withValues(alpha: 0.5),
-              inactiveThumbColor: Colors.grey,
-              value: show_discounted,
-              onChanged: (value) {
-                setState(() {
-                  show_discounted = value;
-                });
+        // if (widget.routes == null)
+        //   const Center(child: CircularProgressIndicator()),
+        // Padding(
+        //   padding:
+        //       const EdgeInsets.symmetric(horizontal: Constants.defaultPadding),
+        //   child:
+        //       Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+        //     const Row(
+        //       children: [
+        //         Text("Discounted fare"),
+        //         IconButton(
+        //             visualDensity: VisualDensity.compact,
+        //             onPressed: null,
+        //             tooltip:
+        //                 "Discounted Fare includes Student, PWD, and Senior Citizens",
+        //             iconSize: 15,
+        //             icon: Icon(Icons.question_mark))
+        //       ],
+        //     ),
+        //     Switch(
+        //       activeColor: Colors.blue,
+        //       activeTrackColor: Colors.blue.withValues(alpha: 0.5),
+        //       inactiveThumbColor: Colors.grey,
+        //       value: show_discounted,
+        //       onChanged: (value) {
+        //         setState(() {
+        //           show_discounted = value;
+        //         });
 
-                if (widget.user != null) {
-                  updateBooleanField(widget.user!.account_id, value);
-                }
-              },
-            ),
-          ]),
-        ),
+        //         if (widget.user != null) {
+        //           updateBooleanField(widget.user!.account_id, value);
+        //         }
+        //       },
+        //     ),
+        //   ]),
+        // ),
       ],
     );
   }
