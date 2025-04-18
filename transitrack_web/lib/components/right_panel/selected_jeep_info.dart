@@ -403,7 +403,10 @@ class _SelectedJeepInfoBoxState extends State<SelectedJeepInfoBox> {
             ],
           ),
         ),
-        const Divider(color: Colors.white),
+        if (widget.user != null &&
+            widget.user!.is_verified &&
+            widget.driver != null)
+          const Divider(color: Colors.white),
         if (widget.user != null &&
             widget.user!.is_verified &&
             widget.driver != null)

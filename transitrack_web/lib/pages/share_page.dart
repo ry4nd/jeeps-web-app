@@ -21,6 +21,7 @@ import '../models/account_model.dart';
 import '../models/jeep_model.dart';
 import '../models/route_model.dart';
 import '../style/constants.dart';
+import 'package:go_router/go_router.dart' as go;
 
 // The one and only page of the app. This .dart file includes stream set up for the user account, routes, and puvs.
 
@@ -58,6 +59,7 @@ class _SharePageState extends State<SharePage> {
   // late StreamSubscription routesFirestoreStream;
   // late StreamSubscription jeepsFirestoreStream;
   // late StreamSubscription driversFirestoreStream;
+  late StreamSubscription<DocumentSnapshot> liveShareListener;
 
   // Route Selection (unselected = -1)
   int routeChoice = -1;
@@ -138,9 +140,54 @@ class _SharePageState extends State<SharePage> {
         drivers = driver != null ? [driver] : []; // Set only the fetched driver
         routeChoice = 0;
       });
+
+      listenToLiveShareStatus(uid!);
     } catch (e) {
       debugPrint("Error loading shared route: $e");
     }
+  }
+
+  // If the live share is ended, clear the routes and jeeps and navigate back to home.
+  void listenToLiveShareStatus(String uid) {
+    liveShareListener = FirebaseFirestore.instance
+        .collection('live_shares')
+        .doc(uid)
+        .snapshots()
+        .listen((docSnapshot) {
+      if (docSnapshot.exists) {
+        final data = docSnapshot.data() as Map<String, dynamic>;
+        final isSharing = data['is_sharing'];
+        if (!isSharing) {
+          setState(() {
+            _routes = [];
+            jeeps = [];
+            drivers = [];
+            routeChoice = -1;
+          });
+          errorMessage("The live share has ended.");
+          // Navigate back to home after delay
+          Future.delayed(const Duration(seconds: 2), () {
+            if (mounted) {
+              context.go('/');
+            }
+          });
+        }
+      }
+    });
+  }
+
+  void errorMessage(String message) {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+              backgroundColor: Constants.bgColor,
+              title: Center(
+                  child: Text(
+                message,
+                style: const TextStyle(color: Colors.white),
+              )));
+        });
   }
 
   void hovering() {
@@ -294,6 +341,7 @@ class _SharePageState extends State<SharePage> {
     // routesFirestoreStream.cancel();
     // jeepsFirestoreStream.cancel();
     // driversFirestoreStream.cancel();
+    liveShareListener.cancel();
     super.dispose();
   }
 
