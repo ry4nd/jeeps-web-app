@@ -123,9 +123,6 @@ class FiltersState extends State<Filters> {
             ],
           ),
           const SizedBox(height: Constants.defaultPadding),
-          const SizedBox(height: Constants.defaultPadding),
-          const Divider(color: Colors.white),
-          const SizedBox(height: Constants.defaultPadding),
           Button(
               onTap: () {
                 widget.newFilter(FilterParameters(
