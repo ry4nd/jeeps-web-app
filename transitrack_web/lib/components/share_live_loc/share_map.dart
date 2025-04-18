@@ -26,9 +26,9 @@ import '../../models/route_model.dart';
 import '../../style/constants.dart';
 // import '../account_related/route_manager/route_manager_options.dart';
 import './share_desktop_route_info.dart';
-import '../right_panel/unselected_desktop_route_info.dart';
+// import '../right_panel/unselected_desktop_route_info.dart';
 import '../right_panel/mobile_dashboard_unselected.dart';
-import '../right_panel/mobile_route_info.dart';
+import './share_mobile_route_info.dart';
 
 // This is the main map
 
@@ -652,35 +652,36 @@ class _ShareMapWidgetState extends State<ShareMapWidget>
                   ),
                   child: widget.route == null
                       ? const MobileDashboardUnselected()
-                      : MobileRouteInfo(
-                          gpsPermission: gpsTracking,
+                      : ShareMobileRouteInfo(
+                          // gpsPermission: gpsTracking,
                           route: _value!,
                           jeeps: jeeps!,
                           selectedJeep: selectedJeep != null
                               ? selectedJeep!.jeepAndDriver
                               : null,
                           user: widget.currentUserFirestore,
-                          sendPing: (bool value) async {
-                            _mapController.animateCamera(
-                                CameraUpdate.newLatLngZoom(
-                                    myLocation!, mapStartZoom));
+                          // sendPing: (bool value) async {
+                          //   _mapController.animateCamera(
+                          //       CameraUpdate.newLatLngZoom(
+                          //           myLocation!, mapStartZoom));
 
-                            LatLng pingLoc = myLocation!;
-                            for (int i = 0; i < 3; i++) {
-                              animateRipple(
-                                  _mapController, _value, this, pingLoc);
+                          //   LatLng pingLoc = myLocation!;
+                          //   for (int i = 0; i < 3; i++) {
+                          //     animateRipple(
+                          //         _mapController, _value, this, pingLoc);
 
-                              await Future.delayed(
-                                  const Duration(milliseconds: 2000));
-                            }
-                          },
-                          etaCoordinates: (List<LatLng> etaCoordinates) async {
-                            if (selectedJeep != null) {
-                              await _mapController.setGeoJsonSource(
-                                  "eta", etaListToGeoJSON(etaCoordinates));
-                            }
-                          },
-                          myLocation: myLocation))
+                          //     await Future.delayed(
+                          //         const Duration(milliseconds: 2000));
+                          //   }
+                          // },
+                          // etaCoordinates: (List<LatLng> etaCoordinates) async {
+                          //   if (selectedJeep != null) {
+                          //     await _mapController.setGeoJsonSource(
+                          //         "eta", etaListToGeoJSON(etaCoordinates));
+                          //   }
+                          // },
+                          // myLocation: myLocation
+                        ))
           ]),
           Positioned(
               right: Responsive.isDesktop(context)
