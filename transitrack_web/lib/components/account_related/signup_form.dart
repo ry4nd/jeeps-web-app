@@ -4,7 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'package:transitrack_web/models/route_model.dart';
-import 'package:transitrack_web/models/signup_form_field.dart';
+import 'package:transitrack_web/components/signup_form_field.dart';
 
 import '../../models/account_model.dart';
 import '../../style/constants.dart';
@@ -23,7 +23,6 @@ class SignupForm extends StatefulWidget {
 
 class _SignupFormState extends State<SignupForm> {
   final _formKey = GlobalKey<FormState>(); // Key to manage the form state
-  bool isFormValid = false;
 
   List<String> registerPrompts = [
     "Congratulations on registering your commuter account!\n\nTo access the commuter features, please verify your account by clicking the link we've sent to your email\ninbox/spam folder.",
