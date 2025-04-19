@@ -84,7 +84,7 @@ class _SharePageState extends State<SharePage> {
     currentUserAuth = FirebaseAuth.instance.currentUser;
     listenToUserAuth();
     // listenToRoutesFirestore();
-    loadSharedRouteFromUrl();
+
     uid = widget.shareId;
     if (uid != null) {
       loadSharedRouteFromUrl();
@@ -146,6 +146,7 @@ class _SharePageState extends State<SharePage> {
         routeChoice = _routes.isNotEmpty
             ? 0
             : -1; // Set routeChoice to 0 if _routes is not empty
+        isLoading = false;
       });
 
       listenToLiveShareStatus(uid!);
@@ -290,7 +291,7 @@ class _SharePageState extends State<SharePage> {
         setState(() {
           currentUserFirestore = AccountData.fromSnapshot(snapshot.docs.first,
               isCommuterVerified: currentUserAuth!.emailVerified);
-          isLoading = false;
+          // isLoading = false;
         });
       }
     });
