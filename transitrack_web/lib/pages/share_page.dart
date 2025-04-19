@@ -146,7 +146,7 @@ class _SharePageState extends State<SharePage> {
         routeChoice = _routes.isNotEmpty
             ? 0
             : -1; // Set routeChoice to 0 if _routes is not empty
-        isLoading = false;
+        // isLoading = false;
       });
 
       listenToLiveShareStatus(uid!);
@@ -165,6 +165,10 @@ class _SharePageState extends State<SharePage> {
       if (docSnapshot.exists) {
         final data = docSnapshot.data() as Map<String, dynamic>;
         final isSharing = data['is_sharing'];
+        setState(() {
+          isLoading = false;
+        });
+
         if (!isSharing) {
           setState(() {
             _routes = [];
