@@ -84,7 +84,7 @@ class _SharePageState extends State<SharePage> {
     currentUserAuth = FirebaseAuth.instance.currentUser;
     listenToUserAuth();
     // listenToRoutesFirestore();
-
+    loadSharedRouteFromUrl();
     uid = widget.shareId;
     if (uid != null) {
       loadSharedRouteFromUrl();
