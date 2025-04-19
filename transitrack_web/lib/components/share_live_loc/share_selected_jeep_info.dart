@@ -410,7 +410,9 @@ class _ShareSelectedJeepInfoBoxState extends State<ShareSelectedJeepInfoBox> {
         if (widget.user != null &&
             widget.user!.is_verified &&
             widget.driver != null)
-          const Divider(color: Colors.white),
+          SizedBox(
+            height: Constants.defaultPadding / 2,
+          ),
         if (widget.user != null &&
             widget.user!.is_verified &&
             widget.driver != null)
