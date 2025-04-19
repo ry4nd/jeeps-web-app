@@ -37,6 +37,7 @@ class SharePage extends StatefulWidget {
 class _SharePageState extends State<SharePage> {
   bool mobileTutorial = false;
   bool drawerOpen = false;
+  bool isLoading = true;
 
   // Keeps track of the current FirebaseAuth information
   User? currentUserAuth;
@@ -138,7 +139,9 @@ class _SharePageState extends State<SharePage> {
         _routes = [sharedRoute]; // Set only the fetched route
         jeeps = [sharedJeepAndDriver]; // Set only the fetched jeep
         drivers = driver != null ? [driver] : []; // Set only the fetched driver
-        routeChoice = 0;
+        routeChoice = _routes.isNotEmpty
+            ? 0
+            : -1; // Set routeChoice to 0 if _routes is not empty
       });
 
       listenToLiveShareStatus(uid!);
@@ -283,6 +286,7 @@ class _SharePageState extends State<SharePage> {
         setState(() {
           currentUserFirestore = AccountData.fromSnapshot(snapshot.docs.first,
               isCommuterVerified: currentUserAuth!.emailVerified);
+          isLoading = false;
         });
       }
     });
@@ -347,6 +351,10 @@ class _SharePageState extends State<SharePage> {
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     return Scaffold(
       onDrawerChanged: (isOpened) {
         setState(() {
@@ -394,7 +402,8 @@ class _SharePageState extends State<SharePage> {
                     deviceLoc: deviceLoc,
                     admin: currentUserFirestore != null &&
                             currentUserFirestore!.is_verified &&
-                            currentUserFirestore!.route_id >= 0
+                            currentUserFirestore!.route_id >= 0 &&
+                            currentUserFirestore!.route_id < _routes.length
                         ? "${_routes[currentUserFirestore!.route_id].routeName} "
                         : "",
                     route: routeChoice,
@@ -457,7 +466,9 @@ class _SharePageState extends State<SharePage> {
                           deviceLoc: deviceLoc,
                           admin: currentUserFirestore != null &&
                                   currentUserFirestore!.is_verified &&
-                                  currentUserFirestore!.route_id >= 0
+                                  currentUserFirestore!.route_id >= 0 &&
+                                  currentUserFirestore!.route_id <
+                                      _routes.length
                               ? "${_routes[currentUserFirestore!.route_id].routeName} "
                               : "",
                           route: routeChoice,
@@ -475,8 +486,12 @@ class _SharePageState extends State<SharePage> {
               flex: 5,
               child: Stack(children: [
                 ShareMapWidget(
-                  route: routeChoice == -1 ? null : _routes[routeChoice],
-                  jeeps: routeChoice == -1 ? null : jeeps,
+                  route: routeChoice != -1 && routeChoice < _routes.length
+                      ? _routes[routeChoice]
+                      : null,
+                  jeeps: routeChoice != -1 && routeChoice < _routes.length
+                      ? jeeps
+                      : null,
                   foundDeviceLocation: (LatLng newDeviceLocation) {
                     setState(() {
                       deviceLoc = newDeviceLocation;
