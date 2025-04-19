@@ -74,8 +74,6 @@ class _SharePageState extends State<SharePage> {
   // Ensure GPS Permission is allowed
   bool gpsPermission = false;
 
-  String? uid;
-
   // Upon initialization, load the current user (if there is) and load the firestore information of this user.
   // Also start listening for all enabled routes.
   @override
@@ -84,14 +82,12 @@ class _SharePageState extends State<SharePage> {
     currentUserAuth = FirebaseAuth.instance.currentUser;
     listenToUserAuth();
     // listenToRoutesFirestore();
-
-    uid = widget.shareId;
-    if (uid != null) {
-      loadSharedRouteFromUrl();
-    }
+    loadSharedRouteFromUrl();
   }
 
   Future<void> loadSharedRouteFromUrl() async {
+    final uid = widget.shareId;
+
     try {
       final sharedDoc = await FirebaseFirestore.instance
           .collection('live_shares')
