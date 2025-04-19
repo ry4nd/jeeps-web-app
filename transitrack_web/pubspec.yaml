@@ -41,6 +41,8 @@ dependencies:
   fl_chart: ^0.70.2
   flutter:
     sdk: flutter
+  flutter_web_plugins:
+    sdk: flutter
   flutter_colorpicker: ^1.0.3
   flutter_dotenv: ^5.1.0
   flutter_map_marker_cluster: ^1.1.0

@@ -9,10 +9,13 @@ import 'package:transitrack_web/style/constants.dart';
 import 'package:transitrack_web/pages/dashboard_page.dart';
 import 'package:transitrack_web/pages/share_page.dart';
 import 'firebase_options.dart';
+import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 
 // Entry point of the Flutter web application.
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  setUrlStrategy(const HashUrlStrategy());
 
   // Initialize Firebase with platform-specific configuration.
   await Firebase.initializeApp(
