@@ -473,10 +473,10 @@ class _SharePageState extends State<SharePage> {
                               : "",
                           route: routeChoice,
                         ),
-                        const SizedBox(
-                          height: Constants.defaultPadding,
-                        ),
-                        const DesktopResearchPrompt()
+                        // const SizedBox(
+                        //   height: Constants.defaultPadding,
+                        // ),
+                        // const DesktopResearchPrompt()
                       ],
                     ),
                   ),
