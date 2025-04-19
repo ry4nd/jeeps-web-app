@@ -381,35 +381,32 @@ class _SelectedJeepInfoBoxState extends State<SelectedJeepInfoBox> {
             ),
             right: Text(widget.driver!.account_name,
                 maxLines: 1, overflow: TextOverflow.ellipsis)),
-        const Divider(color: Colors.white),
-        SelectedJeepInfoRow(
-          left: Text("Share Live Location"),
-          right: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              IconButton(
-                onPressed: () => _toggleSharing(!isSharing),
-                icon: Icon(
-                  isSharing ? Icons.stop_circle_rounded : Icons.share,
-                  color: isSharing
-                      ? Colors.red[600]
-                      : Color(widget.route.routeColor),
-                  size: 16,
-                ),
-                tooltip: isSharing ? 'Stop Sharing' : 'Share Location',
-                padding: EdgeInsets.zero,
-                constraints: BoxConstraints(),
-              ),
-            ],
-          ),
-        ),
         if (widget.user != null &&
             widget.user!.is_verified &&
-            widget.driver != null)
+            widget.driver != null) ...[
           const Divider(color: Colors.white),
-        if (widget.user != null &&
-            widget.user!.is_verified &&
-            widget.driver != null)
+          SelectedJeepInfoRow(
+            left: Text("Share Live Location"),
+            right: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                IconButton(
+                  onPressed: () => _toggleSharing(!isSharing),
+                  icon: Icon(
+                    isSharing ? Icons.stop_circle_rounded : Icons.share,
+                    color: isSharing
+                        ? Colors.red[600]
+                        : Color(widget.route.routeColor),
+                    size: 16,
+                  ),
+                  tooltip: isSharing ? 'Stop Sharing' : 'Share Location',
+                  padding: EdgeInsets.zero,
+                  constraints: BoxConstraints(),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: Constants.defaultPadding / 2),
           Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             IconButtonBig(
                 color: Color(widget.route.routeColor),
@@ -463,6 +460,7 @@ class _SelectedJeepInfoBoxState extends State<SelectedJeepInfoBox> {
                   ],
                 ))
           ])
+        ],
       ],
     );
   }
