@@ -149,41 +149,51 @@ class _SharePageState extends State<SharePage> {
         // isLoading = false;
       });
 
-      listenToLiveShareStatus(uid!);
+      await listenToLiveShareStatus(uid!);
     } catch (e) {
       debugPrint("Error loading shared route: $e");
     }
   }
 
   // If the live share is ended, clear the routes and jeeps and navigate back to home.
-  void listenToLiveShareStatus(String uid) {
+  Future<void> listenToLiveShareStatus(String uid) async {
     liveShareListener = FirebaseFirestore.instance
         .collection('live_shares')
         .doc(uid)
         .snapshots()
-        .listen((docSnapshot) {
+        .listen((docSnapshot) async {
       if (docSnapshot.exists) {
         final data = docSnapshot.data() as Map<String, dynamic>;
         final isSharing = data['is_sharing'];
+
+        // Set loading state to false
         setState(() {
           isLoading = false;
         });
 
         if (!isSharing) {
+          // Clear data and navigate back to home
           setState(() {
             _routes = [];
             jeeps = [];
             drivers = [];
             routeChoice = -1;
           });
+
           errorMessage("The live share has ended.");
-          // Navigate back to home after delay
-          Future.delayed(const Duration(seconds: 2), () {
-            if (mounted) {
-              context.go('/');
-            }
-          });
+
+          // Delay navigation to allow the user to see the message
+          await Future.delayed(const Duration(seconds: 2));
+          if (mounted) {
+            context.go('/');
+          }
         }
+      } else {
+        // Handle case where the document does not exist
+        setState(() {
+          isLoading = false;
+        });
+        errorMessage("Live share document not found.");
       }
     });
   }
