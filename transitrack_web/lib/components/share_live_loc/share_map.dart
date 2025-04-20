@@ -9,9 +9,9 @@ import 'package:geolocator/geolocator.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'package:transitrack_web/services/int_to_hex.dart';
-import 'package:transitrack_web/services/mapbox/add_eta_line.dart';
+// import 'package:transitrack_web/services/mapbox/add_eta_line.dart';
 import 'package:transitrack_web/services/mapbox/add_image_from_asset.dart';
-import 'package:transitrack_web/services/mapbox/animate_ripple.dart';
+// import 'package:transitrack_web/services/mapbox/animate_ripple.dart';
 // import 'package:transitrack_web/services/mapbox/request_location.dart';
 // import 'package:transitrack_web/services/mapbox/minute_old_checker.dart';
 
@@ -141,7 +141,7 @@ class _ShareMapWidgetState extends State<ShareMapWidget>
     // if route choice changed
     if (widget.route != _value) {
       selectedJeep = null;
-      _mapController.setGeoJsonSource("eta", etaListToGeoJSON([]));
+      // _mapController.setGeoJsonSource("eta", etaListToGeoJSON([]));
 
       // if (_value == null) {
       //   _mapController.onSymbolTapped.add(onJeepTapped);
@@ -175,6 +175,10 @@ class _ShareMapWidgetState extends State<ShareMapWidget>
 
   // update jeepney entities
   void updateJeeps() {
+    if (!mapLoaded) {
+      return;
+    }
+
     List<JeepsAndDrivers>? toUpdate = jeeps;
     if (toUpdate != null && toUpdate.isNotEmpty) {
       JeepsAndDrivers jeep = toUpdate.first;
@@ -591,6 +595,30 @@ class _ShareMapWidgetState extends State<ShareMapWidget>
   //       .animateCamera(CameraUpdate.newLatLngZoom(myLocation!, mapStartZoom));
   // }
 
+  void _onStyleLoadedCallback() {
+    setState(() {
+      mapLoaded = true;
+    });
+    widget.mapLoaded(true);
+
+    // Ensure these operations happen in sequence
+    // addETALayer(_mapController);
+    addImageFromAsset(_mapController).then((_) {
+      _mapController.setSymbolIconAllowOverlap(true);
+      _mapController.setSymbolTextAllowOverlap(true);
+      _mapController.setSymbolIconIgnorePlacement(true);
+      _mapController.setSymbolTextIgnorePlacement(true);
+
+      // Only try to add lines and jeeps after everything is ready
+      if (widget.route != null) {
+        addLine();
+      }
+      if (widget.jeeps != null && widget.jeeps!.isNotEmpty) {
+        updateJeeps();
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -612,20 +640,7 @@ class _ShareMapWidgetState extends State<ShareMapWidget>
                   _onMapCreated(controller);
                 },
                 // allows you to perform additional setup and customization of the map once the style has been fully loaded
-                onStyleLoadedCallback: () {
-                  addETALayer(_mapController);
-                  addImageFromAsset(_mapController);
-                  _mapController.setSymbolIconAllowOverlap(true);
-                  _mapController.setSymbolTextAllowOverlap(true);
-                  _mapController.setSymbolIconIgnorePlacement(true);
-                  _mapController.setSymbolTextIgnorePlacement(true);
-                  // refreshPingLayer();
-                  widget.mapLoaded(true);
-                  setState(() {
-                    mapLoaded = true;
-                  });
-                  // startListening();
-                },
+                onStyleLoadedCallback: _onStyleLoadedCallback,
                 initialCameraPosition: CameraPosition(
                   target: Keys.MapCenter,
                   zoom: mapStartZoom,
