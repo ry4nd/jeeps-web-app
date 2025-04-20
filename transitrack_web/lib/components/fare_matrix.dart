@@ -20,6 +20,7 @@ class FareMatrix extends StatefulWidget {
 class FareMatrixState extends State<FareMatrix> {
   late int computedFarePrice = 0;
   late int discountedFarePrice = 0;
+  late double increasePerKm = 0;
   double totalDistance = 0.0;
   late String selectedFrom; // Default value for "From"
   late String selectedTo; // Default value for "To"
@@ -32,9 +33,9 @@ class FareMatrixState extends State<FareMatrix> {
   void initState() {
     super.initState();
 
-    // Set the stops array to the route's stopsCoordinates
     stops = widget.route.stopsCoordinates;
     routeCoordinates = widget.route.routeCoordinates;
+    increasePerKm = widget.route.routeFareDiscounted;
 
     // Populate the locations list for dropdown options
     convertCoordinates();
@@ -140,7 +141,8 @@ class FareMatrixState extends State<FareMatrix> {
 
     // Add +1 for every additional 4 km beyond the first 4 km
     if (totalDistance > 4) {
-      additionalFare = (roundedDistance - 4) * 2; // +2 for each 4 km
+      additionalFare =
+          (roundedDistance - 4) * increasePerKm; // +2 for each 4 km
     }
 
     // Compute the total fare

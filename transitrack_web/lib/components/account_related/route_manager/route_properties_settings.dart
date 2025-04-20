@@ -182,7 +182,7 @@ class _PropertiesSettingsState extends State<PropertiesSettings> {
                     type: TextInputType.number,
                   ),
                   const SizedBox(height: Constants.defaultPadding),
-                  const Text("Students, PWDs, & Senior Citizens"),
+                  const Text("Fare Increase per km"),
                   InputTextField(
                       controller: fareDiscountedController,
                       hintText: "SPS",
