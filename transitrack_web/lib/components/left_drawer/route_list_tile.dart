@@ -46,10 +46,10 @@ class _RouteListTileState extends State<RouteListTile> {
                 Text(formatTime(widget.route.routeTime),
                     style: const TextStyle(color: Colors.white54),
                     overflow: TextOverflow.ellipsis),
-                Text(
-                    "${widget.show_discounted ? widget.route.routeFareDiscounted : widget.route.routeFare} pesos",
-                    style: const TextStyle(color: Colors.white54),
-                    overflow: TextOverflow.ellipsis),
+                // Text(
+                //     "${widget.show_discounted ? widget.route.routeFareDiscounted : widget.route.routeFare} pesos",
+                //     style: const TextStyle(color: Colors.white54),
+                //     overflow: TextOverflow.ellipsis),
               ],
             ),
             selectedTileColor: Colors.white10,
