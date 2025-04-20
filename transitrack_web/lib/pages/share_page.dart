@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'package:provider/provider.dart';
-import 'package:transitrack_web/components/left_drawer/desktop_research_prompt.dart';
+// import 'package:transitrack_web/components/left_drawer/desktop_research_prompt.dart';
 import 'package:transitrack_web/components/left_drawer/live_test_instructions.dart';
 import 'package:transitrack_web/components/left_drawer/mobile_research_prompt.dart';
 import '../MenuController.dart';
@@ -265,6 +265,7 @@ class _SharePageState extends State<SharePage> {
         } else {
           setState(() {
             currentUserFirestore = null;
+            isLoading = false;
           });
         }
 
