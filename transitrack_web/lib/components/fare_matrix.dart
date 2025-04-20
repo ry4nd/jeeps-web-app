@@ -24,7 +24,7 @@ class FareMatrixState extends State<FareMatrix> {
   late String selectedFrom; // Default value for "From"
   late String selectedTo; // Default value for "To"
   late List<LatLng> stops = []; // stop coordinates
-  late List<LatLng> routeCoordinates = widget.route.routeCoordinates;
+  late List<LatLng> routeCoordinates = [];
   late Map<LatLng, String> locations =
       {}; // Map to store coordinates and addresses
 
@@ -34,6 +34,7 @@ class FareMatrixState extends State<FareMatrix> {
 
     // Set the stops array to the route's stopsCoordinates
     stops = widget.route.stopsCoordinates;
+    routeCoordinates = widget.route.routeCoordinates;
 
     // Populate the locations list for dropdown options
     convertCoordinates();
@@ -47,6 +48,8 @@ class FareMatrixState extends State<FareMatrix> {
     if (widget.route.stopsCoordinates != oldWidget.route.stopsCoordinates) {
       setState(() {
         stops = widget.route.stopsCoordinates; // Update the stops list
+        routeCoordinates =
+            widget.route.routeCoordinates; // Update the route coordinates list
       });
       convertCoordinates(); // Refresh the dropdown options
     }
@@ -130,9 +133,14 @@ class FareMatrixState extends State<FareMatrix> {
     double additionalFare = 0;
     int totalFare = 0;
 
+    // Round totalDistance based on the decimal part
+    double roundedDistance = (totalDistance % 1 > 0.8)
+        ? totalDistance.ceilToDouble() // Round up
+        : totalDistance.floorToDouble(); // Round down
+
     // Add +1 for every additional 4 km beyond the first 4 km
     if (totalDistance > 4) {
-      additionalFare = (totalDistance - 4).ceil() * 2; // +2 for each 4 km
+      additionalFare = (roundedDistance - 4) * 2; // +2 for each 4 km
     }
 
     // Compute the total fare
@@ -143,7 +151,7 @@ class FareMatrixState extends State<FareMatrix> {
       computedFarePrice = totalFare;
       discountedFarePrice = (totalFare * 0.8).ceil();
     });
-
+    // print('Rounded Distance: $roundedDistance');
     // print('Base Fare: $baseFare');
     // print('Additional Fare: $additionalFare');
     // print('Total Fare: $computedFarePrice');
