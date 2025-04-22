@@ -35,7 +35,7 @@ class _PropertiesSettingsState extends State<PropertiesSettings> {
     super.initState();
     nameController.text = widget.route.routeName;
     fareController.text = widget.route.routeFare.toString();
-    fareDiscountedController.text = widget.route.routeFareDiscounted.toString();
+    fareDiscountedController.text = widget.route.perKmRate.toString();
     enabled = widget.route.enabled;
     route_time = widget.route.routeTime;
     selectedRange =
@@ -182,7 +182,7 @@ class _PropertiesSettingsState extends State<PropertiesSettings> {
                     type: TextInputType.number,
                   ),
                   const SizedBox(height: Constants.defaultPadding),
-                  const Text("Students, PWDs, & Senior Citizens"),
+                  const Text("Per km rate"),
                   InputTextField(
                       controller: fareDiscountedController,
                       hintText: "SPS",

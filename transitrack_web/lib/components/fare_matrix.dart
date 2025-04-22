@@ -20,10 +20,12 @@ class FareMatrix extends StatefulWidget {
 class FareMatrixState extends State<FareMatrix> {
   late int computedFarePrice = 0;
   late int discountedFarePrice = 0;
+  late double increasePerKm = 0;
   double totalDistance = 0.0;
   late String selectedFrom; // Default value for "From"
   late String selectedTo; // Default value for "To"
   late List<LatLng> stops = []; // stop coordinates
+  late List<LatLng> routeCoordinates = [];
   late Map<LatLng, String> locations =
       {}; // Map to store coordinates and addresses
 
@@ -31,8 +33,9 @@ class FareMatrixState extends State<FareMatrix> {
   void initState() {
     super.initState();
 
-    // Set the stops array to the route's stopsCoordinates
     stops = widget.route.stopsCoordinates;
+    routeCoordinates = widget.route.routeCoordinates;
+    increasePerKm = widget.route.perKmRate;
 
     // Populate the locations list for dropdown options
     convertCoordinates();
@@ -46,6 +49,8 @@ class FareMatrixState extends State<FareMatrix> {
     if (widget.route.stopsCoordinates != oldWidget.route.stopsCoordinates) {
       setState(() {
         stops = widget.route.stopsCoordinates; // Update the stops list
+        routeCoordinates =
+            widget.route.routeCoordinates; // Update the route coordinates list
       });
       convertCoordinates(); // Refresh the dropdown options
     }
@@ -88,27 +93,34 @@ class FareMatrixState extends State<FareMatrix> {
         locations.entries.firstWhere((entry) => entry.value == selectedTo).key;
 
     // Find the nearest points in the route for the start and end
-    int indexFrom = findNearestLatLngIndex(fromCoordinates, stops);
-    int indexTo = findNearestLatLngIndex(toCoordinates, stops);
-    print('From: $indexFrom');
-    print('To: $indexTo');
+    int indexFrom = findNearestLatLngIndex(fromCoordinates, routeCoordinates);
+    int indexTo = findNearestLatLngIndex(toCoordinates, routeCoordinates);
+    // print('From: $indexFrom');
+    // print('To: $indexTo');
 
     if (widget.route.isClockwise) {
       // Traverse the array clockwise
-      for (int i = indexFrom; i != indexTo; i = (i + 1) % stops.length) {
+      for (int i = indexFrom;
+          i != indexTo;
+          i = (i + 1) % routeCoordinates.length) {
+        // print(
+        //     'Calculating distance between: ${routeCoordinates[i]} and ${routeCoordinates[(i + 1) % routeCoordinates.length]}');
         totalDistance += calculateDistance(
-          stops[i],
-          stops[(i + 1) % stops.length],
+          routeCoordinates[i],
+          routeCoordinates[(i + 1) % routeCoordinates.length],
         );
       }
     } else {
       // Reverse the array and traverse counterclockwise
       for (int i = indexFrom;
           i != indexTo;
-          i = (i - 1 + stops.length) % stops.length) {
+          i = (i - 1 + routeCoordinates.length) % routeCoordinates.length) {
+        // print(
+        //     'Calculating distance between: ${routeCoordinates[i]} and ${routeCoordinates[(i - 1 + routeCoordinates.length) % routeCoordinates.length]}');
         totalDistance += calculateDistance(
-          stops[i],
-          stops[(i - 1 + stops.length) % stops.length],
+          routeCoordinates[i],
+          routeCoordinates[
+              (i - 1 + routeCoordinates.length) % routeCoordinates.length],
         );
       }
     }
@@ -122,9 +134,15 @@ class FareMatrixState extends State<FareMatrix> {
     double additionalFare = 0;
     int totalFare = 0;
 
-    // Add +1 for every additional 5 km beyond the first 5 km
-    if (totalDistance > 5) {
-      additionalFare = ((totalDistance - 5) / 5).ceil() * 1; // +1 for each 5 km
+    // Round totalDistance based on the decimal part
+    double roundedDistance = (totalDistance % 1 > 0.8)
+        ? totalDistance.ceilToDouble() // Round up
+        : totalDistance.floorToDouble(); // Round down
+
+    // Add +1 for every additional 4 km beyond the first 4 km
+    if (totalDistance > 4) {
+      additionalFare =
+          (roundedDistance - 4) * increasePerKm; // +2 for each 4 km
     }
 
     // Compute the total fare
@@ -133,13 +151,13 @@ class FareMatrixState extends State<FareMatrix> {
     // Update the state with the computed fare
     setState(() {
       computedFarePrice = totalFare;
-      discountedFarePrice = (totalFare * 0.9).toInt(); // Example: 10% discount
+      discountedFarePrice = (totalFare * 0.8).ceil();
     });
-
-    print('Base Fare: $baseFare');
-    print('Additional Fare: $additionalFare');
-    print('Total Fare: $computedFarePrice');
-    print('Discounted Fare: $discountedFarePrice');
+    // print('Rounded Distance: $roundedDistance');
+    // print('Base Fare: $baseFare');
+    // print('Additional Fare: $additionalFare');
+    // print('Total Fare: $computedFarePrice');
+    // print('Discounted Fare: $discountedFarePrice');
   }
 
   Widget buildDropdown({

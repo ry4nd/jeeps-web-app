@@ -143,7 +143,7 @@ class _ReportsTableState extends State<ReportsTable> {
         child: Row(
           children: [
             SizedBox(
-              height: 700,
+              height: 500,
               width: 500,
               child: Column(
                 children: [
@@ -204,7 +204,7 @@ class _ReportsTableState extends State<ReportsTable> {
                   ),
                   if (reports == null || !mapLoaded)
                     SizedBox(
-                        height: 500,
+                        height: 300,
                         child: Center(
                             child: CircularProgressIndicator(
                           color: Color(widget.route.routeColor),
@@ -275,7 +275,7 @@ class _ReportsTableState extends State<ReportsTable> {
             const SizedBox(width: Constants.defaultPadding),
             Expanded(
                 child: SizedBox(
-              height: 700,
+              height: 500,
               child: Stack(
                 children: [
                   ReportsMap(

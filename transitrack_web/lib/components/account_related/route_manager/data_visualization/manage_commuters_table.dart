@@ -122,7 +122,7 @@ class _ManageCommutersTableState extends State<ManageCommutersTable> {
         child: Row(
           children: [
             SizedBox(
-              height: 700,
+              height: 500,
               width: 500,
               child: Column(
                 children: [
@@ -255,15 +255,20 @@ class _ManageCommutersTableState extends State<ManageCommutersTable> {
             ),
             const SizedBox(width: Constants.defaultPadding),
             Expanded(
-              child: Center(
-                child: selectedCommuter != null
-                    ? SelectedCommuterDetails(
-                        commuter: selectedCommuter!,
-                        routes: routes,
-                        route: widget.route,
-                        loadCommuters: () => loadCommuters(),
-                      )
-                    : const Logo(),
+              child: SizedBox(
+                height: 500,
+                child: SingleChildScrollView(
+                  child: Center(
+                    child: selectedCommuter != null
+                        ? SelectedCommuterDetails(
+                            commuter: selectedCommuter!,
+                            routes: routes,
+                            route: widget.route,
+                            loadCommuters: () => loadCommuters(),
+                          )
+                        : const Logo(),
+                  ),
+                ),
               ),
             )
           ],

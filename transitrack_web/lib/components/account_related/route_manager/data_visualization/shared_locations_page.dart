@@ -127,7 +127,7 @@ class _SharedLocationsPageState extends State<SharedLocationsPage> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-        height: 700,
+        height: 500,
         child: Stack(
           children: [
             SharedLocationsMap(
