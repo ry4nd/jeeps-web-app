@@ -35,7 +35,7 @@ class FareMatrixState extends State<FareMatrix> {
 
     stops = widget.route.stopsCoordinates;
     routeCoordinates = widget.route.routeCoordinates;
-    increasePerKm = widget.route.routeFareDiscounted;
+    increasePerKm = widget.route.perKmRate;
 
     // Populate the locations list for dropdown options
     convertCoordinates();

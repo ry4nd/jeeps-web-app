@@ -313,7 +313,7 @@ class _MobileRouteInfoState extends State<MobileRouteInfo> {
                                       //   overflow: TextOverflow.ellipsis,
                                       // ),
                                       // Text(
-                                      //   "${_value.routeFareDiscounted} Discounted",
+                                      //   "${_value.perKmRate} Discounted",
                                       //   style: const TextStyle(
                                       //       fontSize: 14,
                                       //       fontWeight: FontWeight.w500),
