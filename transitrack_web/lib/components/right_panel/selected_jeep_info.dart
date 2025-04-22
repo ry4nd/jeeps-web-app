@@ -192,16 +192,34 @@ class _SelectedJeepInfoBoxState extends State<SelectedJeepInfoBox> {
   bool isSharing = false;
   String? currentShareDocId;
 
+  final FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+  @override
+  void initState() {
+    super.initState();
+    resetSharingStatus();
+    loadSharingStatus();
+  }
+
+  @override
+  void didUpdateWidget(covariant SelectedJeepInfoBox oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.jeep.device_id != widget.jeep.device_id) {
+      resetSharingStatus();
+      loadSharingStatus();
+    }
+  }
+
   void _toggleSharing(bool value) async {
     setState(() => isSharing = value);
-
-    final firestore = FirebaseFirestore.instance;
 
     if (value) {
       // Create a new share doc
       final docRef = await firestore.collection('live_shares').add({
         'route_id': widget.route.routeId,
         'device_id': widget.jeep.device_id,
+        'sender': widget.user!.account_email,
         'is_sharing': true,
         'timestamp': FieldValue.serverTimestamp(),
       });
@@ -226,6 +244,37 @@ class _SelectedJeepInfoBoxState extends State<SelectedJeepInfoBox> {
       currentShareDocId = null;
       message('Stopped Sharing Live Location');
     }
+  }
+
+  Future<void> loadSharingStatus() async {
+    final shareDoc = await firestore
+        .collection('live_shares')
+        .where('route_id', isEqualTo: widget.route.routeId)
+        .where('device_id', isEqualTo: widget.jeep.device_id)
+        .where('sender',
+            isEqualTo: widget.user!.account_email) // Check for current user
+        .orderBy('timestamp',
+            descending: true) // Order by timestamp in descending order
+        .limit(1) // Get the most recent sharing
+        .get();
+
+    if (shareDoc.docs.isNotEmpty) {
+      final doc = shareDoc.docs.first;
+
+      setState(() {
+        isSharing = doc['is_sharing'] ?? false;
+        currentShareDocId = doc.id;
+      });
+    } else {
+      resetSharingStatus();
+    }
+  }
+
+  void resetSharingStatus() {
+    setState(() {
+      isSharing = false;
+      currentShareDocId = null;
+    });
   }
 
   void message(String message) {
