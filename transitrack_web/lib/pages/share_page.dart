@@ -262,7 +262,9 @@ class _SharePageState extends State<SharePage> {
 
         if (currentUserAuth != null) {
           listenToUserFirestore();
+          loadSharedRouteFromUrl();
         } else {
+          loadSharedRouteFromUrl();
           setState(() {
             currentUserFirestore = null;
             isLoading = false;
