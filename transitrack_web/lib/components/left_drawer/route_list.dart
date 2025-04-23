@@ -113,40 +113,40 @@ class _RouteListState extends State<RouteList> {
           ),
         if (widget.routes == null)
           const Center(child: CircularProgressIndicator()),
-        Padding(
-          padding:
-              const EdgeInsets.symmetric(horizontal: Constants.defaultPadding),
-          child:
-              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            const Row(
-              children: [
-                Text("Discounted fare"),
-                IconButton(
-                    visualDensity: VisualDensity.compact,
-                    onPressed: null,
-                    tooltip:
-                        "Discounted Fare includes Student, PWD, and Senior Citizens",
-                    iconSize: 15,
-                    icon: Icon(Icons.question_mark))
-              ],
-            ),
-            Switch(
-              activeColor: Colors.blue,
-              activeTrackColor: Colors.blue.withValues(alpha: 0.5),
-              inactiveThumbColor: Colors.grey,
-              value: show_discounted,
-              onChanged: (value) {
-                setState(() {
-                  show_discounted = value;
-                });
+        // Padding(
+        //   padding:
+        //       const EdgeInsets.symmetric(horizontal: Constants.defaultPadding),
+        //   child:
+        //       Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+        //     const Row(
+        //       children: [
+        //         Text("Discounted fare"),
+        //         IconButton(
+        //             visualDensity: VisualDensity.compact,
+        //             onPressed: null,
+        //             tooltip:
+        //                 "Discounted Fare includes Student, PWD, and Senior Citizens",
+        //             iconSize: 15,
+        //             icon: Icon(Icons.question_mark))
+        //       ],
+        //     ),
+        //     Switch(
+        //       activeColor: Colors.blue,
+        //       activeTrackColor: Colors.blue.withValues(alpha: 0.5),
+        //       inactiveThumbColor: Colors.grey,
+        //       value: show_discounted,
+        //       onChanged: (value) {
+        //         setState(() {
+        //           show_discounted = value;
+        //         });
 
-                if (widget.user != null) {
-                  updateBooleanField(widget.user!.account_id, value);
-                }
-              },
-            ),
-          ]),
-        ),
+        //         if (widget.user != null) {
+        //           updateBooleanField(widget.user!.account_id, value);
+        //         }
+        //       },
+        //     ),
+        //   ]),
+        // ),
       ],
     );
   }

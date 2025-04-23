@@ -9,8 +9,9 @@ class RouteData {
   bool enabled;
   int routeColor;
   List<LatLng> routeCoordinates;
+  List<LatLng> stopsCoordinates;
   double routeFare; // Regular Fare
-  double routeFareDiscounted; // for PWDs, Students, Senior Citizens
+  double perKmRate; // for PWDs, Students, Senior Citizens
   int routeId;
   String routeName;
   List<int> routeTime;
@@ -21,8 +22,9 @@ class RouteData {
       {required this.enabled,
       required this.routeColor,
       required this.routeCoordinates,
+      required this.stopsCoordinates,
       required this.routeFare,
-      required this.routeFareDiscounted,
+      required this.perKmRate,
       required this.routeId,
       required this.routeName,
       required this.routeTime,
@@ -36,8 +38,11 @@ class RouteData {
         routeCoordinates: (data['route_coordinates'] as List<dynamic>)
             .map((coord) => _parseGeoPointToLatLng(coord as GeoPoint))
             .toList(),
+        stopsCoordinates: (data['stops_coordinates'] as List<dynamic>)
+            .map((coord) => _parseGeoPointToLatLng(coord as GeoPoint))
+            .toList(),
         routeFare: data['route_fare'] ?? 0.0,
-        routeFareDiscounted: data['route_fare_discounted'] ?? 0.0,
+        perKmRate: data['per_km_rate'] ?? 0.0,
         routeId: data['route_id'] ?? 0,
         routeName: data['route_name'] ?? '',
         routeTime: (data['route_time'] as List<dynamic>)

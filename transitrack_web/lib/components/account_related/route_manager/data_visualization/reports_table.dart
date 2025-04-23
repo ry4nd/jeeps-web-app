@@ -6,12 +6,16 @@ import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'package:transitrack_web/components/account_related/route_manager/data_visualization/filters.dart';
 import 'package:transitrack_web/components/account_related/route_manager/data_visualization/reports_map.dart';
+import 'package:transitrack_web/components/acknowledge_report.dart';
+import 'package:transitrack_web/components/attach_img_button.dart';
+import 'package:transitrack_web/components/text_field.dart';
 import 'package:transitrack_web/models/account_model.dart';
 import 'package:transitrack_web/models/feedback_model.dart';
 import 'package:transitrack_web/models/filter_model.dart';
 import 'package:transitrack_web/models/report_model.dart';
 import 'package:transitrack_web/models/route_model.dart';
 import 'package:transitrack_web/style/constants.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 // This widget is used in the Reports tab of the Data visualization panel of the route manager to list all the reports issued in the route.
 
@@ -26,6 +30,10 @@ class ReportsTable extends StatefulWidget {
 
 class _ReportsTableState extends State<ReportsTable> {
   TextEditingController searchController = TextEditingController();
+
+  // For report acknowledgement
+  // TextEditingController recipientEmailController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
 
   bool mapLoaded = false;
   int selected = -1;
@@ -89,6 +97,45 @@ class _ReportsTableState extends State<ReportsTable> {
     }
   }
 
+  // display image as a dialog for RM
+  void viewImg(String imgUrl) {
+    AwesomeDialog(
+      context: context,
+      dialogType: DialogType.noHeader,
+      width: 1000,
+      body: PointerInterceptor(
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(30.0),
+              child: Image.network(
+                imgUrl,
+                fit: BoxFit.contain,
+                loadingBuilder: (BuildContext context, Widget child,
+                    ImageChunkEvent? loadingProgress) {
+                  if (loadingProgress == null) {
+                    return child;
+                  }
+                  return Center(child: CircularProgressIndicator());
+                },
+                errorBuilder: (BuildContext context, Object error,
+                    StackTrace? stackTrace) {
+                  return const Text(
+                    'Failed to load image',
+                    style: TextStyle(color: Colors.red),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+      showCloseIcon: true,
+      dismissOnBackKeyPress: true,
+      dismissOnTouchOutside: true,
+    ).show();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -96,7 +143,7 @@ class _ReportsTableState extends State<ReportsTable> {
         child: Row(
           children: [
             SizedBox(
-              height: 700,
+              height: 500,
               width: 500,
               child: Column(
                 children: [
@@ -157,7 +204,7 @@ class _ReportsTableState extends State<ReportsTable> {
                   ),
                   if (reports == null || !mapLoaded)
                     SizedBox(
-                        height: 500,
+                        height: 300,
                         child: Center(
                             child: CircularProgressIndicator(
                           color: Color(widget.route.routeColor),
@@ -228,7 +275,7 @@ class _ReportsTableState extends State<ReportsTable> {
             const SizedBox(width: Constants.defaultPadding),
             Expanded(
                 child: SizedBox(
-              height: 700,
+              height: 500,
               child: Stack(
                 children: [
                   ReportsMap(
@@ -253,7 +300,15 @@ class _ReportsTableState extends State<ReportsTable> {
                     Positioned(
                         right: Constants.defaultPadding,
                         top: Constants.defaultPadding,
-                        child: ReportContents(reportData: selectedReport!)),
+                        child: ReportContents(
+                            reportData: selectedReport!,
+                            viewImg: viewImg,
+                            loadReports: loadReports,
+                            acknowledgeReport: (report) => acknowledgeReport(
+                                context,
+                                report,
+                                emailController,
+                                widget.route.routeName))),
                   const Positioned(
                       right: Constants.defaultPadding,
                       bottom: Constants.defaultPadding * 2,
@@ -295,7 +350,32 @@ class Legends extends StatelessWidget {
 
 class ReportContents extends StatelessWidget {
   final ReportData reportData;
-  const ReportContents({super.key, required this.reportData});
+  final Function(String) viewImg;
+  final Function loadReports;
+  final Function(ReportData) acknowledgeReport;
+  const ReportContents(
+      {super.key,
+      required this.reportData,
+      required this.viewImg,
+      required this.loadReports,
+      required this.acknowledgeReport});
+
+  Future<void> deleteReport(String senderEmail, Timestamp timestamp) async {
+    try {
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('reports')
+          .where('report_sender', isEqualTo: senderEmail)
+          .where('timestamp', isEqualTo: timestamp)
+          .limit(1)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        await querySnapshot.docs.first.reference.delete();
+      }
+    } catch (error) {
+      debugPrint("Error deleting report: $error");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -328,30 +408,78 @@ class ReportContents extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(ReportData
-                      .reportDetails[reportData.report_type].reportType),
-                  const SizedBox(width: Constants.defaultPadding),
-                  Text(DateFormat('MMM d, y')
-                      .format(reportData.timestamp.toDate())),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(DateFormat('MMM d, y')
+                          .format(reportData.timestamp.toDate())),
+                      Text(
+                          DateFormat('hh:mm a')
+                              .format(reportData.timestamp.toDate()),
+                          style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.white.withValues(alpha: 0.5))),
+                    ],
+                  ),
+                  TextButton.icon(
+                    onPressed: () {
+                      AwesomeDialog(
+                        context: context,
+                        width: 400,
+                        dialogType: DialogType.warning,
+                        padding: const EdgeInsets.all(Constants.defaultPadding),
+                        desc:
+                            "You are about to delete this report. This action cannot be undone.",
+                        btnOkText: "Delete",
+                        btnOkColor: Colors.red[600],
+                        btnCancelText: "Cancel",
+                        btnCancelColor: Constants.bgColor,
+                        btnCancelOnPress: () {},
+                        btnOkOnPress: () async {
+                          await deleteReport(
+                              reportData.report_sender, reportData.timestamp);
+
+                          await AwesomeDialog(
+                                  context: context,
+                                  width: 150,
+                                  padding: const EdgeInsets.only(
+                                      bottom: Constants.defaultPadding),
+                                  dialogType: DialogType.noHeader,
+                                  body: CircularProgressIndicator(
+                                      color: Colors.white),
+                                  dismissOnBackKeyPress: false,
+                                  dismissOnTouchOutside: false,
+                                  autoHide: const Duration(milliseconds: 1000))
+                              .show();
+                          loadReports();
+                        },
+                      ).show();
+                    },
+                    icon: Icon(Icons.delete, color: Colors.red[600]),
+                    label: Text("Delete",
+                        style: TextStyle(color: Colors.red[600])),
+                  )
                 ],
               ),
+              const SizedBox(height: Constants.defaultPadding / 2),
+              const Divider(color: Colors.white),
+              const SizedBox(height: Constants.defaultPadding / 2),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  Expanded(
+                    child: Text(ReportData
+                        .reportDetails[reportData.report_type].reportType),
+                  ),
                   if (reportData.report_type > 0 && reportData.report_type < 4)
-                    Text(usersAdditionalInfo.locationData!,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                            fontSize: 13,
-                            color: Colors.white.withValues(alpha: 0.5))),
-                  const SizedBox(width: Constants.defaultPadding),
-                  Text(
-                      DateFormat('hh:mm a')
-                          .format(reportData.timestamp.toDate()),
-                      style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.white.withValues(alpha: 0.5))),
+                    Expanded(
+                      child: Text(usersAdditionalInfo.locationData!,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.white.withValues(alpha: 0.5))),
+                    ),
                 ],
               ),
               const SizedBox(height: Constants.defaultPadding / 2),
@@ -364,7 +492,6 @@ class ReportContents extends StatelessWidget {
                       textAlign: TextAlign.justify,
                       text: TextSpan(
                         children: [
-                          const WidgetSpan(child: SizedBox(width: 40.0)),
                           TextSpan(
                               text: reportData.report_content,
                               style: const TextStyle(
@@ -373,6 +500,22 @@ class ReportContents extends StatelessWidget {
                                   fontWeight: FontWeight.w200)),
                         ],
                       )),
+                  const SizedBox(height: Constants.defaultPadding / 2),
+                  Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      spacing: 5.0,
+                      children: [
+                        AttachmentButton(
+                            onPressed: () => acknowledgeReport(reportData),
+                            label: "Acknowledge",
+                            icon: Icons.send),
+                        if (reportData.report_img != null &&
+                            reportData.report_img!.isNotEmpty)
+                          AttachmentButton(
+                              onPressed: () => viewImg(reportData.report_img!),
+                              label: "View Image",
+                              icon: Icons.photo),
+                      ]),
                 ],
               ),
               const SizedBox(height: Constants.defaultPadding / 2),

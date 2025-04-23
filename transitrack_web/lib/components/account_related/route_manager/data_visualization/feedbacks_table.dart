@@ -70,6 +70,34 @@ class _FeedbacksTableState extends State<FeedbacksTable> {
     });
   }
 
+  Future<void> deleteFeedback(String senderEmail, Timestamp timestamp) async {
+    try {
+      // Query the Firestore collection to find feedback documents
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('feedbacks')
+          .where('feedback_sender',
+              isEqualTo: senderEmail) // Filter by sender email
+          .where('timestamp', isEqualTo: timestamp) // Filter by timestamp
+          .limit(1) // Limit the query to 1 document
+          .get(); // Retrieve the matching document
+
+      // Check if any document was found.
+      if (querySnapshot.docs.isNotEmpty) {
+        // Get the first document and delete it.
+        await querySnapshot.docs.first.reference.delete();
+
+        // Print success message in the console.
+        // print("Feedback deleted successfully.");
+      } else {
+        // Print a message if no matching feedback is found.
+        // print("No matching feedback found to delete.");
+      }
+    } catch (error) {
+      // Print an error message if something goes wrong.
+      // print("Error deleting feedback: $error");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -77,7 +105,7 @@ class _FeedbacksTableState extends State<FeedbacksTable> {
         child: Row(
           children: [
             SizedBox(
-              height: 700,
+              height: 500,
               width: 500,
               child: Column(
                 children: [
@@ -138,7 +166,7 @@ class _FeedbacksTableState extends State<FeedbacksTable> {
                   ),
                   if (feedbacks == null)
                     SizedBox(
-                        height: 500,
+                        height: 300,
                         child: Center(
                             child: CircularProgressIndicator(
                           color: Color(widget.route.routeColor),
@@ -225,243 +253,325 @@ class _FeedbacksTableState extends State<FeedbacksTable> {
                               snapshot.data!;
 
                           return SizedBox(
-                            height: 700,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Center(
-                                          child: Container(
-                                            width: 34,
-                                            height: 34,
-                                            decoration: BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              color: Color(widget.route
-                                                  .routeColor), // Circle color
-                                            ),
-                                            child: const Center(
-                                              child: Icon(
-                                                Icons.person,
-                                                size: 22,
-                                                color: Constants
-                                                    .bgColor, // Icon color
+                            height: 500,
+                            child: SingleChildScrollView(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Center(
+                                            child: Container(
+                                              width: 34,
+                                              height: 34,
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                color: Color(widget.route
+                                                    .routeColor), // Circle color
+                                              ),
+                                              child: const Center(
+                                                child: Icon(
+                                                  Icons.person,
+                                                  size: 22,
+                                                  color: Constants
+                                                      .bgColor, // Icon color
+                                                ),
                                               ),
                                             ),
                                           ),
-                                        ),
-                                        const SizedBox(
-                                            width: Constants.defaultPadding),
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                                'Feedback by ${feedbackAdditionalInfo.senderData != null ? feedbackAdditionalInfo.senderData!.account_name : "No Data"}'),
-                                            Text(
-                                                '<${selectedFeedback!.feedback_sender}>',
-                                                style: TextStyle(
-                                                    fontSize: 11,
-                                                    color: Colors.white
-                                                        .withValues(
-                                                            alpha: 0.5))),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.end,
-                                      children: [
-                                        Text(DateFormat('MMMM d, y').format(
-                                            selectedFeedback!.timestamp
-                                                .toDate())),
-                                        Text(
-                                            DateFormat('hh:mm a').format(
-                                                selectedFeedback!.timestamp
-                                                    .toDate()),
-                                            style: TextStyle(
-                                                fontSize: 13,
-                                                color: Colors.white
-                                                    .withValues(alpha: 0.5))),
-                                      ],
-                                    )
-                                  ],
-                                ),
-                                const Spacer(),
-                                Center(
-                                  child: Container(
-                                    width: 500,
-                                    padding: const EdgeInsets.all(
-                                        Constants.defaultPadding * 2),
-                                    decoration: BoxDecoration(
-                                        border: Border.all(
-                                            width: 2,
-                                            color: Colors.white
-                                                .withValues(alpha: 0.5)),
-                                        borderRadius: BorderRadius.circular(
-                                            Constants.defaultPadding / 2)),
-                                    child: Column(
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Expanded(
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
+                                          const SizedBox(
+                                              width: Constants.defaultPadding),
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(feedbackAdditionalInfo
+                                                          .senderData !=
+                                                      null
+                                                  ? feedbackAdditionalInfo
+                                                      .senderData!.account_name
+                                                  : "No Data"),
+                                              Text(
+                                                  selectedFeedback!
+                                                      .feedback_sender,
+                                                  style: TextStyle(
+                                                      fontSize: 11,
+                                                      color: Colors.white
+                                                          .withValues(
+                                                              alpha: 0.5))),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                      Text(
+                                          feedbackAdditionalInfo
+                                                  .senderData!.account_banned
+                                              ? "Banned"
+                                              : "Active",
+                                          style: TextStyle(
+                                              color: feedbackAdditionalInfo
+                                                      .senderData!
+                                                      .account_banned
+                                                  ? Colors.red
+                                                  : Color(widget
+                                                      .route.routeColor))),
+                                    ],
+                                  ),
+                                  const SizedBox(
+                                      height: Constants.defaultPadding * 2),
+                                  Center(
+                                    child: Container(
+                                      width: 500,
+                                      padding: const EdgeInsets.all(
+                                          Constants.defaultPadding * 2),
+                                      decoration: BoxDecoration(
+                                          border: Border.all(
+                                              width: 2,
+                                              color: Colors.white
+                                                  .withValues(alpha: 0.5)),
+                                          borderRadius: BorderRadius.circular(
+                                              Constants.defaultPadding / 2)),
+                                      child: Column(
+                                        children: [
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
                                                 children: [
-                                                  const Text(
-                                                    "Driver",
-                                                    textAlign: TextAlign.right,
-                                                    maxLines: 1,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                  ),
+                                                  Text(DateFormat('MMMM d, y')
+                                                      .format(selectedFeedback!
+                                                          .timestamp
+                                                          .toDate())),
                                                   Text(
-                                                    feedbackAdditionalInfo
-                                                                .recepientData !=
-                                                            null
-                                                        ? feedbackAdditionalInfo
-                                                            .recepientData!
-                                                            .account_name
-                                                        : "No Data",
-                                                    textAlign: TextAlign.right,
-                                                    maxLines: 1,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                  ),
+                                                      DateFormat('hh:mm a')
+                                                          .format(
+                                                              selectedFeedback!
+                                                                  .timestamp
+                                                                  .toDate()),
+                                                      style: TextStyle(
+                                                          fontSize: 13,
+                                                          color: Colors.white
+                                                              .withValues(
+                                                                  alpha: 0.5))),
                                                 ],
                                               ),
-                                            ),
-                                            const SizedBox(
-                                                width:
-                                                    Constants.defaultPadding *
-                                                        2),
-                                            Expanded(
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
+                                              TextButton.icon(
+                                                onPressed: () {
+                                                  AwesomeDialog(
+                                                    context: context,
+                                                    width: 400,
+                                                    dialogType:
+                                                        DialogType.warning,
+                                                    padding: const EdgeInsets
+                                                        .all(Constants
+                                                            .defaultPadding),
+                                                    desc:
+                                                        "You are about to delete this feedback. This action cannot be undone.",
+                                                    btnOkText: "Delete",
+                                                    btnOkColor: Colors.red[600],
+                                                    btnCancelText: "Cancel",
+                                                    btnCancelColor:
+                                                        Constants.bgColor,
+                                                    btnCancelOnPress: () {},
+                                                    btnOkOnPress: () async {
+                                                      await deleteFeedback(
+                                                          selectedFeedback!
+                                                              .feedback_sender,
+                                                          selectedFeedback!
+                                                              .timestamp);
+
+                                                      await AwesomeDialog(
+                                                              context: context,
+                                                              width: 150,
+                                                              padding: const EdgeInsets
+                                                                  .only(
+                                                                  bottom: Constants
+                                                                      .defaultPadding),
+                                                              dialogType:
+                                                                  DialogType
+                                                                      .noHeader,
+                                                              body: CircularProgressIndicator(
+                                                                  color: Color(
+                                                                      widget
+                                                                          .route
+                                                                          .routeColor)),
+                                                              dismissOnBackKeyPress:
+                                                                  false,
+                                                              dismissOnTouchOutside:
+                                                                  false,
+                                                              autoHide:
+                                                                  const Duration(
+                                                                      milliseconds:
+                                                                          1000))
+                                                          .show();
+                                                      loadFeedbacks();
+                                                    },
+                                                  ).show();
+                                                },
+                                                icon: Icon(Icons.delete,
+                                                    color: Colors.red[600]),
+                                                label: Text("Delete",
+                                                    style: TextStyle(
+                                                        color:
+                                                            Colors.red[600])),
+                                              )
+                                            ],
+                                          ),
+                                          const SizedBox(
+                                              height:
+                                                  Constants.defaultPadding / 2),
+                                          const Divider(color: Colors.white),
+                                          const SizedBox(
+                                              height:
+                                                  Constants.defaultPadding / 2),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(
+                                                feedbackAdditionalInfo
+                                                            .recepientData !=
+                                                        null
+                                                    ? feedbackAdditionalInfo
+                                                        .recepientData!
+                                                        .account_name
+                                                    : "No Data",
+                                                textAlign: TextAlign.right,
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                              Expanded(
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.end,
+                                                  children:
+                                                      List.generate(5, (index) {
+                                                    return Icon(
+                                                      4 - index <
+                                                              selectedFeedback!
+                                                                  .feedback_driving_rating
+                                                          ? Icons.star
+                                                          : Icons.star_border,
+                                                      color: 4 - index <
+                                                              selectedFeedback!
+                                                                  .feedback_driving_rating
+                                                          ? Color(widget
+                                                              .route.routeColor)
+                                                          : Colors.grey,
+                                                    );
+                                                  }),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(
+                                                selectedFeedback!
+                                                    .feedback_jeepney,
+                                                textAlign: TextAlign.right,
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                              Expanded(
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.end,
+                                                  children:
+                                                      List.generate(5, (index) {
+                                                    return Icon(
+                                                      4 - index <
+                                                              selectedFeedback!
+                                                                  .feedback_jeepney_rating
+                                                          ? Icons.star
+                                                          : Icons.star_border,
+                                                      color: 4 - index <
+                                                              selectedFeedback!
+                                                                  .feedback_jeepney_rating
+                                                          ? Color(widget
+                                                              .route.routeColor)
+                                                          : Colors.grey,
+                                                    );
+                                                  }),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(
+                                              height:
+                                                  Constants.defaultPadding / 2),
+                                          const Divider(color: Colors.white),
+                                          const SizedBox(
+                                              height:
+                                                  Constants.defaultPadding / 2),
+                                          RichText(
+                                              textAlign: TextAlign.justify,
+                                              text: TextSpan(
                                                 children: [
-                                                  const Text(
-                                                    "Jeepney",
-                                                    textAlign: TextAlign.right,
-                                                    maxLines: 1,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                  ),
-                                                  Text(
-                                                    selectedFeedback!
-                                                        .feedback_jeepney,
-                                                    textAlign: TextAlign.right,
-                                                    maxLines: 1,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                  ),
+                                                  TextSpan(
+                                                      text: selectedFeedback!
+                                                          .feedback_content,
+                                                      style: const TextStyle(
+                                                          color: Colors.white,
+                                                          fontStyle:
+                                                              FontStyle.italic,
+                                                          fontWeight:
+                                                              FontWeight.w200)),
                                                 ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        const SizedBox(
-                                            height:
-                                                Constants.defaultPadding / 2),
-                                        Row(
-                                          children: [
-                                            Expanded(
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.end,
-                                                children:
-                                                    List.generate(5, (index) {
-                                                  return Icon(
-                                                    4 - index <
-                                                            selectedFeedback!
-                                                                .feedback_driving_rating
-                                                        ? Icons.star
-                                                        : Icons.star_border,
-                                                    color: 4 - index <
-                                                            selectedFeedback!
-                                                                .feedback_driving_rating
-                                                        ? Color(widget
-                                                            .route.routeColor)
-                                                        : Colors.grey,
-                                                    size: 20,
-                                                  );
-                                                }),
-                                              ),
-                                            ),
-                                            const SizedBox(
-                                                width:
-                                                    Constants.defaultPadding *
-                                                        2),
-                                            Expanded(
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.end,
-                                                children:
-                                                    List.generate(5, (index) {
-                                                  return Icon(
-                                                    4 - index <
-                                                            selectedFeedback!
-                                                                .feedback_jeepney_rating
-                                                        ? Icons.star
-                                                        : Icons.star_border,
-                                                    color: 4 - index <
-                                                            selectedFeedback!
-                                                                .feedback_jeepney_rating
-                                                        ? Color(widget
-                                                            .route.routeColor)
-                                                        : Colors.grey,
-                                                    size: 20,
-                                                  );
-                                                }),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        const SizedBox(
-                                            height:
-                                                Constants.defaultPadding / 2),
-                                        const Divider(color: Colors.white),
-                                        const SizedBox(
-                                            height: Constants.defaultPadding),
-                                        RichText(
-                                            textAlign: TextAlign.justify,
-                                            text: TextSpan(
+                                              )),
+                                          if (selectedFeedback!.feedback_img !=
+                                                  null &&
+                                              selectedFeedback!
+                                                  .feedback_img!.isNotEmpty)
+                                            Column(
                                               children: [
-                                                const WidgetSpan(
-                                                    child:
-                                                        SizedBox(width: 40.0)),
-                                                TextSpan(
-                                                    text: selectedFeedback!
-                                                        .feedback_content,
-                                                    style: const TextStyle(
-                                                        color: Colors.white,
-                                                        fontStyle:
-                                                            FontStyle.italic,
-                                                        fontWeight:
-                                                            FontWeight.w200)),
+                                                const SizedBox(
+                                                    height: Constants
+                                                        .defaultPadding),
+                                                SizedBox(
+                                                    height: 200,
+                                                    // Image.network displays img from URL
+                                                    child: Image.network(
+                                                      selectedFeedback!
+                                                          .feedback_img!,
+                                                      fit: BoxFit.contain,
+                                                      errorBuilder:
+                                                          (BuildContext context,
+                                                              Object error,
+                                                              StackTrace?
+                                                                  stackTrace) {
+                                                        return const Text(
+                                                          'Failed to load image',
+                                                          style: TextStyle(
+                                                              color:
+                                                                  Colors.red),
+                                                        );
+                                                      },
+                                                    )),
                                               ],
-                                            )),
-                                      ],
+                                            )
+                                        ],
+                                      ),
                                     ),
                                   ),
-                                ),
-                                const Spacer(),
-                                const Divider(color: Colors.white),
-                              ],
+                                  // const Spacer(),
+                                ],
+                              ),
                             ),
                           );
                         })
                     : const SizedBox(
-                        height: 700,
+                        height: 500,
                         child: Center(
                           child: Logo(),
                         )))

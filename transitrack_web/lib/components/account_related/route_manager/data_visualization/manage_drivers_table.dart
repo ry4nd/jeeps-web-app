@@ -105,7 +105,7 @@ class _ManageDriversTableState extends State<ManageDriversTable> {
         child: Row(
           children: [
             SizedBox(
-              height: 700,
+              height: 500,
               width: 500,
               child: Column(
                 children: [
@@ -166,8 +166,11 @@ class _ManageDriversTableState extends State<ManageDriversTable> {
                   ),
                   if (drivers != null)
                     const Padding(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: Constants.defaultPadding),
+                      padding: EdgeInsets.fromLTRB(
+                          Constants.defaultPadding,
+                          Constants.defaultPadding,
+                          Constants.defaultPadding,
+                          0.0),
                       child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -183,7 +186,7 @@ class _ManageDriversTableState extends State<ManageDriversTable> {
                     ),
                   if (drivers == null)
                     SizedBox(
-                        height: 500,
+                        height: 300,
                         child: Center(
                             child: CircularProgressIndicator(
                           color: Color(widget.route.routeColor),
@@ -266,15 +269,20 @@ class _ManageDriversTableState extends State<ManageDriversTable> {
             ),
             const SizedBox(width: Constants.defaultPadding),
             Expanded(
-              child: Center(
-                child: selectedDriver != null
-                    ? SelectedDriverDetails(
-                        driver: selectedDriver!,
-                        routes: routes,
-                        route: widget.route,
-                        loadDrivers: () => loadDrivers(),
-                      )
-                    : const Logo(),
+              child: SizedBox(
+                height: 500,
+                child: SingleChildScrollView(
+                  child: Center(
+                    child: selectedDriver != null
+                        ? SelectedDriverDetails(
+                            driver: selectedDriver!,
+                            routes: routes,
+                            route: widget.route,
+                            loadDrivers: () => loadDrivers(),
+                          )
+                        : const Logo(),
+                  ),
+                ),
               ),
             )
           ],

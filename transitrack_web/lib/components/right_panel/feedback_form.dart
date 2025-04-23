@@ -1,5 +1,8 @@
+import 'dart:typed_data';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../models/account_model.dart';
 import '../../models/jeep_model.dart';
@@ -7,6 +10,7 @@ import '../../models/route_model.dart';
 import '../../style/constants.dart';
 import '../../style/style.dart';
 import '../button.dart';
+import '../attach_img_button.dart';
 import '../text_field.dart';
 
 // This widget is called when user selects the feedback button
@@ -27,6 +31,7 @@ class _FeedbackFormState extends State<FeedbackForm> {
 
   int _drivingRating = 0;
   int _jeepRating = 0;
+  Uint8List? _image;
 
   void sendFeedback() async {
     // show loading circle
@@ -41,6 +46,14 @@ class _FeedbackFormState extends State<FeedbackForm> {
       if (_drivingRating + _jeepRating > 0) {
         if (widget.user!.account_email != widget.jeep.driver!.account_email) {
           try {
+            String? imageUrl; // nullable string variable for url
+            if (_image != null) {
+              imageUrl = await uploadImageToStorage(
+                  '${widget.user!.account_email}_${DateTime.now().millisecondsSinceEpoch}',
+                  _image!,
+                  'feedback_images');
+            }
+
             // Add a new document with auto-generated ID
             await FirebaseFirestore.instance
                 .collection('feedbacks')
@@ -52,7 +65,8 @@ class _FeedbackFormState extends State<FeedbackForm> {
                   'feedback_content': feedBackController.text,
                   'feedback_driving_rating': _drivingRating,
                   'feedback_jeepney_rating': _jeepRating,
-                  'feedback_route': widget.route.routeId
+                  'feedback_route': widget.route.routeId,
+                  'feedback_img': imageUrl,
                 })
                 .then((value) => Navigator.pop(context))
                 .then((value) => Navigator.pop(context));
@@ -97,6 +111,17 @@ class _FeedbackFormState extends State<FeedbackForm> {
                 style: const TextStyle(color: Colors.white),
               )));
         });
+  }
+
+  // sets the Uint8List variable to be the selected image file
+  // needs to be within the widget
+  void selectImage() async {
+    Uint8List img = await pickImage(ImageSource.gallery);
+    // setState is used to notify the framework that the internal state of the widget has changed
+    // signals that there is a need to rebuild
+    setState(() {
+      _image = img;
+    });
   }
 
   @override
@@ -211,12 +236,36 @@ class _FeedbackFormState extends State<FeedbackForm> {
           const Divider(color: Colors.white),
           const SizedBox(height: Constants.defaultPadding),
           InputTextField(
-              controller: feedBackController,
-              hintText: "Feedback",
-              obscureText: false,
-              lines: 4,
-              limit: 150),
+            controller: feedBackController,
+            hintText: "Feedback",
+            obscureText: false,
+            lines: 4,
+            limit: 150,
+            helperWidget: AttachmentButton(
+              onPressed: selectImage,
+              label: "Attach Image",
+              icon: Icons.add_a_photo,
+            ),
+          ),
           const SizedBox(height: Constants.defaultPadding),
+          if (_image != null)
+            Column(
+              children: [
+                const Text(
+                  "Selected Image:",
+                  style: TextStyle(color: Colors.white),
+                ),
+                const SizedBox(height: Constants.defaultPadding / 2),
+                IntrinsicHeight(
+                  // Image.memory obtains image from Uint8List
+                  child: Image.memory(
+                    _image!,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+                const SizedBox(height: Constants.defaultPadding),
+              ],
+            ),
           Button(
             onTap: () => sendFeedback(),
             text: _drivingRating + _jeepRating == 0

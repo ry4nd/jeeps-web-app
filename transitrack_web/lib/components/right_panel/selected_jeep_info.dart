@@ -14,6 +14,8 @@ import '../../config/responsive.dart';
 import '../../style/constants.dart';
 import 'feedback_form.dart';
 
+import 'package:flutter/services.dart';
+
 // This widget displays relevant information of the PUV
 
 class SelectedJeepInfo extends StatefulWidget {
@@ -187,30 +189,126 @@ class SelectedJeepInfoBox extends StatefulWidget {
 }
 
 class _SelectedJeepInfoBoxState extends State<SelectedJeepInfoBox> {
+  bool isSharing = false;
+  String? currentShareDocId;
+
+  final FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+  @override
+  void initState() {
+    super.initState();
+    resetSharingStatus();
+    loadSharingStatus();
+  }
+
+  @override
+  void didUpdateWidget(covariant SelectedJeepInfoBox oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.jeep.device_id != widget.jeep.device_id) {
+      resetSharingStatus();
+      loadSharingStatus();
+    }
+  }
+
+  void _toggleSharing(bool value) async {
+    setState(() => isSharing = value);
+
+    if (value) {
+      // Create a new share doc
+      final docRef = await firestore.collection('live_shares').add({
+        'route_id': widget.route.routeId,
+        'device_id': widget.jeep.device_id,
+        'sender': widget.user!.account_email,
+        'is_sharing': true,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+
+      final shareUrl = '${Uri.base.origin}/#/share?share_id=${docRef.id}';
+      currentShareDocId = docRef.id;
+
+      await Clipboard.setData(ClipboardData(text: shareUrl));
+
+      if (context.mounted) {
+        message('Copied Live Location Link');
+      }
+    } else {
+      // Stop sharing by updating Firestore
+      if (currentShareDocId != null) {
+        await firestore
+            .collection('live_shares')
+            .doc(currentShareDocId)
+            .update({'is_sharing': false});
+      }
+
+      currentShareDocId = null;
+      message('Stopped Sharing Live Location');
+    }
+  }
+
+  Future<void> loadSharingStatus() async {
+    final shareDoc = await firestore
+        .collection('live_shares')
+        .where('route_id', isEqualTo: widget.route.routeId)
+        .where('device_id', isEqualTo: widget.jeep.device_id)
+        .where('sender',
+            isEqualTo: widget.user!.account_email) // Check for current user
+        .orderBy('timestamp',
+            descending: true) // Order by timestamp in descending order
+        .limit(1) // Get the most recent sharing
+        .get();
+
+    if (shareDoc.docs.isNotEmpty) {
+      final doc = shareDoc.docs.first;
+
+      setState(() {
+        isSharing = doc['is_sharing'] ?? false;
+        currentShareDocId = doc.id;
+      });
+    } else {
+      resetSharingStatus();
+    }
+  }
+
+  void resetSharingStatus() {
+    setState(() {
+      isSharing = false;
+      currentShareDocId = null;
+    });
+  }
+
+  void message(String message) {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+              backgroundColor: Constants.bgColor,
+              title: Center(
+                  child: Text(
+                message,
+                style: const TextStyle(color: Colors.white),
+              )));
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        if (widget.jeep.passenger_count == -2)
-          const SelectedJeepInfoRow(
-              left: Text("Driver disabled passenger counting.",
-                  style: TextStyle(fontSize: 12)),
-              right: SizedBox()),
-        if (widget.jeep.passenger_count != -2)
-          SelectedJeepInfoRow(
-              left: Row(
-                children: [
-                  Icon(Icons.supervisor_account,
-                      color: Color(widget.route.routeColor), size: 15),
-                  const SizedBox(width: Constants.defaultPadding / 2),
-                  const Text("Occupancy"),
-                ],
-              ),
-              right: Text(widget.jeep.passenger_count == -1
-                  ? "Available"
-                  : widget.jeep.passenger_count == widget.jeep.max_capacity
-                      ? "Full"
-                      : "${widget.jeep.passenger_count}/${widget.jeep.max_capacity}")),
+        SelectedJeepInfoRow(
+            left: Row(
+              children: [
+                Icon(Icons.supervisor_account,
+                    color: Color(widget.route.routeColor), size: 15),
+                const SizedBox(width: Constants.defaultPadding / 2),
+                const Text("Occupancy"),
+              ],
+            ),
+            right: Text(widget.jeep.passenger_count < 0
+                ? "Available"
+                : widget.jeep.passenger_count >= widget.jeep.max_capacity
+                    ? "Full"
+                    : "${widget.jeep.passenger_count}/${widget.jeep.max_capacity}")),
         const Divider(color: Colors.white),
         SelectedJeepInfoRow(
             left: Row(children: [
@@ -334,11 +432,30 @@ class _SelectedJeepInfoBoxState extends State<SelectedJeepInfoBox> {
                 maxLines: 1, overflow: TextOverflow.ellipsis)),
         if (widget.user != null &&
             widget.user!.is_verified &&
-            widget.driver != null)
+            widget.driver != null) ...[
           const Divider(color: Colors.white),
-        if (widget.user != null &&
-            widget.user!.is_verified &&
-            widget.driver != null)
+          SelectedJeepInfoRow(
+            left: Text("Share Live Location"),
+            right: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                IconButton(
+                  onPressed: () => _toggleSharing(!isSharing),
+                  icon: Icon(
+                    isSharing ? Icons.stop_circle_rounded : Icons.share,
+                    color: isSharing
+                        ? Colors.red[600]
+                        : Color(widget.route.routeColor),
+                    size: 16,
+                  ),
+                  tooltip: isSharing ? 'Stop Sharing' : 'Share Location',
+                  padding: EdgeInsets.zero,
+                  constraints: BoxConstraints(),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: Constants.defaultPadding / 2),
           Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             IconButtonBig(
                 color: Color(widget.route.routeColor),
@@ -392,6 +509,7 @@ class _SelectedJeepInfoBoxState extends State<SelectedJeepInfoBox> {
                   ],
                 ))
           ])
+        ],
       ],
     );
   }

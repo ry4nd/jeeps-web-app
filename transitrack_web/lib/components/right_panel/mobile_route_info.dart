@@ -16,6 +16,8 @@ import 'selected_jeep_info.dart';
 import '../cooldown_button.dart';
 import '../../services/send_ping.dart';
 
+import '../../components/fare_matrix.dart';
+
 // This widget displays all the information for the route for the mobile view
 
 class MobileRouteInfo extends StatefulWidget {
@@ -302,22 +304,23 @@ class _MobileRouteInfoState extends State<MobileRouteInfo> {
                                     crossAxisAlignment: CrossAxisAlignment.end,
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
-                                      Text(
-                                        "${_value.routeFare} Regular",
-                                        style: const TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w500),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      Text(
-                                        "${_value.routeFareDiscounted} Discounted",
-                                        style: const TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w500),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
+                                      // Text(
+                                      //   "${_value.routeFare} Regular",
+                                      //   style: const TextStyle(
+                                      //       fontSize: 14,
+                                      //       fontWeight: FontWeight.w500),
+                                      //   maxLines: 1,
+                                      //   overflow: TextOverflow.ellipsis,
+                                      // ),
+                                      // Text(
+                                      //   "${_value.perKmRate} Discounted",
+                                      //   style: const TextStyle(
+                                      //       fontSize: 14,
+                                      //       fontWeight: FontWeight.w500),
+                                      //   maxLines: 1,
+                                      //   overflow: TextOverflow.ellipsis,
+                                      // ),
+                                      FareMatrix(route: widget.route),
                                       Text(
                                         formatTime(_value.routeTime),
                                         style: const TextStyle(

@@ -56,6 +56,12 @@ class FilterParameters {
         filterQueryName: "jeep_driving"),
   ];
 
+  static List<FilterName> commutersOrderBy = [
+    FilterName(filterName: "Name", filterQueryName: "account_name"),
+    FilterName(filterName: "Email", filterQueryName: "account_email"),
+    FilterName(filterName: "Status", filterQueryName: "account_banned"),
+  ];
+
   static List<FilterName> reportsOrderBy = [
     FilterName(filterName: "Date", filterQueryName: "timestamp"),
     FilterName(

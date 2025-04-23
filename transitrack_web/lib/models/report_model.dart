@@ -16,6 +16,7 @@ class ReportData {
   int report_type; // 0 for lost items, 1 for crime incidents, 2 for mechanical failure, 3 for accidents, 4 for other concerns
   GeoPoint report_location;
   int report_route;
+  String? report_img;
 
   ReportData(
       {required this.report_id,
@@ -26,7 +27,8 @@ class ReportData {
       required this.report_content,
       required this.report_type,
       required this.report_route,
-      required this.report_location});
+      required this.report_location,
+      this.report_img});
 
   factory ReportData.fromFirestore(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
@@ -41,6 +43,7 @@ class ReportData {
       report_type: data['report_type'] ?? 0,
       report_route: data['report_route'],
       report_location: data['report_location'],
+      report_img: data['report_img'] ?? '',
     );
   }
 
@@ -51,6 +54,13 @@ class ReportData {
     'Accident': 3,
     'Other Concerns': 4,
   };
+
+  // Method to get the report type as a string
+  String getReportType() {
+    return reportTypeMap.entries
+        .firstWhere((entry) => entry.value == report_type)
+        .key;
+  }
 
   static List<ReportDetails> reportDetails = [
     ReportDetails(reportType: 'Lost Item', reportColors: Colors.lightBlue),
@@ -74,4 +84,23 @@ class ReportEntity {
   Circle reportCircle;
 
   ReportEntity({required this.reportData, required this.reportCircle});
+}
+
+Future<List<ReportData>?> getReportSender(String email) async {
+  try {
+    QuerySnapshot snapshot = await FirebaseFirestore.instance
+        .collection('reports')
+        .where("report_sender", isEqualTo: email)
+        .limit(50)
+        .get();
+    if (snapshot.docs.isNotEmpty) {
+      return snapshot.docs.map((e) => ReportData.fromFirestore(e)).toList();
+    } else {
+      // print("Error: No Feedback found");
+      return [];
+    }
+  } catch (e) {
+    // print(e.toString());
+    return null;
+  }
 }
