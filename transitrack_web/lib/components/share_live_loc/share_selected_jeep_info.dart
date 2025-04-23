@@ -1,5 +1,5 @@
 import 'package:awesome_dialog/awesome_dialog.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'package:transitrack_web/components/icon_button_big.dart';
@@ -12,33 +12,33 @@ import '../../models/jeep_model.dart';
 import '../../models/route_model.dart';
 import '../../config/responsive.dart';
 import '../../style/constants.dart';
-import 'feedback_form.dart';
+import '../right_panel/feedback_form.dart';
 
-import 'package:flutter/services.dart';
+// import 'package:flutter/services.dart';
 
 // This widget displays relevant information of the PUV
 
-class SelectedJeepInfo extends StatefulWidget {
-  final bool gpsPermission;
+class ShareSelectedJeepInfo extends StatefulWidget {
+  // final bool gpsPermission;
   final JeepsAndDrivers jeep;
-  final String? eta;
+  // final String? eta;
   final AccountData? user;
   final RouteData route;
-  const SelectedJeepInfo(
+  const ShareSelectedJeepInfo(
       {super.key,
-      required this.gpsPermission,
+      // required this.gpsPermission,
       required this.jeep,
-      required this.eta,
+      // required this.eta,
       required this.user,
       required this.route});
 
   @override
-  State<SelectedJeepInfo> createState() => _SelectedJeepInfoState();
+  State<ShareSelectedJeepInfo> createState() => _ShareSelectedJeepInfoState();
 }
 
-class _SelectedJeepInfoState extends State<SelectedJeepInfo> {
+class _ShareSelectedJeepInfoState extends State<ShareSelectedJeepInfo> {
   late JeepsAndDrivers _jeep;
-  late String? _eta;
+  // late String? _eta;
   late AccountData? _user;
   late RouteData _route;
 
@@ -53,7 +53,7 @@ class _SelectedJeepInfoState extends State<SelectedJeepInfo> {
 
     setState(() {
       _jeep = widget.jeep;
-      _eta = widget.eta;
+      // _eta = widget.eta;
       _user = widget.user;
       _route = widget.route;
     });
@@ -62,7 +62,7 @@ class _SelectedJeepInfoState extends State<SelectedJeepInfo> {
   }
 
   @override
-  void didUpdateWidget(covariant SelectedJeepInfo oldWidget) {
+  void didUpdateWidget(covariant ShareSelectedJeepInfo oldWidget) {
     super.didUpdateWidget(oldWidget);
     // if route choice changed
     if (widget.jeep != _jeep) {
@@ -74,11 +74,11 @@ class _SelectedJeepInfoState extends State<SelectedJeepInfo> {
       });
     }
 
-    if (widget.eta != _eta) {
-      setState(() {
-        _eta = widget.eta;
-      });
-    }
+    // if (widget.eta != _eta) {
+    //   setState(() {
+    //     _eta = widget.eta;
+    //   });
+    // }
 
     if (widget.user != _user) {
       setState(() {
@@ -116,37 +116,39 @@ class _SelectedJeepInfoState extends State<SelectedJeepInfo> {
             border: Border.all(color: Colors.white, width: 2),
             borderRadius: BorderRadius.circular(Constants.defaultPadding)),
         child: Responsive.isDesktop(context)
-            ? SelectedJeepInfoBox(
-                gpsPermission: widget.gpsPermission,
+            ? ShareSelectedJeepInfoBox(
+                // gpsPermission: widget.gpsPermission,
                 user: widget.user,
                 jeep: _jeep.jeep,
                 driver: _jeep.driver,
                 route: widget.route,
                 jeepRating: jeepRating,
                 driverRating: driverRating,
-                eta: _eta)
+                // eta: _eta
+              )
             : SizedBox(
                 height: 106,
                 child: SingleChildScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
-                  child: SelectedJeepInfoBox(
-                      gpsPermission: widget.gpsPermission,
-                      user: widget.user,
-                      jeep: _jeep.jeep,
-                      driver: _jeep.driver,
-                      route: widget.route,
-                      jeepRating: jeepRating,
-                      driverRating: driverRating,
-                      eta: _eta),
+                  child: ShareSelectedJeepInfoBox(
+                    // gpsPermission: widget.gpsPermission,
+                    user: widget.user,
+                    jeep: _jeep.jeep,
+                    driver: _jeep.driver,
+                    route: widget.route,
+                    jeepRating: jeepRating,
+                    driverRating: driverRating,
+                    // eta: _eta
+                  ),
                 ),
               ));
   }
 }
 
-class SelectedJeepInfoRow extends StatelessWidget {
+class ShareSelectedJeepInfoRow extends StatelessWidget {
   final Widget left;
   final Widget right;
-  const SelectedJeepInfoRow(
+  const ShareSelectedJeepInfoRow(
       {super.key, required this.left, required this.right});
 
   @override
@@ -164,138 +166,91 @@ class SelectedJeepInfoRow extends StatelessWidget {
   }
 }
 
-class SelectedJeepInfoBox extends StatefulWidget {
-  final bool gpsPermission;
+class ShareSelectedJeepInfoBox extends StatefulWidget {
+  // final bool gpsPermission;
   final AccountData? user;
   final JeepData jeep;
   final AccountData? driver;
   final RouteData route;
   final List<FeedbackData>? jeepRating;
   final List<FeedbackData>? driverRating;
-  final String? eta;
-  const SelectedJeepInfoBox(
-      {super.key,
-      required this.gpsPermission,
-      required this.user,
-      required this.jeep,
-      required this.driver,
-      required this.route,
-      required this.jeepRating,
-      required this.driverRating,
-      required this.eta});
+  // final String? eta;
+  const ShareSelectedJeepInfoBox({
+    super.key,
+    // required this.gpsPermission,
+    required this.user,
+    required this.jeep,
+    required this.driver,
+    required this.route,
+    required this.jeepRating,
+    required this.driverRating,
+    // required this.eta
+  });
 
   @override
-  State<SelectedJeepInfoBox> createState() => _SelectedJeepInfoBoxState();
+  State<ShareSelectedJeepInfoBox> createState() =>
+      _ShareSelectedJeepInfoBoxState();
 }
 
-class _SelectedJeepInfoBoxState extends State<SelectedJeepInfoBox> {
+class _ShareSelectedJeepInfoBoxState extends State<ShareSelectedJeepInfoBox> {
   bool isSharing = false;
   String? currentShareDocId;
 
-  final FirebaseFirestore firestore = FirebaseFirestore.instance;
+  // void _toggleSharing(bool value) async {
+  //   setState(() => isSharing = value);
 
-  @override
-  void initState() {
-    super.initState();
-    resetSharingStatus();
-    loadSharingStatus();
-  }
+  //   final firestore = FirebaseFirestore.instance;
 
-  @override
-  void didUpdateWidget(covariant SelectedJeepInfoBox oldWidget) {
-    super.didUpdateWidget(oldWidget);
+  //   if (value) {
+  //     // Create a new share doc
+  //     final docRef = await firestore.collection('live_shares').add({
+  //       'route_id': widget.route.routeId,
+  //       'device_id': widget.jeep.device_id,
+  //       'is_sharing': true,
+  //       'timestamp': FieldValue.serverTimestamp(),
+  //     });
 
-    if (oldWidget.jeep.device_id != widget.jeep.device_id) {
-      resetSharingStatus();
-      loadSharingStatus();
-    }
-  }
+  //     final shareUrl = '${Uri.base.origin}/#/share?share_id=${docRef.id}';
+  //     currentShareDocId = docRef.id;
 
-  void _toggleSharing(bool value) async {
-    setState(() => isSharing = value);
+  //     await Clipboard.setData(ClipboardData(text: shareUrl));
 
-    if (value) {
-      // Create a new share doc
-      final docRef = await firestore.collection('live_shares').add({
-        'route_id': widget.route.routeId,
-        'device_id': widget.jeep.device_id,
-        'sender': widget.user!.account_email,
-        'is_sharing': true,
-        'timestamp': FieldValue.serverTimestamp(),
-      });
+  //     if (context.mounted) {
+  //       message('Copied Live Location Link');
+  //     }
+  //   } else {
+  //     // Stop sharing by updating Firestore
+  //     if (currentShareDocId != null) {
+  //       await firestore
+  //           .collection('live_shares')
+  //           .doc(currentShareDocId)
+  //           .update({'is_sharing': false});
+  //     }
 
-      final shareUrl = '${Uri.base.origin}/#/share?share_id=${docRef.id}';
-      currentShareDocId = docRef.id;
+  //     currentShareDocId = null;
+  //     message('Stopped Sharing Live Location');
+  //   }
+  // }
 
-      await Clipboard.setData(ClipboardData(text: shareUrl));
-
-      if (context.mounted) {
-        message('Copied Live Location Link');
-      }
-    } else {
-      // Stop sharing by updating Firestore
-      if (currentShareDocId != null) {
-        await firestore
-            .collection('live_shares')
-            .doc(currentShareDocId)
-            .update({'is_sharing': false});
-      }
-
-      currentShareDocId = null;
-      message('Stopped Sharing Live Location');
-    }
-  }
-
-  Future<void> loadSharingStatus() async {
-    final shareDoc = await firestore
-        .collection('live_shares')
-        .where('route_id', isEqualTo: widget.route.routeId)
-        .where('device_id', isEqualTo: widget.jeep.device_id)
-        .where('sender',
-            isEqualTo: widget.user!.account_email) // Check for current user
-        .orderBy('timestamp',
-            descending: true) // Order by timestamp in descending order
-        .limit(1) // Get the most recent sharing
-        .get();
-
-    if (shareDoc.docs.isNotEmpty) {
-      final doc = shareDoc.docs.first;
-
-      setState(() {
-        isSharing = doc['is_sharing'] ?? false;
-        currentShareDocId = doc.id;
-      });
-    } else {
-      resetSharingStatus();
-    }
-  }
-
-  void resetSharingStatus() {
-    setState(() {
-      isSharing = false;
-      currentShareDocId = null;
-    });
-  }
-
-  void message(String message) {
-    showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-              backgroundColor: Constants.bgColor,
-              title: Center(
-                  child: Text(
-                message,
-                style: const TextStyle(color: Colors.white),
-              )));
-        });
-  }
+  // void message(String message) {
+  //   showDialog(
+  //       context: context,
+  //       builder: (context) {
+  //         return AlertDialog(
+  //             backgroundColor: Constants.bgColor,
+  //             title: Center(
+  //                 child: Text(
+  //               message,
+  //               style: const TextStyle(color: Colors.white),
+  //             )));
+  //       });
+  // }
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        SelectedJeepInfoRow(
+        ShareSelectedJeepInfoRow(
             left: Row(
               children: [
                 Icon(Icons.supervisor_account,
@@ -310,30 +265,30 @@ class _SelectedJeepInfoBoxState extends State<SelectedJeepInfoBox> {
                     ? "Full"
                     : "${widget.jeep.passenger_count}/${widget.jeep.max_capacity}")),
         const Divider(color: Colors.white),
-        SelectedJeepInfoRow(
-            left: Row(children: [
-              Icon(Icons.timelapse_rounded,
-                  color: Color(widget.route.routeColor), size: 15),
-              const SizedBox(
-                width: Constants.defaultPadding / 2,
-              ),
-              const Text("ETA")
-            ]),
-            right: widget.gpsPermission
-                ? Text(widget.eta ?? "...")
-                : Row(
-                    children: [
-                      Icon(
-                        Icons.location_off,
-                        color: Colors.red[600],
-                        size: 15,
-                      ),
-                      const SizedBox(width: Constants.defaultPadding / 4),
-                      const Text("GPS Disabled")
-                    ],
-                  )),
-        const Divider(color: Colors.white),
-        SelectedJeepInfoRow(
+        // ShareSelectedJeepInfoRow(
+        //     left: Row(children: [
+        //       Icon(Icons.timelapse_rounded,
+        //           color: Color(widget.route.routeColor), size: 15),
+        //       const SizedBox(
+        //         width: Constants.defaultPadding / 2,
+        //       ),
+        //       const Text("ETA")
+        //     ]),
+        //     right: widget.gpsPermission
+        //         ? Text(widget.eta ?? "...")
+        //         : Row(
+        //             children: [
+        //               Icon(
+        //                 Icons.location_off,
+        //                 color: Colors.red[600],
+        //                 size: 15,
+        //               ),
+        //               const SizedBox(width: Constants.defaultPadding / 4),
+        //               const Text("GPS Disabled")
+        //             ],
+        //           )),
+        // const Divider(color: Colors.white),
+        ShareSelectedJeepInfoRow(
             left: IconButton(
               onPressed: () => widget.driverRating != null
                   ? AwesomeDialog(
@@ -381,7 +336,7 @@ class _SelectedJeepInfoBoxState extends State<SelectedJeepInfoBox> {
             ),
             right: Text(widget.jeep.device_id)),
         const Divider(color: Colors.white),
-        SelectedJeepInfoRow(
+        ShareSelectedJeepInfoRow(
             left: IconButton(
               onPressed: () => widget.driverRating != null
                   ? AwesomeDialog(
@@ -430,32 +385,37 @@ class _SelectedJeepInfoBoxState extends State<SelectedJeepInfoBox> {
             ),
             right: Text(widget.driver!.account_name,
                 maxLines: 1, overflow: TextOverflow.ellipsis)),
+        // const Divider(color: Colors.white),
+        // ShareSelectedJeepInfoRow(
+        //   left: Text("Share Live Location"),
+        //   right: Row(
+        //     mainAxisAlignment: MainAxisAlignment.end,
+        //     children: [
+        //       IconButton(
+        //         onPressed: () => _toggleSharing(!isSharing),
+        //         icon: Icon(
+        //           isSharing ? Icons.stop_circle_rounded : Icons.share,
+        //           color: isSharing
+        //               ? Colors.red[600]
+        //               : Color(widget.route.routeColor),
+        //           size: 16,
+        //         ),
+        //         tooltip: isSharing ? 'Stop Sharing' : 'Share Location',
+        //         padding: EdgeInsets.zero,
+        //         constraints: BoxConstraints(),
+        //       ),
+        //     ],
+        //   ),
+        // ),
         if (widget.user != null &&
             widget.user!.is_verified &&
-            widget.driver != null) ...[
-          const Divider(color: Colors.white),
-          SelectedJeepInfoRow(
-            left: Text("Share Live Location"),
-            right: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                IconButton(
-                  onPressed: () => _toggleSharing(!isSharing),
-                  icon: Icon(
-                    isSharing ? Icons.stop_circle_rounded : Icons.share,
-                    color: isSharing
-                        ? Colors.red[600]
-                        : Color(widget.route.routeColor),
-                    size: 16,
-                  ),
-                  tooltip: isSharing ? 'Stop Sharing' : 'Share Location',
-                  padding: EdgeInsets.zero,
-                  constraints: BoxConstraints(),
-                ),
-              ],
-            ),
+            widget.driver != null)
+          SizedBox(
+            height: Constants.defaultPadding / 2,
           ),
-          const SizedBox(height: Constants.defaultPadding / 2),
+        if (widget.user != null &&
+            widget.user!.is_verified &&
+            widget.driver != null)
           Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             IconButtonBig(
                 color: Color(widget.route.routeColor),
@@ -509,7 +469,6 @@ class _SelectedJeepInfoBoxState extends State<SelectedJeepInfoBox> {
                   ],
                 ))
           ])
-        ],
       ],
     );
   }
