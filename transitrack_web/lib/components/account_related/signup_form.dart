@@ -135,7 +135,6 @@ class _SignupFormState extends State<SignupForm> {
           'route_id': routes!
               .firstWhere((element) => element.routeName == chosenRoute!)
               .routeId,
-          'show_discounted': false,
           'account_banned': false,
         });
 
