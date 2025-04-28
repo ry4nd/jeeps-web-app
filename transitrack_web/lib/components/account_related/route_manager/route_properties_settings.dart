@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'package:transitrack_web/services/format_time.dart';
+import 'package:transitrack_web/components/signup_form_field.dart';
 
 import '../../../models/route_model.dart';
 import '../../../style/constants.dart';
@@ -22,6 +23,7 @@ class PropertiesSettings extends StatefulWidget {
 
 class _PropertiesSettingsState extends State<PropertiesSettings> {
   final nameController = TextEditingController();
+  final nameFocusNode = FocusNode();
   final fareController = TextEditingController();
   final fareDiscountedController = TextEditingController();
   late bool enabled;
@@ -57,11 +59,25 @@ class _PropertiesSettingsState extends State<PropertiesSettings> {
         });
   }
 
+  // Validator for name
+  String? validateName(String? name) {
+    if (name == null || name.isEmpty) {
+      return 'Route name cannot be empty.';
+    }
+    if (name.length < 3 || name.length > 15) {
+      return 'Route name must be between 3 and 15 characters long.';
+    }
+    return null;
+  }
+
   void update() async {
     bool cleared = true;
-    if (nameController.text == "" || nameController.text.length > 15) {
-      errorMessage("The route name must be between 1 and 15 characters long.");
-      cleared = false;
+    // Validate name
+    final nameError = validateName(nameController.text);
+
+    if (nameError != null) {
+      errorMessage(nameError);
+      return;
     }
 
     if (fareController.text == "") {
@@ -70,7 +86,7 @@ class _PropertiesSettingsState extends State<PropertiesSettings> {
     }
 
     if (fareDiscountedController.text == "") {
-      errorMessage("The discounted fare must not be empty.");
+      errorMessage("Rate per kilometer must not be empty.");
       cleared = false;
     }
 
@@ -169,10 +185,13 @@ class _PropertiesSettingsState extends State<PropertiesSettings> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text("Route Name"),
-                  InputTextField(
-                      controller: nameController,
-                      hintText: "Route Name",
-                      obscureText: false),
+                  SignupFormField(
+                    controller: nameController,
+                    hintText: "Name",
+                    obscureText: false,
+                    focusNode: nameFocusNode,
+                    validator: validateName,
+                  ),
                   const SizedBox(height: Constants.defaultPadding),
                   const Text("Regular Fare"),
                   InputTextField(
@@ -185,7 +204,7 @@ class _PropertiesSettingsState extends State<PropertiesSettings> {
                   const Text("Per km rate"),
                   InputTextField(
                       controller: fareDiscountedController,
-                      hintText: "SPS",
+                      hintText: "Per km rate",
                       obscureText: false,
                       type: TextInputType.number),
                   const SizedBox(height: Constants.defaultPadding),
