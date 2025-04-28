@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'package:transitrack_web/services/format_time.dart';
-import 'package:transitrack_web/components/signup_form_field.dart';
+import 'package:transitrack_web/components/validated_form_field.dart';
 
 import '../../../models/route_model.dart';
 import '../../../style/constants.dart';
@@ -185,7 +185,7 @@ class _PropertiesSettingsState extends State<PropertiesSettings> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text("Route Name"),
-                  SignupFormField(
+                  ValidatedFormField(
                     controller: nameController,
                     hintText: "Name",
                     obscureText: false,

@@ -4,7 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'package:transitrack_web/models/route_model.dart';
-import 'package:transitrack_web/components/signup_form_field.dart';
+import 'package:transitrack_web/components/validated_form_field.dart';
 
 import '../../models/account_model.dart';
 import '../../style/constants.dart';
@@ -253,7 +253,7 @@ class _SignupFormState extends State<SignupForm> {
               ],
             ),
             const SizedBox(height: Constants.defaultPadding),
-            SignupFormField(
+            ValidatedFormField(
               controller: emailController,
               hintText: "Email",
               obscureText: false,
@@ -261,7 +261,7 @@ class _SignupFormState extends State<SignupForm> {
               validator: validateEmail,
             ),
             const SizedBox(height: Constants.defaultPadding),
-            SignupFormField(
+            ValidatedFormField(
               controller: nameController,
               hintText: "Name",
               obscureText: false,
@@ -269,7 +269,7 @@ class _SignupFormState extends State<SignupForm> {
               validator: validateName,
             ),
             const SizedBox(height: Constants.defaultPadding),
-            SignupFormField(
+            ValidatedFormField(
               controller: passwordController,
               hintText: "Password",
               obscureText: true,
@@ -277,7 +277,7 @@ class _SignupFormState extends State<SignupForm> {
               validator: validatePassword,
             ),
             const SizedBox(height: Constants.defaultPadding),
-            SignupFormField(
+            ValidatedFormField(
               controller: confirmPasswordController,
               hintText: "Confirm Password",
               obscureText: true,

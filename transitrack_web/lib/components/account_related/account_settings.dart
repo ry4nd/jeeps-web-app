@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:transitrack_web/components/signup_form_field.dart';
+import 'package:transitrack_web/components/validated_form_field.dart';
 
 import '../../models/account_model.dart';
 import '../../style/constants.dart';
@@ -172,7 +172,7 @@ class AccountSettings extends StatelessWidget {
             ],
           ),
           const SizedBox(height: Constants.defaultPadding),
-          SignupFormField(
+          ValidatedFormField(
             controller: emailController,
             hintText: "Email",
             obscureText: false,
@@ -180,7 +180,7 @@ class AccountSettings extends StatelessWidget {
             validator: validateEmail,
           ),
           const SizedBox(height: Constants.defaultPadding),
-          SignupFormField(
+          ValidatedFormField(
             controller: nameController,
             hintText: "Name",
             obscureText: false,
@@ -188,7 +188,7 @@ class AccountSettings extends StatelessWidget {
             validator: validateName,
           ),
           const SizedBox(height: Constants.defaultPadding),
-          SignupFormField(
+          ValidatedFormField(
             controller: passwordController,
             hintText: "Password",
             obscureText: true,
@@ -196,7 +196,7 @@ class AccountSettings extends StatelessWidget {
             validator: validatePassword,
           ),
           const SizedBox(height: Constants.defaultPadding),
-          SignupFormField(
+          ValidatedFormField(
             controller: confirmPasswordController,
             hintText: "Confirm Password",
             obscureText: true,

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../style/constants.dart';
 
-class SignupFormField extends StatefulWidget {
+class ValidatedFormField extends StatefulWidget {
   final TextEditingController controller;
   final String hintText;
   final bool obscureText;
@@ -12,7 +12,7 @@ class SignupFormField extends StatefulWidget {
   final String? Function(String?)? validator; // Validator function
   final FocusNode focusNode; // FocusNode for interaction tracking
 
-  const SignupFormField({
+  const ValidatedFormField({
     super.key,
     required this.controller,
     required this.hintText,
@@ -26,10 +26,10 @@ class SignupFormField extends StatefulWidget {
   });
 
   @override
-  _SignupFormFieldState createState() => _SignupFormFieldState();
+  _ValidatedFormFieldState createState() => _ValidatedFormFieldState();
 }
 
-class _SignupFormFieldState extends State<SignupFormField> {
+class _ValidatedFormFieldState extends State<ValidatedFormField> {
   String? errorText;
 
   @override
