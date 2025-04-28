@@ -1,45 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:transitrack_web/components/left_drawer/desktop_research.dart';
 import 'package:transitrack_web/style/constants.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-class DesktopResearchPrompt extends StatefulWidget {
+class DesktopResearchPrompt extends StatelessWidget {
   const DesktopResearchPrompt({super.key});
 
-  @override
-  State<DesktopResearchPrompt> createState() => _DesktopResearchPromptState();
-}
-
-class _DesktopResearchPromptState extends State<DesktopResearchPrompt> {
-  bool openPrompt = false;
+  Future<void> _launchSurveyUrl() async {
+    final Uri url = Uri.parse(
+        'https://docs.google.com/forms/d/e/1FAIpQLSe7py3kWqHirKDr62h5bdLg4ae2qnXZbzkL3kJjf-BnUFtvog/viewform?usp=dialog');
+    if (!await launchUrl(url)) {
+      throw Exception('Could not launch $url');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        if (!openPrompt)
-          Shimmer.fromColors(
-            baseColor: Colors.transparent,
-            highlightColor: Colors.white.withValues(alpha: 0.5),
-            period: const Duration(seconds: 5),
-            child: Container(
-              width: double.maxFinite,
-              padding: const EdgeInsets.all(Constants.defaultPadding),
-              margin: const EdgeInsets.symmetric(
-                  horizontal: Constants.defaultPadding),
-              decoration: BoxDecoration(
-                color: Constants.bgColor,
-                border: Border.all(width: 2, color: Colors.white),
-                borderRadius: const BorderRadius.all(
-                    Radius.circular(Constants.defaultPadding)),
-              ),
-              child: const Text("Join our Survey"),
+        Shimmer.fromColors(
+          baseColor: Colors.transparent,
+          highlightColor: Colors.white.withValues(alpha: 0.5),
+          period: const Duration(seconds: 5),
+          child: Container(
+            width: double.maxFinite,
+            padding: const EdgeInsets.all(Constants.defaultPadding),
+            margin: const EdgeInsets.symmetric(
+                horizontal: Constants.defaultPadding),
+            decoration: BoxDecoration(
+              color: Constants.bgColor,
+              border: Border.all(width: 2, color: Colors.white),
+              borderRadius: const BorderRadius.all(
+                  Radius.circular(Constants.defaultPadding)),
             ),
+            child: const Text("Answer Survey"),
           ),
+        ),
         GestureDetector(
-          onTap: () => setState(() {
-            openPrompt = !openPrompt;
-          }),
+          onTap: _launchSurveyUrl,
           child: Container(
             width: double.maxFinite,
             padding: const EdgeInsets.all(Constants.defaultPadding),
@@ -50,9 +48,7 @@ class _DesktopResearchPromptState extends State<DesktopResearchPrompt> {
               borderRadius: const BorderRadius.all(
                   Radius.circular(Constants.defaultPadding)),
             ),
-            child: openPrompt
-                ? const DesktopResearch()
-                : const Text("Join our Survey"),
+            child: const Text("Answer Survey"),
           ),
         ),
       ],

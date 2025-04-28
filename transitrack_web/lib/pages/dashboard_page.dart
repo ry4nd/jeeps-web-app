@@ -287,11 +287,7 @@ class _DashboardState extends State<Dashboard> {
                     route: routeChoice,
                   ),
                   const SizedBox(height: Constants.defaultPadding),
-                  MobileResearchPrompt(
-                    pin: () => setState(() {
-                      mobileTutorial = !mobileTutorial;
-                    }),
-                  ),
+                  MobileResearchPrompt(),
                   const SizedBox(height: Constants.defaultPadding)
                 ],
               ),
