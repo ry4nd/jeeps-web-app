@@ -98,9 +98,11 @@ class _SignupFormState extends State<SignupForm> {
       }
 
       // Validate name
-      if (nameController.text.isEmpty || nameController.text.length < 3) {
+      if (nameController.text.isEmpty ||
+          nameController.text.length < 3 ||
+          nameController.text.length > 12) {
         Navigator.pop(context); // Pop loading circle
-        errorMessage("Name should be at least 3 characters");
+        errorMessage("Name should be at 3-12 characters");
         return;
       }
 
@@ -188,8 +190,8 @@ class _SignupFormState extends State<SignupForm> {
     if (name == null) {
       return null;
     }
-    if (name.length < 3 && name.isNotEmpty) {
-      return 'Name should be at least 3 characters';
+    if (name.length < 3 || name.length > 12) {
+      return 'Name should be 3-12 characters';
     }
     return null; // Valid input
   }

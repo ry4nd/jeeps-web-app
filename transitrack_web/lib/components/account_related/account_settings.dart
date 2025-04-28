@@ -50,8 +50,8 @@ class AccountSettings extends StatelessWidget {
       if (name == null) {
         return null;
       }
-      if (name.length < 3 && name.isNotEmpty) {
-        return 'Name should be at least 3 characters';
+      if (name.length < 3 || name.length > 12) {
+        return 'Name should be 3-12 characters';
       }
       return null; // Valid input
     }

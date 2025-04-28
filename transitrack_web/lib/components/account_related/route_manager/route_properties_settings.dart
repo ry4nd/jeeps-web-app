@@ -64,8 +64,8 @@ class _PropertiesSettingsState extends State<PropertiesSettings> {
     if (name == null || name.isEmpty) {
       return 'Route name cannot be empty.';
     }
-    if (name.length < 3 || name.length > 15) {
-      return 'Route name must be between 3 and 15 characters long.';
+    if (name.length < 3 || name.length > 12) {
+      return 'Route name must be 3-12 characters';
     }
     return null;
   }
