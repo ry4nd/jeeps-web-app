@@ -28,7 +28,10 @@ class MobileResearchPrompt extends StatelessWidget {
             borderRadius: const BorderRadius.all(
                 Radius.circular(Constants.defaultPadding)),
           ),
-          child: const Text("Answer Survey"),
+          child: const Text(
+            "Answer Survey",
+            textAlign: TextAlign.center,
+          ),
         ),
         GestureDetector(
           onTap: _launchSurveyUrl,
@@ -47,7 +50,10 @@ class MobileResearchPrompt extends StatelessWidget {
                 borderRadius: const BorderRadius.all(
                     Radius.circular(Constants.defaultPadding)),
               ),
-              child: const Text("Answer Survey"),
+              child: const Text(
+                "Answer Survey",
+                textAlign: TextAlign.center,
+              ),
             ),
           ),
         ),
