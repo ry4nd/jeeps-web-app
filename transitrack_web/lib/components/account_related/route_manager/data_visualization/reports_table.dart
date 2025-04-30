@@ -136,6 +136,92 @@ class _ReportsTableState extends State<ReportsTable> {
     ).show();
   }
 
+  Future<void> deleteReportDialog(
+      BuildContext context, ReportData reportData, Function loadReports) async {
+    Future<void> deleteReport(String senderEmail, Timestamp timestamp) async {
+      try {
+        QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+            .collection('reports')
+            .where('report_sender', isEqualTo: senderEmail)
+            .where('timestamp', isEqualTo: timestamp)
+            .limit(1)
+            .get();
+
+        if (querySnapshot.docs.isNotEmpty) {
+          await querySnapshot.docs.first.reference.delete();
+        }
+      } catch (error) {
+        debugPrint("Error deleting report: $error");
+      }
+    }
+
+    AwesomeDialog(
+      context: context,
+      dialogType: DialogType.warning,
+      width: 400,
+      body: PointerInterceptor(
+        child: Column(
+          children: [
+            const Text(
+              "You are about to delete this report. This action cannot be undone.",
+              style: TextStyle(color: Colors.white),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: Constants.defaultPadding),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Constants.bgColor,
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context); // Close the dialog
+                  },
+                  child: const Text("Cancel",
+                      style: TextStyle(color: Colors.white)),
+                ),
+                const SizedBox(width: Constants.defaultPadding / 2),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red[600],
+                  ),
+                  onPressed: () async {
+                    await deleteReport(
+                        reportData.report_sender, reportData.timestamp);
+
+                    await AwesomeDialog(
+                      context: context,
+                      width: 150,
+                      padding: const EdgeInsets.only(
+                          bottom: Constants.defaultPadding),
+                      dialogType: DialogType.noHeader,
+                      body:
+                          const CircularProgressIndicator(color: Colors.white),
+                      dismissOnBackKeyPress: false,
+                      dismissOnTouchOutside: false,
+                      autoHide: const Duration(milliseconds: 1000),
+                    ).show();
+
+                    loadReports();
+                    Navigator.pop(context); // Close the dialog after deletion
+                  },
+                  child: const Text(
+                    "Delete",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: Constants.defaultPadding * 1.5),
+          ],
+        ),
+      ),
+      dismissOnBackKeyPress: true,
+      dismissOnTouchOutside: true,
+    ).show();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -301,14 +387,20 @@ class _ReportsTableState extends State<ReportsTable> {
                         right: Constants.defaultPadding,
                         top: Constants.defaultPadding,
                         child: ReportContents(
-                            reportData: selectedReport!,
-                            viewImg: viewImg,
-                            loadReports: loadReports,
-                            acknowledgeReport: (report) => acknowledgeReport(
-                                context,
-                                report,
-                                emailController,
-                                widget.route.routeName))),
+                          reportData: selectedReport!,
+                          viewImg: viewImg,
+                          loadReports: loadReports,
+                          acknowledgeReport: (report) => acknowledgeReport(
+                              context,
+                              report,
+                              emailController,
+                              widget.route.routeName),
+                          deleteReport: (report) => deleteReportDialog(
+                            context,
+                            report,
+                            loadReports,
+                          ),
+                        )),
                   const Positioned(
                       right: Constants.defaultPadding,
                       bottom: Constants.defaultPadding * 2,
@@ -353,29 +445,31 @@ class ReportContents extends StatelessWidget {
   final Function(String) viewImg;
   final Function loadReports;
   final Function(ReportData) acknowledgeReport;
+  final Function(ReportData) deleteReport;
   const ReportContents(
       {super.key,
       required this.reportData,
       required this.viewImg,
       required this.loadReports,
-      required this.acknowledgeReport});
+      required this.acknowledgeReport,
+      required this.deleteReport});
 
-  Future<void> deleteReport(String senderEmail, Timestamp timestamp) async {
-    try {
-      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-          .collection('reports')
-          .where('report_sender', isEqualTo: senderEmail)
-          .where('timestamp', isEqualTo: timestamp)
-          .limit(1)
-          .get();
+  // Future<void> deleteReport(String senderEmail, Timestamp timestamp) async {
+  //   try {
+  //     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+  //         .collection('reports')
+  //         .where('report_sender', isEqualTo: senderEmail)
+  //         .where('timestamp', isEqualTo: timestamp)
+  //         .limit(1)
+  //         .get();
 
-      if (querySnapshot.docs.isNotEmpty) {
-        await querySnapshot.docs.first.reference.delete();
-      }
-    } catch (error) {
-      debugPrint("Error deleting report: $error");
-    }
-  }
+  //     if (querySnapshot.docs.isNotEmpty) {
+  //       await querySnapshot.docs.first.reference.delete();
+  //     }
+  //   } catch (error) {
+  //     debugPrint("Error deleting report: $error");
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -422,43 +516,13 @@ class ReportContents extends StatelessWidget {
                     ],
                   ),
                   TextButton.icon(
-                    onPressed: () {
-                      AwesomeDialog(
-                        context: context,
-                        width: 400,
-                        dialogType: DialogType.warning,
-                        padding: const EdgeInsets.all(Constants.defaultPadding),
-                        desc:
-                            "You are about to delete this report. This action cannot be undone.",
-                        btnOkText: "Delete",
-                        btnOkColor: Colors.red[600],
-                        btnCancelText: "Cancel",
-                        btnCancelColor: Constants.bgColor,
-                        btnCancelOnPress: () {},
-                        btnOkOnPress: () async {
-                          await deleteReport(
-                              reportData.report_sender, reportData.timestamp);
-
-                          await AwesomeDialog(
-                                  context: context,
-                                  width: 150,
-                                  padding: const EdgeInsets.only(
-                                      bottom: Constants.defaultPadding),
-                                  dialogType: DialogType.noHeader,
-                                  body: CircularProgressIndicator(
-                                      color: Colors.white),
-                                  dismissOnBackKeyPress: false,
-                                  dismissOnTouchOutside: false,
-                                  autoHide: const Duration(milliseconds: 1000))
-                              .show();
-                          loadReports();
-                        },
-                      ).show();
-                    },
+                    onPressed: () => deleteReport(reportData),
+                    label: Text(
+                      "Delete",
+                      style: TextStyle(color: Colors.red[600]),
+                    ),
                     icon: Icon(Icons.delete, color: Colors.red[600]),
-                    label: Text("Delete",
-                        style: TextStyle(color: Colors.red[600])),
-                  )
+                  ),
                 ],
               ),
               const SizedBox(height: Constants.defaultPadding / 2),
