@@ -1,13 +1,18 @@
-import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
-import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:transitrack_web/components/left_drawer/mobile_research.dart';
 import 'package:transitrack_web/style/constants.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class MobileResearchPrompt extends StatelessWidget {
-  final Function pin;
-  const MobileResearchPrompt({super.key, required this.pin});
+  const MobileResearchPrompt({super.key});
+
+  Future<void> _launchSurveyUrl() async {
+    final Uri url = Uri.parse(
+        'https://docs.google.com/forms/d/e/1FAIpQLSfFwiD88Yv9qSCwfwIXTG_Qe7XEY9uPU5jYkB7OtoeBs45xHA/viewform?usp=sharing');
+    if (!await launchUrl(url)) {
+      throw Exception('Could not launch $url');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,14 +28,10 @@ class MobileResearchPrompt extends StatelessWidget {
             borderRadius: const BorderRadius.all(
                 Radius.circular(Constants.defaultPadding)),
           ),
-          child: const Text("Join our Survey"),
+          child: const Text("Answer Survey"),
         ),
         GestureDetector(
-          onTap: () => AwesomeDialog(
-                  context: context,
-                  dialogType: DialogType.noHeader,
-                  body: PointerInterceptor(child: MobileResearch(pin: pin)))
-              .show(),
+          onTap: _launchSurveyUrl,
           child: Shimmer.fromColors(
             baseColor: Colors.transparent,
             highlightColor: Colors.white.withValues(alpha: 0.5),
@@ -46,7 +47,7 @@ class MobileResearchPrompt extends StatelessWidget {
                 borderRadius: const BorderRadius.all(
                     Radius.circular(Constants.defaultPadding)),
               ),
-              child: const Text("Join our Survey"),
+              child: const Text("Answer Survey"),
             ),
           ),
         ),
