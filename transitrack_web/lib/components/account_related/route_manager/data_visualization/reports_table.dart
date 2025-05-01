@@ -196,8 +196,8 @@ class _ReportsTableState extends State<ReportsTable> {
                       padding: const EdgeInsets.only(
                           bottom: Constants.defaultPadding),
                       dialogType: DialogType.noHeader,
-                      body:
-                          const CircularProgressIndicator(color: Colors.white),
+                      body: CircularProgressIndicator(
+                          color: Color(widget.route.routeColor)),
                       dismissOnBackKeyPress: false,
                       dismissOnTouchOutside: false,
                       autoHide: const Duration(milliseconds: 1000),
