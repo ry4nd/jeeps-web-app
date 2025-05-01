@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:transitrack_web/components/validated_form_field.dart';
 
 import '../../models/account_model.dart';
 import '../../style/constants.dart';
@@ -21,6 +22,12 @@ class AccountSettings extends StatelessWidget {
     final passwordController = TextEditingController();
     final confirmPasswordController = TextEditingController();
 
+    // focus node for forms
+    final nameFocusNode = FocusNode();
+    final emailFocusNode = FocusNode();
+    final passwordFocusNode = FocusNode();
+    final confirmPasswordFocusNode = FocusNode();
+
     nameController.text = account.account_name;
     emailController.text = user.email!;
 
@@ -38,6 +45,51 @@ class AccountSettings extends StatelessWidget {
           });
     }
 
+    // Validator for name
+    String? validateName(String? name) {
+      if (name == null) {
+        return null;
+      }
+      if (name.length < 3 || name.length > 12) {
+        return 'Name should be 3-12 characters';
+      }
+      return null; // Valid input
+    }
+
+    // Validator for email
+    String? validateEmail(String? email) {
+      if (email == null) {
+        return null;
+      }
+      if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(email) && email.isNotEmpty) {
+        return 'Enter a valid email address';
+      }
+      return null; // Valid input
+    }
+
+    // Validator for password
+    String? validatePassword(String? password) {
+      if (password == null) {
+        return null;
+      }
+      if (password.length < 6 && password.isNotEmpty) {
+        return 'Password must be at least 6 characters long';
+      }
+      return null; // Valid input
+    }
+
+    // Validator for confirm password
+    String? validateConfirmPassword(String? confirmPassword) {
+      if (confirmPassword == null) {
+        return null;
+      }
+      if (confirmPassword != passwordController.text &&
+          confirmPassword.isNotEmpty) {
+        return 'Passwords do not match';
+      }
+      return null; // Valid input
+    }
+
     void update() async {
       // show loading circle
       showDialog(
@@ -47,7 +99,29 @@ class AccountSettings extends StatelessWidget {
           });
 
       try {
-        // check if password is confirmed
+        // Validate name
+        if (validateName(nameController.text) != null) {
+          Navigator.pop(context); // Pop loading circle
+          errorMessage(validateName(nameController.text)!);
+          return;
+        }
+
+        // Validate password
+        if (passwordController.text.isNotEmpty &&
+            validatePassword(passwordController.text) != null) {
+          Navigator.pop(context); // Pop loading circle
+          errorMessage(validatePassword(passwordController.text)!);
+          return;
+        }
+
+        // Check if passwords match
+        if (passwordController.text != confirmPasswordController.text) {
+          Navigator.pop(context); // Pop loading circle
+          errorMessage("Passwords don't match!");
+          return;
+        }
+
+        // Update name if changed
         if (nameController.text != account.account_name) {
           Map<String, dynamic> newAccountSettings = {
             'account_name': nameController.text,
@@ -98,25 +172,37 @@ class AccountSettings extends StatelessWidget {
             ],
           ),
           const SizedBox(height: Constants.defaultPadding),
-          InputTextField(
+          ValidatedFormField(
             controller: emailController,
             hintText: "Email",
             obscureText: false,
-            enabled: false,
+            focusNode: emailFocusNode,
+            validator: validateEmail,
           ),
           const SizedBox(height: Constants.defaultPadding),
-          InputTextField(
-              controller: nameController, hintText: "Name", obscureText: false),
+          ValidatedFormField(
+            controller: nameController,
+            hintText: "Name",
+            obscureText: false,
+            focusNode: nameFocusNode,
+            validator: validateName,
+          ),
           const SizedBox(height: Constants.defaultPadding),
-          InputTextField(
-              controller: passwordController,
-              hintText: "Password",
-              obscureText: true),
+          ValidatedFormField(
+            controller: passwordController,
+            hintText: "Password",
+            obscureText: true,
+            focusNode: passwordFocusNode,
+            validator: validatePassword,
+          ),
           const SizedBox(height: Constants.defaultPadding),
-          InputTextField(
-              controller: confirmPasswordController,
-              hintText: "Confirm Password",
-              obscureText: true),
+          ValidatedFormField(
+            controller: confirmPasswordController,
+            hintText: "Confirm Password",
+            obscureText: true,
+            focusNode: confirmPasswordFocusNode,
+            validator: validateConfirmPassword,
+          ),
           const SizedBox(height: Constants.defaultPadding),
           const SizedBox(height: Constants.defaultPadding / 2),
           const PrimaryText(

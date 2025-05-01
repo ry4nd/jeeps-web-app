@@ -301,7 +301,8 @@ class _MobileRouteInfoState extends State<MobileRouteInfo> {
                                       )),
                                 ),
                                 Column(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
                                       // Text(

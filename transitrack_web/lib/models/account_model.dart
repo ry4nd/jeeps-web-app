@@ -19,19 +19,17 @@ class AccountData {
   int route_id;
   String?
       jeep_driving; // Used for Driver Accounts. If this is empty (""), it means the driver account is currently not operating.
-  bool
-      show_discounted; // Used to set if we show the discounted or regular fare when there is an account logged in.
 
-  AccountData(
-      {required this.account_email,
-      required this.account_name,
-      required this.account_type,
-      required this.is_verified,
-      required this.route_id,
-      required this.account_id,
-      required this.account_banned,
-      this.jeep_driving,
-      required this.show_discounted});
+  AccountData({
+    required this.account_email,
+    required this.account_name,
+    required this.account_type,
+    required this.is_verified,
+    required this.route_id,
+    required this.account_id,
+    required this.account_banned,
+    this.jeep_driving,
+  });
 
   factory AccountData.fromSnapshot(DocumentSnapshot<Object?> snapshot,
       {bool isCommuterVerified = false}) {
@@ -43,7 +41,6 @@ class AccountData {
     bool isVerified = data['is_verified'] as bool;
     int routeId = data['route_id'];
     String? jeepDriving = data['jeep_driving'];
-    bool showDiscounted = data['show_discounted'] ?? false;
     String accountId = snapshot.id;
     bool accountBanned = data['account_banned'];
 
@@ -58,7 +55,6 @@ class AccountData {
         is_verified: isVerified,
         route_id: routeId,
         jeep_driving: jeepDriving,
-        show_discounted: showDiscounted,
         account_id: accountId,
         account_banned: accountBanned);
   }

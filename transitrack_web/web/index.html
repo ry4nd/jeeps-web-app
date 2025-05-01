@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <!--
+
+<head>
+  <!--
     If you are serving your web app in a path other than the root, change the
     href value below to reflect the base path you are serving from.
 
@@ -14,50 +15,54 @@
     This is a placeholder for base href that will be replaced by the value of
     the `--base-href` argument provided to `flutter build`.
   -->
-    <base href="$FLUTTER_BASE_HREF" />
+  <base href="$FLUTTER_BASE_HREF" />
 
-    <meta charset="UTF-8" />
-    <meta content="IE=Edge" http-equiv="X-UA-Compatible" />
-    <meta name="description" content="A new Flutter project." />
+  <meta charset="UTF-8" />
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible" />
+  <meta name="description" content="A new Flutter project." />
 
-    <!-- iOS meta tags & icons -->
-    <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
-    <meta name="apple-mobile-web-app-title" content="transitrack_web" />
-    <link rel="apple-touch-icon" href="icons/Icon-192.png" />
+  <!-- iOS meta tags & icons -->
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <meta name="apple-mobile-web-app-title" content="transitrack_web" />
+  <link rel="apple-touch-icon" href="icons/Icon-192.png" />
 
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="favicon.png" />
-    <script src="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js"></script>
-    <link
-      href="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css"
-      rel="stylesheet"
-    />
-    <title>JeePS</title>
-    <link rel="manifest" href="manifest.json" />
-  </head>
-  <body>
-    <script src="flutter_bootstrap.js" async></script>
-    <script type="module">
-      // Import the functions you need from the SDKs you need
-      import { initializeApp } from "firebase/app";
-      // TODO: Add SDKs for Firebase products that you want to use
-      // https://firebase.google.com/docs/web/setup#available-libraries
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="favicon.png" />
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.11.0/mapbox-gl.js"></script>
+  <link href="https://api.mapbox.com/mapbox-gl-js/v3.11.0/mapbox-gl.css" rel="stylesheet" />
+  <style>
+    .mapboxgl-ctrl-logo {
+      display: none !important;
+    }
+  </style>
+  <title>JeePS</title>
+  <link rel="manifest" href="manifest.json" />
+</head>
 
-      // Your web app's Firebase configuration
-      const firebaseConfig = {
-        apiKey: "AIzaSyASPs4AdslYcA87HLxbJKOr-E6rxnQdg9I",
-        authDomain: "jeeps-v2.firebaseapp.com",
-        databaseURL:
-          "https://jeeps-v2-default-rtdb.asia-southeast1.firebasedatabase.app",
-        projectId: "jeeps-v2",
-        storageBucket: "jeeps-v2.firebasestorage.app",
-        messagingSenderId: "1077171518191",
-        appId: "1:1077171518191:web:ab3c3380051c6718b7b91a",
-      };
+<body>
+  <script src="flutter_bootstrap.js" async></script>
+  <script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "firebase/app";
+    // TODO: Add SDKs for Firebase products that you want to use
+    // https://firebase.google.com/docs/web/setup#available-libraries
 
-      // Initialize Firebase
-      const app = initializeApp(firebaseConfig);
-    </script>
-  </body>
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyASPs4AdslYcA87HLxbJKOr-E6rxnQdg9I",
+      authDomain: "jeeps-v2.firebaseapp.com",
+      databaseURL:
+        "https://jeeps-v2-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "jeeps-v2",
+      storageBucket: "jeeps-v2.firebasestorage.app",
+      messagingSenderId: "1077171518191",
+      appId: "1:1077171518191:web:ab3c3380051c6718b7b91a",
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+  </script>
+</body>
+
 </html>

@@ -11,14 +11,12 @@ class RouteListTile extends StatefulWidget {
   final RouteData route;
   final bool isSelected;
   final Function() hoverToggle;
-  final bool show_discounted;
-
-  const RouteListTile(
-      {super.key,
-      required this.route,
-      required this.isSelected,
-      required this.hoverToggle,
-      required this.show_discounted});
+  const RouteListTile({
+    super.key,
+    required this.route,
+    required this.isSelected,
+    required this.hoverToggle,
+  });
 
   @override
   State<RouteListTile> createState() => _RouteListTileState();
@@ -46,10 +44,6 @@ class _RouteListTileState extends State<RouteListTile> {
                 Text(formatTime(widget.route.routeTime),
                     style: const TextStyle(color: Colors.white54),
                     overflow: TextOverflow.ellipsis),
-                // Text(
-                //     "${widget.show_discounted ? widget.route.perKmRate : widget.route.routeFare} pesos",
-                //     style: const TextStyle(color: Colors.white54),
-                //     overflow: TextOverflow.ellipsis),
               ],
             ),
             selectedTileColor: Colors.white10,

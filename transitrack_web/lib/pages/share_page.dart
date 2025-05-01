@@ -412,11 +412,6 @@ class _SharePageState extends State<SharePage> {
                     route: routeChoice,
                   ),
                   const SizedBox(height: Constants.defaultPadding),
-                  MobileResearchPrompt(
-                    pin: () => setState(() {
-                      mobileTutorial = !mobileTutorial;
-                    }),
-                  ),
                   const SizedBox(height: Constants.defaultPadding)
                 ],
               ),
@@ -476,10 +471,6 @@ class _SharePageState extends State<SharePage> {
                               : "",
                           route: routeChoice,
                         ),
-                        // const SizedBox(
-                        //   height: Constants.defaultPadding,
-                        // ),
-                        // const DesktopResearchPrompt()
                       ],
                     ),
                   ),

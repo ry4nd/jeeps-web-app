@@ -4,7 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'package:transitrack_web/models/route_model.dart';
-import 'package:transitrack_web/components/signup_form_field.dart';
+import 'package:transitrack_web/components/validated_form_field.dart';
 
 import '../../models/account_model.dart';
 import '../../style/constants.dart';
@@ -98,9 +98,11 @@ class _SignupFormState extends State<SignupForm> {
       }
 
       // Validate name
-      if (nameController.text.isEmpty || nameController.text.length < 3) {
+      if (nameController.text.isEmpty ||
+          nameController.text.length < 3 ||
+          nameController.text.length > 12) {
         Navigator.pop(context); // Pop loading circle
-        errorMessage("Name should be at least 3 characters");
+        errorMessage("Name should be at 3-12 characters");
         return;
       }
 
@@ -135,7 +137,6 @@ class _SignupFormState extends State<SignupForm> {
           'route_id': routes!
               .firstWhere((element) => element.routeName == chosenRoute!)
               .routeId,
-          'show_discounted': false,
           'account_banned': false,
         });
 
@@ -189,8 +190,8 @@ class _SignupFormState extends State<SignupForm> {
     if (name == null) {
       return null;
     }
-    if (name.length < 3 && name.isNotEmpty) {
-      return 'Name should be at least 3 characters';
+    if (name.length < 3 || name.length > 12) {
+      return 'Name should be 3-12 characters';
     }
     return null; // Valid input
   }
@@ -252,7 +253,7 @@ class _SignupFormState extends State<SignupForm> {
               ],
             ),
             const SizedBox(height: Constants.defaultPadding),
-            SignupFormField(
+            ValidatedFormField(
               controller: emailController,
               hintText: "Email",
               obscureText: false,
@@ -260,7 +261,7 @@ class _SignupFormState extends State<SignupForm> {
               validator: validateEmail,
             ),
             const SizedBox(height: Constants.defaultPadding),
-            SignupFormField(
+            ValidatedFormField(
               controller: nameController,
               hintText: "Name",
               obscureText: false,
@@ -268,7 +269,7 @@ class _SignupFormState extends State<SignupForm> {
               validator: validateName,
             ),
             const SizedBox(height: Constants.defaultPadding),
-            SignupFormField(
+            ValidatedFormField(
               controller: passwordController,
               hintText: "Password",
               obscureText: true,
@@ -276,7 +277,7 @@ class _SignupFormState extends State<SignupForm> {
               validator: validatePassword,
             ),
             const SizedBox(height: Constants.defaultPadding),
-            SignupFormField(
+            ValidatedFormField(
               controller: confirmPasswordController,
               hintText: "Confirm Password",
               obscureText: true,

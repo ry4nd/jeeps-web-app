@@ -154,13 +154,14 @@ class _AccountStreamState extends State<AccountStream> {
                           children: [
                             Expanded(
                               child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Icon(Icons.account_box,
                                         color: Colors.white),
-                                    SizedBox(width: Constants.defaultPadding),
+                                    SizedBox(
+                                        width: Constants.defaultPadding / 3),
                                     Text(
-                                      'Login/Sign Up',
+                                      'Login',
                                       style: TextStyle(color: Colors.white),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
