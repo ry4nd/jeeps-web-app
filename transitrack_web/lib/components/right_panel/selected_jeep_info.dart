@@ -14,7 +14,7 @@ import '../../config/responsive.dart';
 import '../../style/constants.dart';
 import 'feedback_form.dart';
 
-import 'package:clipboard/clipboard.dart';
+import 'package:super_clipboard/super_clipboard.dart';
 
 // This widget displays relevant information of the PUV
 
@@ -227,10 +227,19 @@ class _SelectedJeepInfoBoxState extends State<SelectedJeepInfoBox> {
       final shareUrl = '${Uri.base.origin}/#/share?share_id=${docRef.id}';
       currentShareDocId = docRef.id;
 
-      await FlutterClipboard.copy(shareUrl);
+      final clipboard = SystemClipboard.instance;
+      if (clipboard != null) {
+        final item = DataWriterItem();
+        item.add(Formats.plainText(shareUrl));
+        await clipboard.write([item]);
 
-      if (context.mounted) {
-        message('Link Copied');
+        if (context.mounted) {
+          message('Link copied');
+        }
+      } else {
+        if (context.mounted) {
+          message('Not supported');
+        }
       }
     } else {
       // Stop sharing by updating Firestore
@@ -242,7 +251,7 @@ class _SelectedJeepInfoBoxState extends State<SelectedJeepInfoBox> {
       }
 
       currentShareDocId = null;
-      message('Sharing Stopped');
+      message('Sharing stopped');
     }
   }
 
