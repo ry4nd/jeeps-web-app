@@ -197,7 +197,9 @@ class _DesktopRouteInfoState extends State<DesktopRouteInfo> {
                 //     style: TextStyle(fontSize: 10)),
                 const SizedBox(width: Constants.defaultPadding / 3),
                 if (_gpsPermission)
-                  CooldownButton(
+                  Tooltip(
+                    message: "Wait a Ride", // Tooltip for CooldownButton
+                    child: CooldownButton(
                       onPressed: () async {
                         int result = await sendPing(widget.user!.account_email,
                             _myLocation!, _value.routeId);
@@ -216,21 +218,29 @@ class _DesktopRouteInfoState extends State<DesktopRouteInfo> {
                               height: 15,
                               child: CircularProgressIndicator(
                                 color: Constants.bgColor,
-                              ))),
-                if (!_gpsPermission)
-                  Container(
-                    width: 25,
-                    height: 25,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(50),
+                              ),
+                            ),
                     ),
-                    child: Center(
+                  ),
+                if (!_gpsPermission)
+                  Tooltip(
+                    message:
+                        "GPS permission is disabled", // Tooltip for GPS disabled icon
+                    child: Container(
+                      width: 25,
+                      height: 25,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(50),
+                      ),
+                      child: Center(
                         child: Icon(
-                      Icons.location_off,
-                      size: 15,
-                      color: Colors.red[600],
-                    )),
+                          Icons.location_off,
+                          size: 15,
+                          color: Colors.red[600],
+                        ),
+                      ),
+                    ),
                   ),
               ])
           ]),
