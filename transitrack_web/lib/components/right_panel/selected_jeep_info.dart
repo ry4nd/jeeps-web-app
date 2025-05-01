@@ -15,6 +15,7 @@ import '../../style/constants.dart';
 import 'feedback_form.dart';
 
 import 'package:flutter/services.dart';
+import 'package:transitrack_web/components/share_live_loc/clipboard_helper.dart';
 
 // This widget displays relevant information of the PUV
 
@@ -227,10 +228,15 @@ class _SelectedJeepInfoBoxState extends State<SelectedJeepInfoBox> {
       final shareUrl = '${Uri.base.origin}/#/share?share_id=${docRef.id}';
       currentShareDocId = docRef.id;
 
-      await Clipboard.setData(ClipboardData(text: shareUrl));
+      final clipboardHelper = ClipboardHelper();
+      final success = await clipboardHelper.copyTextToClipboard(shareUrl);
 
       if (context.mounted) {
-        message('Link copied');
+        if (success) {
+          message('Link copied');
+        } else {
+          message(shareUrl);
+        }
       }
     } else {
       // Stop sharing by updating Firestore
