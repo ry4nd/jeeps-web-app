@@ -230,7 +230,7 @@ class _SelectedJeepInfoBoxState extends State<SelectedJeepInfoBox> {
       await Clipboard.setData(ClipboardData(text: shareUrl));
 
       if (context.mounted) {
-        message('Copied Live Location Link');
+        message('Link copied');
       }
     } else {
       // Stop sharing by updating Firestore
@@ -242,7 +242,7 @@ class _SelectedJeepInfoBoxState extends State<SelectedJeepInfoBox> {
       }
 
       currentShareDocId = null;
-      message('Stopped Sharing Live Location');
+      message('Sharing stopped');
     }
   }
 
