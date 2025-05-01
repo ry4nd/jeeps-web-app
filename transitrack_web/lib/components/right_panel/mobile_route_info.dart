@@ -301,7 +301,8 @@ class _MobileRouteInfoState extends State<MobileRouteInfo> {
                                       )),
                                 ),
                                 Column(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
                                       // Text(
@@ -321,6 +322,8 @@ class _MobileRouteInfoState extends State<MobileRouteInfo> {
                                       //   overflow: TextOverflow.ellipsis,
                                       // ),
                                       FareMatrix(route: widget.route),
+                                      SizedBox(
+                                          height: Constants.defaultPadding / 2),
                                       Text(
                                         formatTime(_value.routeTime),
                                         style: const TextStyle(
