@@ -227,10 +227,15 @@ class _SelectedJeepInfoBoxState extends State<SelectedJeepInfoBox> {
       final shareUrl = '${Uri.base.origin}/#/share?share_id=${docRef.id}';
       currentShareDocId = docRef.id;
 
-      await Clipboard.setData(ClipboardData(text: shareUrl));
-
-      if (context.mounted) {
-        message('Copied Live Location Link');
+      try {
+        await Clipboard.setData(ClipboardData(text: shareUrl));
+        if (context.mounted) {
+          message('Link copied');
+        }
+      } catch (e) {
+        if (context.mounted) {
+          messageWithUrl('Copy and share this link', shareUrl);
+        }
       }
     } else {
       // Stop sharing by updating Firestore
@@ -242,7 +247,7 @@ class _SelectedJeepInfoBoxState extends State<SelectedJeepInfoBox> {
       }
 
       currentShareDocId = null;
-      message('Stopped Sharing Live Location');
+      message('Sharing stopped');
     }
   }
 
@@ -289,6 +294,28 @@ class _SelectedJeepInfoBoxState extends State<SelectedJeepInfoBox> {
                 style: const TextStyle(color: Colors.white),
               )));
         });
+  }
+
+  void messageWithUrl(String title, String url) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Constants.bgColor,
+          title: Center(
+            child: Text(
+              title,
+              style: const TextStyle(color: Colors.white),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          content: SelectableText(
+            url,
+            style: const TextStyle(color: Colors.white70),
+          ),
+        );
+      },
+    );
   }
 
   @override

@@ -167,7 +167,7 @@ class _SharePageState extends State<SharePage> {
             drivers = [];
             routeChoice = -1;
           });
-          errorMessage("The live share has ended.");
+          errorMessage("Live sharing ended");
           // Navigate back to home after delay
           Future.delayed(const Duration(seconds: 2), () {
             if (mounted) {

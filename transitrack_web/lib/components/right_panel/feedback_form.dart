@@ -266,12 +266,7 @@ class _FeedbackFormState extends State<FeedbackForm> {
                 const SizedBox(height: Constants.defaultPadding),
               ],
             ),
-          Button(
-            onTap: () => sendFeedback(),
-            text: _drivingRating + _jeepRating == 0
-                ? "Rate Driver or PUV"
-                : "Send Feedback for ${_drivingRating != 0 && _jeepRating != 0 ? "Driver and PUV" : _jeepRating != 0 ? "PUV" : "Driver"}",
-          ),
+          Button(onTap: () => sendFeedback(), text: "Submit"),
         ],
       ),
     );

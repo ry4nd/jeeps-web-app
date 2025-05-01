@@ -267,7 +267,7 @@ class _ReportFormState extends State<ReportForm> {
             ),
           Button(
             onTap: () => sendReport(),
-            text: "Send Report",
+            text: "Submit",
           ),
         ],
       ),
