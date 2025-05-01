@@ -68,7 +68,9 @@ class _RouteManagerOptionsState extends State<RouteManagerOptions> {
                         Icons.keyboard_backspace_outlined,
                       )),
                 if (selected == -1)
-                  GestureDetector(
+                  Tooltip(
+                    message: "Data Visualization", // Tooltip text
+                    child: GestureDetector(
                       onTap: () async {
                         AwesomeDialog(
                           dialogType: DialogType.noHeader,
@@ -78,7 +80,9 @@ class _RouteManagerOptionsState extends State<RouteManagerOptions> {
                           ),
                         ).show();
                       },
-                      child: const Icon(Icons.assessment_outlined))
+                      child: const Icon(Icons.assessment_outlined),
+                    ),
+                  ),
               ],
             ),
           if (selected != 1) const SizedBox(height: Constants.defaultPadding),
