@@ -234,7 +234,7 @@ class _SelectedJeepInfoBoxState extends State<SelectedJeepInfoBox> {
         }
       } catch (e) {
         if (context.mounted) {
-          messageWithUrl('Copy failed. Share this link manually:', shareUrl);
+          messageWithUrl('Copy and share this link', shareUrl);
         }
       }
     } else {
@@ -302,9 +302,12 @@ class _SelectedJeepInfoBoxState extends State<SelectedJeepInfoBox> {
       builder: (context) {
         return AlertDialog(
           backgroundColor: Constants.bgColor,
-          title: Text(
-            title,
-            style: const TextStyle(color: Colors.white),
+          title: Center(
+            child: Text(
+              title,
+              style: const TextStyle(color: Colors.white),
+              textAlign: TextAlign.center,
+            ),
           ),
           content: SelectableText(
             url,
