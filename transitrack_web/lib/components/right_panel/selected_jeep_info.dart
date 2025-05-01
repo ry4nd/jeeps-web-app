@@ -227,10 +227,15 @@ class _SelectedJeepInfoBoxState extends State<SelectedJeepInfoBox> {
       final shareUrl = '${Uri.base.origin}/#/share?share_id=${docRef.id}';
       currentShareDocId = docRef.id;
 
-      await Clipboard.setData(ClipboardData(text: shareUrl));
-
-      if (context.mounted) {
-        message('Link copied');
+      try {
+        await Clipboard.setData(ClipboardData(text: shareUrl));
+        if (context.mounted) {
+          message('Link copied');
+        }
+      } catch (e) {
+        if (context.mounted) {
+          messageWithUrl('Copy failed. Share this link manually:', shareUrl);
+        }
       }
     } else {
       // Stop sharing by updating Firestore
@@ -289,6 +294,25 @@ class _SelectedJeepInfoBoxState extends State<SelectedJeepInfoBox> {
                 style: const TextStyle(color: Colors.white),
               )));
         });
+  }
+
+  void messageWithUrl(String title, String url) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Constants.bgColor,
+          title: Text(
+            title,
+            style: const TextStyle(color: Colors.white),
+          ),
+          content: SelectableText(
+            url,
+            style: const TextStyle(color: Colors.white70),
+          ),
+        );
+      },
+    );
   }
 
   @override
